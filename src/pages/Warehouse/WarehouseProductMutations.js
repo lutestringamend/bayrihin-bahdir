@@ -3,7 +3,11 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSquarePlus } from "@fortawesome/free-regular-svg-icons";
+import {
+  faSquarePlus,
+  faShareSquare,
+  faMap,
+} from "@fortawesome/free-regular-svg-icons";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
@@ -12,6 +16,8 @@ import {
   getWarehouseStorageData,
 } from "../../parse/warehouse";
 import { createWarehouseProductMutationEntry } from "../../parse/warehouse/product_mutation";
+import { getWarehouseProductStoragesData } from "../../parse/warehouse/product_storage";
+import CardProductStorage from "../../components/card/CardProductStorage";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
@@ -34,6 +40,7 @@ function WarehouseProductMutations() {
 
   const [loading, setLoading] = useState(true);
   const [productList, setProductList] = useState([]);
+  const [productStorageList, setProductStorageList] = useState([]);
   const [storageList, setStorageList] = useState([]);
   const [modalData, setModalData] = useState(defaultModalData);
   const [modalErrors, setModalErrors] = useState(defaultModalErrors);
@@ -44,10 +51,12 @@ function WarehouseProductMutations() {
 
   let fetchData = async () => {
     setLoading(true);
-    const result = await getWarehouseProductMutationsData(params.id);
     const storageRes = await getWarehouseStorageData();
     setStorageList(storageRes);
+    const result = await getWarehouseProductMutationsData(params.id);
     setProductList(result);
+    const productStorageRes = await getWarehouseProductStoragesData(params.id);
+    setProductStorageList(productStorageRes);
     setLoading(false);
   };
 
@@ -123,18 +132,46 @@ function WarehouseProductMutations() {
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 className="h3 mb-0 text-gray-800">Catatan Mutasi Stok</h1>
-        <a
-          href="#"
-          className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-          onClick={() => setModalData({ ...defaultModalData, visible: true })}
-        >
-          <FontAwesomeIcon
-            icon={faSquarePlus}
-            style={{ marginRight: "0.25rem", color: "white" }}
-          />
-          Tambah Mutasi Stok
-        </a>
+        <div className="d-sm-flex flex-1 mb-0 align-items-center justify-content-between">
+          <a
+            href="#"
+            className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+            onClick={() => setModalData({ ...defaultModalData, visible: true })}
+          >
+            <FontAwesomeIcon
+              icon={faSquarePlus}
+              style={{ marginRight: "0.25rem", color: "white" }}
+            />
+            Tambah Mutasi
+          </a>
+          <a
+            href="#"
+            className="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm"
+          >
+            <FontAwesomeIcon
+              icon={faShareSquare}
+              style={{ marginRight: "0.25rem", color: "white" }}
+            />
+            Transfer
+          </a>
+        </div>
       </div>
+      {productStorageList?.length === undefined ||
+      productStorageList?.length < 1 ? null : (
+        <div className="row">
+          {productStorageList.map((item, index) => (
+            <CardProductStorage
+              key={index}
+              title={item?.warehouseStorage?.name}
+              balanceStock={item?.balanceStock}
+              balanceOnDelivery={item?.balanceOnDelivery}
+              numLots={item?.productLots?.length}
+              color="info"
+            />
+          ))}
+        </div>
+      )}
+
       <div className="card shadow mb-4">
         <div className="card-header py-3">
           <h6 className="m-0 font-weight-bold text-primary">
@@ -142,9 +179,9 @@ function WarehouseProductMutations() {
               ? productList[0]
                 ? productList[0]?.warehouseProduct?.name
                   ? productList[0]?.warehouseProduct?.name
-                  : ""
-                : ""
-              : ""}
+                  : `Mutasi Stok Produk id ${params.id}`
+                : `Mutasi Stok Produk id ${params.id}`
+              : `Mutasi Stok Produk id ${params.id}`}
           </h6>
         </div>
         <div className="card-body">
@@ -168,18 +205,22 @@ function WarehouseProductMutations() {
                   <tr>
                     <th>Tanggal</th>
                     <th>Gudang</th>
+                    <th>Lot</th>
                     <th>Jenis</th>
                     <th>Mutasi</th>
-                    <th>Saldo Akhir</th>
+                    <th>Saldo<br />Stock</th>
+                    <th>Saldo<br />Delivery</th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
                     <th>Tanggal</th>
                     <th>Gudang</th>
+                    <th>Lot</th>
                     <th>Jenis</th>
                     <th>Mutasi</th>
-                    <th>Saldo Akhir</th>
+                    <th>Saldo<br />Stock</th>
+                    <th>Saldo<br />Delivery</th>
                   </tr>
                 </tfoot>
                 <tbody>
@@ -188,18 +229,30 @@ function WarehouseProductMutations() {
                       <tr key={index}>
                         <td>{new Date(p.createdAt).toLocaleString("id-ID")}</td>
                         <td>
-                          {p.warehouseStorage?.name
-                            ? p.warehouseStorage?.name
+                          {p?.warehouseStorage?.name
+                              ? p?.warehouseStorage
+                                  ?.name
+                            : ""}
+                        </td>
+                        <td>
+                          {p?.warehouseProductLot
+                            ? p?.warehouseProductLot?.name
                             : ""}
                         </td>
                         <td>{p.type}</td>
                         <td>
-                          {p.value < 0 ? `(${Math.abs(p.value)})` : p.value}
+                          {p?.numInbound ? 
+                            <p>{p.numInbound}</p>
+                          : null}
+                          {p?.numOutbound ? 
+                            <p>{`(${p.numOutbound})`}</p>
+                          : null}
                         </td>
                         <td>
-                          {p.balance < 0
-                            ? `(${Math.abs(p.balance)})`
-                            : p.balance}
+                          {p.balanceStock}
+                        </td>
+                        <td>
+                          {p.balanceOnDelivery}
                         </td>
                       </tr>
                     );

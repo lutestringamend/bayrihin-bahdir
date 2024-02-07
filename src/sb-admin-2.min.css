@@ -9278,6 +9278,12 @@ a:focus {
 .text-gray-900 {
   color: #3a3b45 !important;
 }
+.text-blue-800 {
+  color: #4e73df !important;
+}
+.text-red-800 {
+  color: #e74a3b !important;
+}
 .icon-circle {
   height: 2.5rem;
   width: 2.5rem;

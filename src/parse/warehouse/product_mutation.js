@@ -15,8 +15,7 @@ export const createWarehouseProductMutationEntry = async (
       objectId: warehouseProductId,
     });
     const res = await query.first();
-    if (!res) return false;
-    let nowBalance = res.get("balance") + value;
+    let nowBalance = res ? res.get("balance") + value : value;
 
     let item = new Parse.Object("warehouse_product_mutations");
     item.set("warehouseProduct", {

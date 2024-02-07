@@ -97,7 +97,7 @@ function WarehouseStorages() {
   return (
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 className="h3 mb-0 text-gray-800">Daftar Storage</h1>
+        <h1 className="h3 mb-0 text-gray-800">Daftar Region</h1>
         <a
           href="#"
           className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
@@ -112,7 +112,7 @@ function WarehouseStorages() {
       </div>
       <div className="card shadow mb-4">
         <div className="card-header py-3">
-          <h6 className="m-0 font-weight-bold text-primary">Gudang Aktif</h6>
+          <h6 className="m-0 font-weight-bold text-primary">Region Aktif</h6>
         </div>
         <div className="card-body">
           {loading ? (

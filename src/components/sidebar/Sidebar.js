@@ -1,4 +1,4 @@
-import { faFaceLaughWink, faTachographDigital, faUsers } from '@fortawesome/free-solid-svg-icons'
+import {faWarehouse, faTachographDigital, faUsers } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import { Link } from 'react-router-dom'
@@ -23,7 +23,7 @@ function Sidebar() {
 
             <li className="nav-item active">
                 <Link className="nav-link" to="/portal/warehouse">
-                    <FontAwesomeIcon icon={faTachographDigital} style={{ marginRight: "0.5rem" }} />
+                    <FontAwesomeIcon icon={faWarehouse} style={{ marginRight: "0.5rem" }} />
                     <span>Warehouse</span>
                 </Link>
             </li>

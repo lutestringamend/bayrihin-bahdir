@@ -161,7 +161,7 @@ function WarehouseProducts() {
                     <th>Catalog No</th>
                     <th>Nama</th>
                     <th>Tipe</th>
-                    <th>Saldo Akhir</th>
+                    <th>Saldo Stok</th>
                     <th>Aksi</th>
                   </tr>
                 </thead>
@@ -170,7 +170,7 @@ function WarehouseProducts() {
                     <th>Catalog No</th>
                     <th>Nama</th>
                     <th>Tipe</th>
-                    <th>Saldo Akhir</th>
+                    <th>Saldo Stok</th>
                     <th>Aksi</th>
                   </tr>
                 </tfoot>

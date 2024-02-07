@@ -43,11 +43,11 @@ function WarehouseMain() {
             target="/portal/warehouse-products"
           title="Products"
           value={stats?.products}
-          color="info"
+          color="primary"
         />
         <ButtonModuleMain
           target="/portal/warehouse-storages"
-          title="Storages"
+          title="Regions"
           value={stats?.storages}
           color="info"
         />

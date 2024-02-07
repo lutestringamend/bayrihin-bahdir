@@ -52,6 +52,8 @@ export const getWarehouseProductMutationsData = async (warehouseProductId) => {
     const query = new Parse.Query("warehouse_product_mutations");
     query.limit(999999);
     query.descending("createdAt");
+    query.include("warehouseStorage");
+    query.include("warehouseProductLot")
     if (warehouseProductId) {
       query.equalTo("warehouseProduct", {
         __type: "Pointer",
@@ -59,12 +61,34 @@ export const getWarehouseProductMutationsData = async (warehouseProductId) => {
         objectId: warehouseProductId,
       });
     }
-    query.include("warehouseStorage");
     const res = await query.find();
     for (let r of res) {
       result.push(r.toJSON());
     }
-    console.log("mutations", result);
+  } catch (e) {
+    console.error(e);
+  }
+  console.log("product mutation", warehouseProductId, result);
+  return result;
+};
+
+export const getWarehouseProductLotsData = async (warehouseProductId) => {
+  let result = [];
+  try {
+    const query = new Parse.Query("warehouse_product_lots");
+    query.limit(999999);
+    query.descending("createdAt");
+    if (warehouseProductId) {
+      query.equalTo("warehouseProduct", {
+        __type: "Pointer",
+        className: "warehouse_products",
+        objectId: warehouseProductId,
+      });
+    }
+    const res = await query.find();
+    for (let r of res) {
+      result.push(r.toJSON());
+    }
   } catch (e) {
     console.error(e);
   }
@@ -95,7 +119,6 @@ export const getWarehouseStorageData = async () => {
     for (let r of resStorages) {
       result.push(r.toJSON());
     }
-    console.log(result);
   } catch (e) {
     console.error(e);
   }
