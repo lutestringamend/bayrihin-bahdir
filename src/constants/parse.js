@@ -1,0 +1,2 @@
+export const DEV_PARSE_APP_ID = "VsmjHwIgpuTuTId0T6jCqkQgSTYtQT9hTalushNX"
+export const DEV_PARSE_JS_KEY = "efwVU0NiCFHy6KDbzid3n93QiOsoUXyDEuVCsPJ1"
