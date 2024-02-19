@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSquarePlus,
   faShareSquare,
+  faArrowAltCircleUp,
   faMap,
 } from "@fortawesome/free-regular-svg-icons";
 import Button from "react-bootstrap/Button";
@@ -14,10 +15,15 @@ import Modal from "react-bootstrap/Modal";
 import {
   getWarehouseProductMutationsData,
   getWarehouseStorageData,
+  getWarehouseProductLotsData,
 } from "../../parse/warehouse";
-import { createWarehouseProductMutationEntry } from "../../parse/warehouse/product_mutation";
+import {
+  createNewWarehouseProductMutation,
+  transferWarehouseProduct,
+} from "../../parse/warehouse/product_mutation";
 import { getWarehouseProductStoragesData } from "../../parse/warehouse/product_storage";
 import CardProductStorage from "../../components/card/CardProductStorage";
+import { WarehouseProductMutationTypes } from "../../constants/warehouse_product_mutations";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
@@ -26,13 +32,32 @@ const defaultModalData = {
   loading: false,
   objectId: null,
   warehouseStorage: null,
+  warehouseProductLot: null,
+  newWarehouseProductLotName: "",
+  newProductLot: false,
   type: "",
+  value: "",
+};
+const defaultTransferModalData = {
+  visible: false,
+  loading: false,
+  objectId: null,
+  warehouseStorage: null,
+  destinationWarehouseStorage: null,
+  warehouseProductLot: null,
   value: "",
 };
 const defaultModalErrors = {
   warehouseStorage: "",
+  destinationWarehouseStorage: "",
+  warehouseProductLot: "",
   type: "",
   value: "",
+};
+
+const defaultModalBalances = {
+  balanceStock: null,
+  balanceOnDelivery: null,
 };
 
 function WarehouseProductMutations() {
@@ -42,12 +67,79 @@ function WarehouseProductMutations() {
   const [productList, setProductList] = useState([]);
   const [productStorageList, setProductStorageList] = useState([]);
   const [storageList, setStorageList] = useState([]);
+  const [productLotList, setProductLotList] = useState([]);
+
   const [modalData, setModalData] = useState(defaultModalData);
   const [modalErrors, setModalErrors] = useState(defaultModalErrors);
+  const [modalBalances, setModalBalances] = useState(defaultModalBalances);
+
+  const [transferModalData, setTransferModalData] = useState(
+    defaultTransferModalData,
+  );
+  const [transferStorageList, setTransferStorageList] = useState([]);
 
   useEffect(() => {
     fetchData();
   }, [params.id]);
+
+  useEffect(() => {
+    if (
+      modalData.warehouseStorage === null ||
+      modalData.warehouseProductLot === null ||
+      modalData.newProductLot
+    ) {
+      setModalBalances(defaultModalBalances);
+      return;
+    }
+
+    fetchProductStorageBalancesData(
+      modalData?.warehouseStorage,
+      modalData?.warehouseProductLot,
+    );
+  }, [
+    modalData.warehouseStorage,
+    modalData.warehouseProductLot,
+    modalData.newProductLot,
+  ]);
+
+  useEffect(() => {
+    if (
+      storageList?.length === undefined ||
+      storageList?.length < 1 ||
+      transferModalData.warehouseStorage === null
+    ) {
+      setTransferStorageList([]);
+      return;
+    }
+    try {
+      let newArray = [];
+      for (let s of storageList) {
+        if (s?.objectId !== transferModalData.warehouseStorage) {
+          newArray.push(s);
+        }
+      }
+      setTransferStorageList(newArray);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [transferModalData.warehouseStorage]);
+
+  useEffect(() => {
+    if (
+      transferModalData.warehouseStorage === null ||
+      transferModalData.warehouseProductLot === null
+    ) {
+      return;
+    }
+
+    fetchProductStorageBalancesData(
+      transferModalData?.warehouseStorage,
+      transferModalData?.warehouseProductLot,
+    );
+  }, [
+    transferModalData.warehouseStorage,
+    transferModalData.warehouseProductLot,
+  ]);
 
   let fetchData = async () => {
     setLoading(true);
@@ -57,13 +149,34 @@ function WarehouseProductMutations() {
     setProductList(result);
     const productStorageRes = await getWarehouseProductStoragesData(params.id);
     setProductStorageList(productStorageRes);
+    const productLotRes = await getWarehouseProductLotsData(params.id);
+    setProductLotList(productLotRes);
     setLoading(false);
   };
 
-  const setModalStorage = (id) => {
-    let warehouseStorage = storageList.find(({ objectId }) => id === objectId);
-    if (!(warehouseStorage === undefined || warehouseStorage === null)) {
-      setModalData({ ...modalData, warehouseStorage });
+  const fetchProductStorageBalancesData = async (
+    warehouseStorageId,
+    warehouseProductLotId,
+  ) => {
+    const productStorageRes = await getWarehouseProductStoragesData(
+      params.id,
+      warehouseStorageId,
+      warehouseProductLotId,
+    );
+    if (
+      productStorageRes === undefined ||
+      productStorageRes?.length === undefined ||
+      productStorageRes?.length < 1
+    ) {
+      setModalBalances({
+        balanceStock: 0,
+        balanceOnDelivery: 0,
+      });
+    } else {
+      setModalBalances({
+        balanceStock: productStorageRes[0]?.balanceStock,
+        balanceOnDelivery: productStorageRes[0]?.balanceOnDelivery,
+      });
     }
   };
 
@@ -79,18 +192,30 @@ function WarehouseProductMutations() {
         }
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };*/
 
   const saveModalData = async () => {
     let newErrors = defaultModalErrors;
     let isComplete = true;
+
     if (modalData?.warehouseStorage === null) {
       isComplete = false;
       newErrors = {
         ...newErrors,
         warehouseStorage: "Isian Gudang wajib diisi",
+      };
+    }
+    if (
+      (!modalData?.newProductLot && modalData?.warehouseProductLot === null) ||
+      (modalData?.newProductLot &&
+        modalData?.newWarehouseProductLotName?.length < 3)
+    ) {
+      isComplete = false;
+      newErrors = {
+        ...newErrors,
+        warehouseStorage: "Isian Lot Produk wajib diisi",
       };
     }
     if (modalData?.type === "" || modalData?.type?.length < 3) {
@@ -99,19 +224,37 @@ function WarehouseProductMutations() {
     }
     if (modalData?.value === "" || isNaN(parseInt(modalData?.value))) {
       isComplete = false;
-      newErrors = { ...newErrors, value: "Isikan angka nilai dengan benar" };
+      newErrors = { ...newErrors, value: "Isikan angka yang benar" };
     }
-    console.log("newErrors", newErrors);
+    if (
+      !modalData?.newProductLot &&
+      ((modalData.type === WarehouseProductMutationTypes[1] &&
+        modalBalances.balanceStock < modalData.value) ||
+        (modalData.type === WarehouseProductMutationTypes[2] &&
+          modalBalances.balanceOnDelivery < modalData.value))
+    ) {
+      isComplete = false;
+      newErrors = { ...newErrors, value: "Angka melebihi maksimal" };
+    }
+    //console.log("new mutation", modalData, newErrors);
     setModalErrors(newErrors);
 
     if (isComplete) {
       setModalData({ ...modalData, loading: true });
-      let result = await createWarehouseProductMutationEntry(
-        params.id,
-        modalData?.warehouseStorage?.objectId,
-        modalData?.type,
-        parseInt(modalData?.value),
-      );
+
+      const body = {
+        warehouseStorageId: modalData?.warehouseStorage,
+        warehouseProductId: params.id,
+        warehouseProductLotId: modalData?.newProductLot
+          ? null
+          : modalData?.warehouseProductLot,
+        type: modalData?.type,
+        num: parseInt(modalData?.value),
+        newWarehouseProductLotName: modalData?.newProductLot
+          ? modalData?.newWarehouseProductLotName
+          : null,
+      };
+      let result = await createNewWarehouseProductMutation(body);
       if (result) {
         fetchData();
         setModalData(defaultModalData);
@@ -121,10 +264,88 @@ function WarehouseProductMutations() {
     }
   };
 
+  const saveTransferModalData = async () => {
+    let newErrors = defaultModalErrors;
+    let isComplete = true;
+
+    if (transferModalData?.warehouseStorage === null) {
+      isComplete = false;
+      newErrors = {
+        ...newErrors,
+        warehouseStorage: "Isian Gudang Asal wajib diisi",
+      };
+    }
+    if (transferModalData?.destinationWarehouseStorage === null) {
+      isComplete = false;
+      newErrors = {
+        ...newErrors,
+        destinationWarehouseStorage: "Isian Gudang Tujuan wajib diisi",
+      };
+    }
+    if (transferModalData?.warehouseProductLot === null) {
+      isComplete = false;
+      newErrors = {
+        ...newErrors,
+        warehouseStorage: "Isian Lot Produk wajib diisi",
+      };
+    }
+    if (
+      transferModalData?.value === "" ||
+      isNaN(parseInt(transferModalData?.value))
+    ) {
+      isComplete = false;
+      newErrors = { ...newErrors, value: "Isikan angka yang benar" };
+    }
+    if (modalBalances.balanceStock < transferModalData.value) {
+      isComplete = false;
+      newErrors = { ...newErrors, value: "Angka melebihi maksimal" };
+    }
+    //console.log("new transfer", transferModalData, newErrors);
+    setModalErrors(newErrors);
+
+    if (isComplete) {
+      setTransferModalData({ ...transferModalData, loading: true });
+      let result = await transferWarehouseProduct(
+        transferModalData?.warehouseStorage,
+        transferModalData?.destinationWarehouseStorage,
+        params.id,
+        transferModalData?.warehouseProductLot,
+        parseInt(transferModalData?.value),
+      );
+      if (result) {
+        fetchData();
+        setTransferModalData(defaultTransferModalData);
+      } else {
+        setTransferModalData({ ...transferModalData, loading: false });
+      }
+    }
+  };
+
+  const openNewMutationModal = () => {
+    setModalBalances(defaultModalBalances);
+    setModalErrors(defaultModalErrors);
+    setModalData({ ...defaultModalData, visible: true });
+  };
+
   const closeModal = () => {
     if (!modalData?.loading) {
+      setModalBalances(defaultModalBalances);
       setModalErrors(defaultModalErrors);
       setModalData(defaultModalData);
+    }
+  };
+
+  const openNewTransferModal = () => {
+    setModalBalances(defaultModalBalances);
+    setModalErrors(defaultModalErrors);
+    setTransferModalData({ ...defaultTransferModalData, visible: true });
+  };
+
+  const closeTransferModal = () => {
+    if (!transferModalData?.loading) {
+      setModalBalances(defaultModalBalances);
+      setModalErrors(defaultModalErrors);
+      setTransferModalData(defaultTransferModalData);
     }
   };
 
@@ -136,7 +357,7 @@ function WarehouseProductMutations() {
           <a
             href="#"
             className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-            onClick={() => setModalData({ ...defaultModalData, visible: true })}
+            onClick={() => openNewMutationModal()}
           >
             <FontAwesomeIcon
               icon={faSquarePlus}
@@ -147,6 +368,7 @@ function WarehouseProductMutations() {
           <a
             href="#"
             className="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm"
+            onClick={() => openNewTransferModal()}
           >
             <FontAwesomeIcon
               icon={faShareSquare}
@@ -208,8 +430,16 @@ function WarehouseProductMutations() {
                     <th>Lot</th>
                     <th>Jenis</th>
                     <th>Mutasi</th>
-                    <th>Saldo<br />Stock</th>
-                    <th>Saldo<br />Delivery</th>
+                    <th>
+                      Saldo
+                      <br />
+                      Stock
+                    </th>
+                    <th>
+                      Saldo
+                      <br />
+                      Delivery
+                    </th>
                   </tr>
                 </thead>
                 <tfoot>
@@ -219,8 +449,16 @@ function WarehouseProductMutations() {
                     <th>Lot</th>
                     <th>Jenis</th>
                     <th>Mutasi</th>
-                    <th>Saldo<br />Stock</th>
-                    <th>Saldo<br />Delivery</th>
+                    <th>
+                      Saldo
+                      <br />
+                      Stock
+                    </th>
+                    <th>
+                      Saldo
+                      <br />
+                      Delivery
+                    </th>
                   </tr>
                 </tfoot>
                 <tbody>
@@ -230,8 +468,7 @@ function WarehouseProductMutations() {
                         <td>{new Date(p.createdAt).toLocaleString("id-ID")}</td>
                         <td>
                           {p?.warehouseStorage?.name
-                              ? p?.warehouseStorage
-                                  ?.name
+                            ? p?.warehouseStorage?.name
                             : ""}
                         </td>
                         <td>
@@ -239,21 +476,41 @@ function WarehouseProductMutations() {
                             ? p?.warehouseProductLot?.name
                             : ""}
                         </td>
-                        <td>{p.type}</td>
                         <td>
-                          {p?.numInbound ? 
-                            <p>{p.numInbound}</p>
-                          : null}
-                          {p?.numOutbound ? 
-                            <p>{`(${p.numOutbound})`}</p>
-                          : null}
+                          <div
+                            className={
+                              p?.numOutbound > 0
+                                ? p?.type === "Transfer Out"
+                                  ? "text-dark-yellow"
+                                  : "text-danger"
+                                : p?.type === "Transfer In"
+                                  ? "text-success"
+                                  : "text-primary"
+                            }
+                          >
+                            {p.type}
+                          </div>
                         </td>
                         <td>
-                          {p.balanceStock}
+                          <div
+                            className={
+                              p?.numOutbound > 0
+                                ? p?.type === "Transfer Out"
+                                  ? "text-dark-yellow"
+                                  : "text-danger"
+                                : p?.type === "Transfer In"
+                                  ? "text-success"
+                                  : "text-primary"
+                            }
+                          >
+                            {p?.numInbound ? <p>{p.numInbound}</p> : null}
+                            {p?.numOutbound ? (
+                              <p>{`(${p.numOutbound})`}</p>
+                            ) : null}
+                          </div>
                         </td>
-                        <td>
-                          {p.balanceOnDelivery}
-                        </td>
+                        <td>{p.balanceStock}</td>
+                        <td>{p.balanceOnDelivery}</td>
                       </tr>
                     );
                   })}
@@ -263,6 +520,7 @@ function WarehouseProductMutations() {
           )}
         </div>
       </div>
+
       <Modal show={modalData?.visible} onHide={() => closeModal()}>
         <Modal.Header closeButton>
           <Modal.Title>
@@ -277,7 +535,9 @@ function WarehouseProductMutations() {
           </p>
           <div className="row">
             <div className="col-lg-10">
-              <label>Gudang</label>
+              <label>
+                <b>Gudang</b>
+              </label>
               <select
                 name="warehouseStorage"
                 value={
@@ -285,7 +545,12 @@ function WarehouseProductMutations() {
                     ? modalData?.warehouseStorage?.objectId
                     : ""
                 }
-                onChange={(e) => setModalStorage(e.target.value)}
+                onChange={(e) =>
+                  setModalData({
+                    ...modalData,
+                    warehouseStorage: e.target.value,
+                  })
+                }
                 className={`form-control ${
                   modalErrors.warehouseStorage ? "is-invalid" : ""
                 } `}
@@ -306,28 +571,117 @@ function WarehouseProductMutations() {
           </div>
           <div className="row">
             <div className="col-lg-10">
-              <label>Jenis</label>
-              <input
+              <label>
+                <b>Lot Produk</b>
+              </label>{" "}
+              <a
+                href="#"
+                className="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm ml-10"
+                onClick={() =>
+                  setModalData((modalData) => ({
+                    ...modalData,
+                    newProductLot: !modalData.newProductLot,
+                  }))
+                }
+              >
+                <FontAwesomeIcon
+                  icon={faArrowAltCircleUp}
+                  style={{ marginRight: "0.25rem", color: "white" }}
+                />
+                {modalData?.newProductLot ? "Lot yang Ada" : "Lot Baru"}
+              </a>
+              {modalData.newProductLot ? (
+                <input
+                  name="newWarehouseProductLotName"
+                  placeholder="Isi lot produk baru"
+                  value={modalData?.newWarehouseProductLotName}
+                  onChange={(e) =>
+                    setModalData({
+                      ...modalData,
+                      newWarehouseProductLotName: e.target.value,
+                    })
+                  }
+                  type={"text"}
+                  className={`form-control ${
+                    modalErrors?.warehouseProductLot ? "is-invalid" : ""
+                  } `}
+                />
+              ) : (
+                <select
+                  name="warehouseProductLot"
+                  value={
+                    modalData?.warehouseProductLot
+                      ? modalData?.warehouseProductLot?.objectId
+                      : ""
+                  }
+                  onChange={(e) =>
+                    setModalData({
+                      ...modalData,
+                      warehouseProductLot: e.target.value,
+                    })
+                  }
+                  className={`form-control ${
+                    modalErrors.warehouseProductLot ? "is-invalid" : ""
+                  } `}
+                >
+                  <option value="">----Pilih----</option>
+                  {productLotList.map((item, index) => (
+                    <option key={index} value={item?.objectId}>
+                      {item?.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <span style={{ color: "red" }}>
+                {modalErrors?.warehouseProductLot}
+              </span>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Jenis</b>
+              </label>
+              <select
                 name="type"
-                placeholder="Stock, Display dll"
-                value={modalData?.type}
+                value={modalData?.type ? modalData?.type : ""}
                 onChange={(e) =>
                   setModalData({ ...modalData, type: e.target.value })
                 }
-                type={"text"}
                 className={`form-control ${
-                  modalErrors?.type ? "is-invalid" : ""
+                  modalErrors.type ? "is-invalid" : ""
                 } `}
-              />
+              >
+                <option value="">----Pilih----</option>
+                {modalData?.newProductLot ? (
+                  <option key={0} value={WarehouseProductMutationTypes[0]}>
+                    {WarehouseProductMutationTypes[0]}
+                  </option>
+                ) : (
+                  WarehouseProductMutationTypes.map((item, index) => (
+                    <option key={index} value={item}>
+                      {item}
+                    </option>
+                  ))
+                )}
+              </select>
               <span style={{ color: "red" }}>{modalErrors?.type}</span>
             </div>
           </div>
           <div className="row">
             <div className="col-lg-10">
-              <label>Angka</label>
+              <label>
+                <b>Angka</b>
+                {modalData?.warehouseStorage === null ||
+                modalData?.warehouseProductLot === null ||
+                modalBalances?.balanceStock === null ||
+                modalBalances?.balanceOnDelivery === null
+                  ? ""
+                  : `\n(Delivery Out maksimal ${modalBalances?.balanceStock}, Delivery In maksimal ${modalBalances?.balanceOnDelivery})`}
+              </label>
               <input
                 name="value"
-                placeholder="0 - 99"
+                placeholder="Isi dengan angka"
                 value={modalData?.value}
                 onChange={(e) =>
                   setModalData({ ...modalData, value: e.target.value })
@@ -356,7 +710,192 @@ function WarehouseProductMutations() {
             <Button variant="secondary" onClick={() => closeModal()}>
               Tutup
             </Button>
-            <Button variant="primary" onClick={() => saveModalData()}>
+            <Button
+              disabled={
+                (!modalData.newProductLot &&
+                  (modalBalances.balanceStock === null ||
+                    modalBalances.balanceOnDelivery === null)) ||
+                isNaN(modalData.value) ||
+                modalData.value < 1
+              }
+              variant="primary"
+              onClick={() => saveModalData()}
+            >
+              Simpan
+            </Button>
+          </Modal.Footer>
+        )}
+      </Modal>
+
+      <Modal
+        show={transferModalData?.visible}
+        onHide={() => closeTransferModal()}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Transfer Stock Antar Gudang</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Transfer stock produk sesuai lot antar gudang sebagai berikut.</p>
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Gudang Asal</b>
+              </label>
+              <select
+                name="warehouseStorage"
+                value={
+                  transferModalData?.warehouseStorage
+                    ? transferModalData?.warehouseStorage?.objectId
+                    : ""
+                }
+                onChange={(e) =>
+                  setTransferModalData({
+                    ...transferModalData,
+                    warehouseStorage: e.target.value,
+                  })
+                }
+                className={`form-control ${
+                  modalErrors.warehouseStorage ? "is-invalid" : ""
+                } `}
+              >
+                <option value="">----Pilih----</option>
+                {storageList?.length === undefined || storageList?.length < 1
+                  ? null
+                  : storageList.map((item, index) => (
+                      <option key={index} value={item?.objectId}>
+                        {item?.name}
+                      </option>
+                    ))}
+              </select>
+              <span style={{ color: "red" }}>
+                {modalErrors?.warehouseStorage}
+              </span>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Gudang Tujuan</b>
+              </label>
+              <select
+                name="destinationWarehouseStorage"
+                value={
+                  transferModalData?.destinationWarehouseStorage
+                    ? transferModalData?.destinationWarehouseStorage?.objectId
+                    : ""
+                }
+                onChange={(e) =>
+                  setTransferModalData({
+                    ...transferModalData,
+                    destinationWarehouseStorage: e.target.value,
+                  })
+                }
+                className={`form-control ${
+                  modalErrors.destinationWarehouseStorage ? "is-invalid" : ""
+                } `}
+              >
+                <option value="">----Pilih----</option>
+                {transferStorageList.map((item, index) => (
+                  <option key={index} value={item?.objectId}>
+                    {item?.name}
+                  </option>
+                ))}
+              </select>
+              <span style={{ color: "red" }}>
+                {modalErrors?.destinationWarehouseStorage}
+              </span>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Lot Produk</b>
+              </label>
+              <select
+                name="type"
+                value={
+                  transferModalData?.warehouseProductLot
+                    ? transferModalData?.warehouseProductLot?.objectId
+                    : ""
+                }
+                onChange={(e) =>
+                  setTransferModalData({
+                    ...transferModalData,
+                    warehouseProductLot: e.target.value,
+                  })
+                }
+                className={`form-control ${
+                  modalErrors.warehouseProductLot ? "is-invalid" : ""
+                } `}
+              >
+                <option value="">----Pilih----</option>
+                {productLotList.map((item, index) => (
+                  <option key={index} value={item?.objectId}>
+                    {item?.name}
+                  </option>
+                ))}
+              </select>
+              <span style={{ color: "red" }}>
+                {modalErrors?.warehouseProductLot}
+              </span>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Angka</b>
+                {transferModalData?.warehouseStorage === null ||
+                transferModalData?.warehouseProductLot === null ||
+                modalBalances?.balanceStock === null
+                  ? ""
+                  : `\n(maksimal ${modalBalances?.balanceStock})`}
+              </label>
+              <input
+                name="value"
+                placeholder="Isi dengan angka"
+                value={transferModalData?.value}
+                onChange={(e) =>
+                  setTransferModalData({
+                    ...transferModalData,
+                    value: e.target.value,
+                  })
+                }
+                type={"text"}
+                className={`form-control ${
+                  modalErrors?.value ? "is-invalid" : ""
+                } `}
+              />
+              <span style={{ color: "red" }}>{modalErrors?.value}</span>
+            </div>
+          </div>
+        </Modal.Body>
+        {transferModalData?.loading ? (
+          <Modal.Footer>
+            <FadeLoader
+              color="#4e73df"
+              loading={transferModalData?.loading}
+              size={12}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+          </Modal.Footer>
+        ) : (
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => closeTransferModal()}>
+              Tutup
+            </Button>
+            <Button
+              disabled={
+                modalBalances.balanceStock === null ||
+                isNaN(transferModalData.value) ||
+                transferModalData.value < 1
+              }
+              variant="primary"
+              onClick={() => saveTransferModalData()}
+            >
               Simpan
             </Button>
           </Modal.Footer>

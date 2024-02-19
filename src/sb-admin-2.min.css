@@ -8911,6 +8911,9 @@ a.text-secondary:focus,
 a.text-secondary:hover {
   color: #60616f !important;
 }
+.text-dark-yellow {
+  color: #ddae37 !important;
+}
 .text-success {
   color: #1cc88a !important;
 }

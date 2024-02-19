@@ -1,5 +1,61 @@
 import Parse from "parse/dist/parse.min.js";
 
+export const transferWarehouseProduct = async (
+  warehouseStorageId,
+        destinationWarehouseStorageId,
+        warehouseProductId,
+        warehouseProductLotId,
+        num,) => {
+  let error = null;
+  let result = null;
+  const params = {
+    warehouseStorageId,
+        destinationWarehouseStorageId,
+        warehouseProductId,
+        warehouseProductLotId,
+    num: parseInt(num),
+  }
+
+  console.log("transferWarehouseProduct", params);
+  try {
+    result = await Parse.Cloud.run("transferWarehouseProduct", params);
+  } catch (e) {
+    console.error(e);
+    error = e.toString();
+    alert(`Error! ${e.toString()}`);
+  }
+  
+  return {
+    result,
+    error
+  }
+}
+
+export const createNewWarehouseProductMutation = async (params) => {
+  let error = null;
+  let result = null;
+
+  console.log("createNewWarehouseProductMutation", {
+    ...params,
+    num: parseInt(params.num),
+  });
+  try {
+    result = await Parse.Cloud.run("createNewWarehouseProductMutation", {
+      ...params,
+      num: parseInt(params.num),
+    });
+  } catch (e) {
+    console.error(e);
+    error = e.toString();
+    alert(`Error! ${e.toString()}`);
+  }
+  
+  return {
+    result,
+    error
+  }
+}
+
 export const createWarehouseProductMutationEntry = async (
   warehouseProductId,
   warehouseStorageId,

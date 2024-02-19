@@ -1,6 +1,6 @@
 import Parse from "parse/dist/parse.min.js";
 
-export const getWarehouseProductStoragesData = async (warehouseProductId) => {
+export const getWarehouseProductStoragesData = async (warehouseProductId, warehouseStorageId, warehouseProductLotId) => {
     let result = [];
     try {
       const query = new Parse.Query("warehouse_product_storages");
@@ -15,6 +15,21 @@ export const getWarehouseProductStoragesData = async (warehouseProductId) => {
           objectId: warehouseProductId,
         });
       }
+      if (warehouseStorageId) {
+        query.equalTo("warehouseStorage", {
+          __type: "Pointer",
+          className: "warehouse_storages",
+          objectId: warehouseStorageId,
+        });
+      }
+      if (warehouseProductLotId) {
+        query.equalTo("warehouseProductLot", {
+          __type: "Pointer",
+          className: "warehouse_product_lots",
+          objectId: warehouseProductLotId,
+        });
+      }
+
       const res = await query.find();
       for (let r of res) {
         let item = r.toJSON();
