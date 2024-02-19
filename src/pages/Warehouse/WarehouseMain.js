@@ -20,6 +20,7 @@ function WarehouseMain() {
   let fetchData = async () => {
     setLoading(true);
     const result = await fetchWarehouseMainData();
+    console.log(result);
     setProductList(result?.productList);
     setStats(result?.stats);
     setLoading(false);
@@ -86,8 +87,8 @@ function WarehouseMain() {
                     <th>Catalog No</th>
                     <th>Tipe</th>
                     <th>Nama</th>
-                    <th>Saldo Akhir</th>
                     <th>Terakhir Update</th>
+                    <th>Aksi</th>
                   </tr>
                 </thead>
                 <tfoot>
@@ -95,8 +96,8 @@ function WarehouseMain() {
                   <th>Catalog No</th>
                     <th>Tipe</th>
                     <th>Nama</th>
-                    <th>Saldo Akhir</th>
                     <th>Terakhir Update</th>
+                    <th>Aksi</th>
                   </tr>
                 </tfoot>
                 <tbody>
@@ -112,19 +113,26 @@ function WarehouseMain() {
                             : ""}
                         </td>
                         <td>{p.name}</td>
-                        <th>
-                          <p>
-                            <Link
-                              to={`/portal/warehouse-product-mutations/${p.objectId}`}
-                              className="btn btn-info btn-sm mr-1"
-                            >
-                              {p.balance}
-                            </Link>
-                          </p>
-                        </th>
                         <td>
                             <p>{new Date(p.updatedAt).toLocaleString("id-ID")}</p>
                         </td>
+                        <th>
+                          <p>
+                          <Link
+                              to={`/portal/warehouse-product-mutations/${p.objectId}`}
+                              className="btn btn-primary btn-sm mr-1"
+                            >
+                              Mutasi
+                            </Link>
+                            <Link
+                              to={`/portal/warehouse-product-lots/${p.objectId}`}
+                              className="btn btn-info btn-sm mr-1"
+                            >
+                              Lot
+                            </Link>
+                          </p>
+                        </th>
+                        
                       </tr>
                     );
                   })}

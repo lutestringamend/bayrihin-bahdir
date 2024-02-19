@@ -18,6 +18,7 @@ import WarehouseProducts from './pages/Warehouse/WarehouseProducts';
 import WarehouseStorages from './pages/Warehouse/WarehouseStorages';
 import WarehouseTypes from './pages/Warehouse/WarehouseTypes';
 import WarehouseProductMutations from './pages/Warehouse/WarehouseProductMutations';
+import WarehouseProductLots from './pages/Warehouse/WarehouseProductLots';
 
 const PARSE_APPLICATION_ID = DEV_PARSE_APP_ID;
 const PARSE_HOST_URL = 'https://parseapi.back4app.com/';
@@ -41,6 +42,9 @@ function App() {
           <Route path='warehouse-storages' element={<WarehouseStorages />} />
           <Route path='warehouse-types' element={<WarehouseTypes />} />
           <Route path='warehouse-product-mutations/:id' element={<WarehouseProductMutations />} />
+          <Route path='warehouse-product-mutations/:id/:lotId' element={<WarehouseProductMutations />} />
+          <Route path='warehouse-product-lots/:id' element={<WarehouseProductLots />} />
+
           <Route path='user-list' element={<Userlist />} />
           <Route path='create-user' element={<UserCreate />} />
           <Route path='user-view/:id' element={<UserView />} />

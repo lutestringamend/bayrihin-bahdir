@@ -1,12 +1,16 @@
 import Parse from "parse/dist/parse.min.js";
 
-export const getWarehouseProductStoragesData = async (warehouseProductId, warehouseStorageId, warehouseProductLotId) => {
+export const getWarehouseProductStoragesData = async (warehouseProductId, warehouseStorageId, warehouseProductLotId, limit) => {
     let result = [];
     try {
       const query = new Parse.Query("warehouse_product_storages");
-      query.limit(999999);
-      query.include("warehouseStorage");
-      query.include("warehouseProductLot");
+      query.limit(limit ? limit : 999999);
+      if (limit) {
+        query.include("warehouseProduct");
+        query.include("warehouseProductLot");
+      } else {
+        query.include("warehouseStorage");
+      }
       query.descending("createdAt");
       if (warehouseProductId) {
         query.equalTo("warehouseProduct", {

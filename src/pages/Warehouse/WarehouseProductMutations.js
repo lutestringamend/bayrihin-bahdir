@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-//import { Link } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -62,12 +61,15 @@ const defaultModalBalances = {
 
 function WarehouseProductMutations() {
   const params = useParams();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [productList, setProductList] = useState([]);
   const [productStorageList, setProductStorageList] = useState([]);
   const [storageList, setStorageList] = useState([]);
+  const [filterStorageId, setFilterStorageId] = useState(null);
   const [productLotList, setProductLotList] = useState([]);
+  const [productLotData, setProductLotData] = useState(null);
 
   const [modalData, setModalData] = useState(defaultModalData);
   const [modalErrors, setModalErrors] = useState(defaultModalErrors);
@@ -80,7 +82,34 @@ function WarehouseProductMutations() {
 
   useEffect(() => {
     fetchData();
-  }, [params.id]);
+  }, [params]);
+
+  useEffect(() => {
+    if (filterStorageId === null) {
+      return;
+    }
+    fetchData();
+  }, [filterStorageId]);
+
+  useEffect(() => {
+    if (
+      !(
+        params?.lotId === undefined ||
+        params?.lotId === null ||
+        productLotList?.length === undefined ||
+        productLotList?.length < 1
+      )
+    ) {
+      const found = productLotList.find(
+        ({ objectId }) => objectId === params?.lotId,
+      );
+      if (found) {
+        setProductLotData(found);
+        return;
+      }
+    }
+    setProductLotData(null);
+  }, [productLotList]);
 
   useEffect(() => {
     if (
@@ -145,9 +174,18 @@ function WarehouseProductMutations() {
     setLoading(true);
     const storageRes = await getWarehouseStorageData();
     setStorageList(storageRes);
-    const result = await getWarehouseProductMutationsData(params.id);
+    //console.log("getWarehouseProductMutationsData", params.id, params.lotId);
+    const result = await getWarehouseProductMutationsData(
+      params.id,
+      params.lotId,
+      filterStorageId,
+    );
     setProductList(result);
-    const productStorageRes = await getWarehouseProductStoragesData(params.id);
+    const productStorageRes = await getWarehouseProductStoragesData(
+      params.id,
+      filterStorageId,
+      params.lotId,
+    );
     setProductStorageList(productStorageRes);
     const productLotRes = await getWarehouseProductLotsData(params.id);
     setProductLotList(productLotRes);
@@ -378,7 +416,40 @@ function WarehouseProductMutations() {
           </a>
         </div>
       </div>
-      {productStorageList?.length === undefined ||
+      <div className="d-sm-flex align-items-center justify-content-between mb-4">
+        <select
+          name="warehouseProductLot"
+          value={params.lotId}
+          onChange={(e) =>
+            navigate(
+              `/portal/warehouse-product-mutations/${params.id}/${e.target.value}`,
+            )
+          }
+          className="form-control"
+        >
+          <option value="">----Semua Lot Produk----</option>
+          {productLotList.map((item, index) => (
+            <option key={index} value={item?.objectId}>
+              {`Lot ${item?.name}`}
+            </option>
+          ))}
+        </select>
+
+        <select
+          name="warehouseProductStorage"
+          value={filterStorageId}
+          onChange={(e) => setFilterStorageId(e.target.value)}
+          className="form-control ml-20"
+        >
+          <option value="">----Semua Region----</option>
+          {storageList.map((item, index) => (
+            <option key={index} value={item?.objectId}>
+              {item?.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      {loading || productStorageList?.length === undefined ||
       productStorageList?.length < 1 ? null : (
         <div className="row">
           {productStorageList.map((item, index) => (
@@ -397,13 +468,16 @@ function WarehouseProductMutations() {
       <div className="card shadow mb-4">
         <div className="card-header py-3">
           <h6 className="m-0 font-weight-bold text-primary">
-            {productList
-              ? productList[0]
-                ? productList[0]?.warehouseProduct?.name
-                  ? productList[0]?.warehouseProduct?.name
-                  : `Mutasi Stok Produk id ${params.id}`
-                : `Mutasi Stok Produk id ${params.id}`
-              : `Mutasi Stok Produk id ${params.id}`}
+            {`${
+              productList[0] === undefined ||
+              productList[0]?.warehouseProduct === undefined
+                ? ""
+                : productList[0]?.warehouseProduct?.name
+            }${
+              productLotData === null || productLotData?.name === undefined
+                ? ""
+                : ` -- Lot ${productLotData?.name}`
+            }`}
           </h6>
         </div>
         <div className="card-body">
