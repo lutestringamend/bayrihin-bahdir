@@ -32,12 +32,23 @@ export const fetchWarehouseMainData = async () => {
   };
 };
 
-export const getWarehouseProductData = async (limit, sortDescendingBy) => {
+export const getWarehouseProductData = async (limit, sortDescendingBy, warehouseTypeId, sortAscendingBy) => {
   let result = [];
   try {
     const query = new Parse.Query("warehouse_products");
     query.limit(limit ? limit : 999999);
-    query.descending(sortDescendingBy ? sortDescendingBy : "updatedAt");
+    if (sortAscendingBy) {
+      query.ascending(sortAscendingBy);
+    } else {
+      query.descending(sortDescendingBy ? sortDescendingBy : "updatedAt");
+    }
+    if (warehouseTypeId) {
+      query.equalTo("warehouseType", {
+        __type: "Pointer",
+        className: "warehouse_types",
+        objectId: warehouseTypeId,
+      });
+    }
     query.include("warehouseType");
     const resProducts = await query.find();
     for (let r of resProducts) {
@@ -96,7 +107,7 @@ export const getWarehouseProductLotsData = async (warehouseProductId) => {
   try {
     const query = new Parse.Query("warehouse_product_lots");
     query.limit(999999);
-    query.descending("createdAt");
+    query.ascending("name");
     if (warehouseProductId) {
       query.equalTo("warehouseProduct", {
         __type: "Pointer",
@@ -114,11 +125,15 @@ export const getWarehouseProductLotsData = async (warehouseProductId) => {
   return result;
 };
 
-export const getWarehouseTypeData = async () => {
+export const getWarehouseTypeData = async (category) => {
   let result = [];
   try {
     const queryType = new Parse.Query("warehouse_types");
-    queryType.ascending("createdAt");
+    queryType.ascending("name");
+    if (parseInt(category) > 0) {
+      queryType.equalTo("category", parseInt(category));
+    }
+    queryType.limit(99);
     const resTypes = await queryType.find();
     for (let r of resTypes) {
       result.push(r.toJSON());

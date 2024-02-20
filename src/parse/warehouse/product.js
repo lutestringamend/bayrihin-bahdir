@@ -4,6 +4,7 @@ export const postWarehouseProductItem = async (
   productId,
   warehouseTypeId,
   catalogNo,
+  brand,
   name,
 ) => {
   try {
@@ -21,6 +22,7 @@ export const postWarehouseProductItem = async (
       objectId: warehouseTypeId,
     });
     item.set("catalogNo", catalogNo);
+    item.set("brand", brand ? brand : "");
     item.set("name", name);
     await item.save();
 

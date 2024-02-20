@@ -1,7 +1,8 @@
 import Parse from "parse/dist/parse.min.js";
 
-export const createWarehouseTypeEntry = async (name) => {
+export const createWarehouseTypeEntry = async (category, name) => {
   let item = new Parse.Object("warehouse_types");
+  item.set("category", parseInt(category));
   item.set("name", name);
   try {
     await item.save();
@@ -13,9 +14,10 @@ export const createWarehouseTypeEntry = async (name) => {
   }
 };
 
-export const updateWarehouseTypeEntry = async (objectId, name) => {
+export const updateWarehouseTypeEntry = async (objectId, category, name) => {
   let item = new Parse.Object("warehouse_types");
   item.set("objectId", objectId);
+  item.set("category", parseInt(category));
   item.set("name", name);
   try {
     await item.save();

@@ -5,6 +5,7 @@ import { FadeLoader } from "react-spinners";
 import ButtonModuleMain from "../../components/buttons/ButtonModuleMain";
 import { WarehouseMainStats } from "../../models/warehouse";
 import { fetchWarehouseMainData } from "../../parse/warehouse";
+import { WarehouseTypeCategories } from "../../constants/warehouse_types";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
@@ -41,7 +42,7 @@ function WarehouseMain() {
       </div>
       <div className="row">
         <ButtonModuleMain
-            target="/portal/warehouse-products"
+          target="/portal/warehouse-products"
           title="Products"
           value={stats?.products}
           color="primary"
@@ -58,12 +59,12 @@ function WarehouseMain() {
           value={stats?.types}
           color="info"
         />
-
-        
       </div>
       <div className="card shadow mb-4">
         <div className="card-header py-3">
-          <h6 className="m-0 font-weight-bold text-primary">Product List</h6>
+          <h6 className="m-0 font-weight-bold text-primary">
+            Product List, diurutkan berdasarkan update terakhir
+          </h6>
         </div>
         <div className="card-body">
           {loading ? (
@@ -84,19 +85,23 @@ function WarehouseMain() {
               >
                 <thead>
                   <tr>
-                    <th>Catalog No</th>
+                    <th>Kategori</th>
                     <th>Tipe</th>
-                    <th>Nama</th>
-                    <th>Terakhir Update</th>
+                    <th>Merk</th>
+                    <th>Cat No</th>
+                    <th width="70%">Nama</th>
+                    <th>Updated</th>
                     <th>Aksi</th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
-                  <th>Catalog No</th>
+                    <th>Kategori</th>
                     <th>Tipe</th>
-                    <th>Nama</th>
-                    <th>Terakhir Update</th>
+                    <th>Merk</th>
+                    <th>Cat No</th>
+                    <th width="70%">Nama</th>
+                    <th>Updated</th>
                     <th>Aksi</th>
                   </tr>
                 </tfoot>
@@ -104,7 +109,15 @@ function WarehouseMain() {
                   {productList.map((p, index) => {
                     return (
                       <tr key={index}>
-                        <td>{p.catalogNo}</td>
+                        <td>
+                          {p?.warehouseType
+                            ? p?.warehouseType?.category
+                              ? WarehouseTypeCategories[
+                                  p?.warehouseType?.category
+                                ]
+                              : ""
+                            : ""}
+                        </td>
                         <td>
                           {p?.warehouseType
                             ? p?.warehouseType?.name
@@ -112,18 +125,27 @@ function WarehouseMain() {
                               : ""
                             : ""}
                         </td>
-                        <td>{p.name}</td>
+                        <td>{p?.brand}</td>
+                        <td>{p?.catalogNo}</td>
+
+                        <td>{p?.name}</td>
                         <td>
-                            <p>{new Date(p.updatedAt).toLocaleString("id-ID")}</p>
+                          <p>
+                            {p?.updatedAt
+                              ? new Date(p?.updatedAt).toLocaleString("id-ID")
+                              : ""}
+                          </p>
                         </td>
                         <th>
                           <p>
-                          <Link
+                            <Link
                               to={`/portal/warehouse-product-mutations/${p.objectId}`}
                               className="btn btn-primary btn-sm mr-1"
                             >
                               Mutasi
                             </Link>
+                          </p>
+                          <p>
                             <Link
                               to={`/portal/warehouse-product-lots/${p.objectId}`}
                               className="btn btn-info btn-sm mr-1"
@@ -132,7 +154,6 @@ function WarehouseMain() {
                             </Link>
                           </p>
                         </th>
-                        
                       </tr>
                     );
                   })}

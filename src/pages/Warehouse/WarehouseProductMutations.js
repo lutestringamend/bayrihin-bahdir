@@ -82,7 +82,7 @@ function WarehouseProductMutations() {
 
   useEffect(() => {
     fetchData();
-  }, [params]);
+  }, [params?.id, params?.lotId]);
 
   useEffect(() => {
     if (filterStorageId === null) {
@@ -419,10 +419,10 @@ function WarehouseProductMutations() {
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
         <select
           name="warehouseProductLot"
-          value={params.lotId}
+          value={params?.lotId}
           onChange={(e) =>
             navigate(
-              `/portal/warehouse-product-mutations/${params.id}/${e.target.value}`,
+              `/portal/warehouse-product-mutations/${params?.id}/${e.target.value}`,
             )
           }
           className="form-control"
@@ -449,7 +449,8 @@ function WarehouseProductMutations() {
           ))}
         </select>
       </div>
-      {loading || productStorageList?.length === undefined ||
+      {loading ||
+      productStorageList?.length === undefined ||
       productStorageList?.length < 1 ? null : (
         <div className="row">
           {productStorageList.map((item, index) => (
@@ -471,7 +472,7 @@ function WarehouseProductMutations() {
             {`${
               productList[0] === undefined ||
               productList[0]?.warehouseProduct === undefined
-                ? ""
+                ? "Mutasi stock untuk produk ini masih kosong"
                 : productList[0]?.warehouseProduct?.name
             }${
               productLotData === null || productLotData?.name === undefined

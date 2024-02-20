@@ -38,9 +38,15 @@ function App() {
         <Route path='/portal' element={<Portal />}>
           
           <Route path='warehouse' element={<WarehouseMain />} />
-          <Route path='warehouse-products' element={<WarehouseProducts />} />
           <Route path='warehouse-storages' element={<WarehouseStorages />} />
+
+          <Route path='warehouse-products' element={<WarehouseProducts />} />
+          <Route path='warehouse-products/:category' element={<WarehouseProducts />} />
+          <Route path='warehouse-products/:category/:type' element={<WarehouseProducts />} />
+
           <Route path='warehouse-types' element={<WarehouseTypes />} />
+          <Route path='warehouse-types/:category' element={<WarehouseTypes />} />
+
           <Route path='warehouse-product-mutations/:id' element={<WarehouseProductMutations />} />
           <Route path='warehouse-product-mutations/:id/:lotId' element={<WarehouseProductMutations />} />
           <Route path='warehouse-product-lots/:id' element={<WarehouseProductLots />} />

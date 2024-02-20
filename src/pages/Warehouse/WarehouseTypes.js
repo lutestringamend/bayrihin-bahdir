@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-//import { Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSquarePlus } from "@fortawesome/free-regular-svg-icons";
@@ -7,7 +7,12 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
 import { getWarehouseTypeData } from "../../parse/warehouse";
-import { createWarehouseTypeEntry, deleteWarehouseTypeEntry, updateWarehouseTypeEntry } from "../../parse/warehouse/types";
+import {
+  createWarehouseTypeEntry,
+  deleteWarehouseTypeEntry,
+  updateWarehouseTypeEntry,
+} from "../../parse/warehouse/types";
+import { WarehouseTypeCategories } from "../../constants/warehouse_types";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
@@ -15,13 +20,18 @@ const defaultModalData = {
   visible: false,
   loading: false,
   objectId: null,
+  category: null,
   name: "",
 };
 const defaultModalErrors = {
   name: "",
+  category: "",
 };
 
 function WarehouseTypes() {
+  const params = useParams();
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(true);
   const [productList, setProductList] = useState([]);
   const [modalData, setModalData] = useState(defaultModalData);
@@ -29,11 +39,11 @@ function WarehouseTypes() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [params?.category]);
 
   let fetchData = async () => {
     setLoading(true);
-    const result = await getWarehouseTypeData();
+    const result = await getWarehouseTypeData(params?.category);
     setProductList(result);
     setLoading(false);
   };
@@ -57,6 +67,10 @@ function WarehouseTypes() {
   const saveModalData = async () => {
     let newErrors = defaultModalErrors;
     let isComplete = true;
+    if (modalData?.category === "" || parseInt(modalData?.category) < 1) {
+      isComplete = false;
+      newErrors = { ...newErrors, category: "Kategori belum diisi" };
+    }
     if (modalData?.name === "" || modalData?.name < 3) {
       isComplete = false;
       newErrors = { ...newErrors, name: "Isikan nama Tipe yang benar" };
@@ -69,16 +83,20 @@ function WarehouseTypes() {
       if (modalData?.objectId) {
         result = await updateWarehouseTypeEntry(
           modalData?.objectId,
+          modalData?.category,
           modalData?.name,
         );
       } else {
-        result = await createWarehouseTypeEntry(modalData?.name);
+        result = await createWarehouseTypeEntry(
+          modalData?.category,
+          modalData?.name,
+        );
       }
       if (result) {
         fetchData();
         setModalData(defaultModalData);
       } else {
-        setModalData({...modalData, loading: false});
+        setModalData({ ...modalData, loading: false });
       }
     }
   };
@@ -106,9 +124,34 @@ function WarehouseTypes() {
           Tambah Tipe
         </a>
       </div>
+      <div className="d-sm-flex align-items-center justify-content-between mb-4">
+        <select
+          name="category"
+          value={params?.category}
+          onChange={(e) =>
+            navigate(
+              parseInt(e.target.value) > 0
+                ? `/portal/warehouse-types/${e.target.value}`
+                : "/portal/warehouse-types",
+            )
+          }
+          className="form-control"
+        >
+          <option value=""></option>
+          {WarehouseTypeCategories.map((item, index) => (
+            <option key={index} value={index}>
+              {index === 0 ? "----Semua Kategori----" : item}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className="card shadow mb-4">
         <div className="card-header py-3">
-          <h6 className="m-0 font-weight-bold text-primary">Tipe Produk Terdaftar</h6>
+          <h6 className="m-0 font-weight-bold text-primary">{`Tipe Produk Terdaftar${
+            params?.category === undefined || params?.category === null
+              ? ""
+              : ` --- ${WarehouseTypeCategories[params.category]}`
+          }`}</h6>
         </div>
         <div className="card-body">
           {loading ? (
@@ -129,14 +172,16 @@ function WarehouseTypes() {
               >
                 <thead>
                   <tr>
-                    <th>Id</th>
+                    <th>No</th>
+                    <th>Kategori</th>
                     <th>Nama</th>
                     <th>Aksi</th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
-                    <th>Id</th>
+                    <th>No</th>
+                    <th>Kategori</th>
                     <th>Nama</th>
                     <th>Aksi</th>
                   </tr>
@@ -145,7 +190,8 @@ function WarehouseTypes() {
                   {productList.map((p, index) => {
                     return (
                       <tr key={index}>
-                        <td>{index}</td>
+                        <td>{index + 1}</td>
+                        <td>{WarehouseTypeCategories[p?.category]}</td>
                         <td>{p.name}</td>
                         <th>
                           <a
@@ -187,7 +233,36 @@ function WarehouseTypes() {
           </p>
           <div className="row">
             <div className="col-lg-10">
-              <label>Nama</label>
+              <label>
+                <b>Kategori</b>
+              </label>
+              <select
+                name="category"
+                value={modalData?.category ? modalData?.category : ""}
+                onChange={(e) =>
+                  setModalData({
+                    ...modalData,
+                    category: e.target.value,
+                  })
+                }
+                className={`form-control ${
+                  modalErrors.category ? "is-invalid" : ""
+                } `}
+              >
+                {WarehouseTypeCategories.map((item, index) => (
+                  <option key={index} value={index}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <span style={{ color: "red" }}>{modalErrors?.category}</span>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Nama</b>
+              </label>
               <input
                 name="name"
                 value={modalData?.name}
@@ -227,6 +302,5 @@ function WarehouseTypes() {
     </>
   );
 }
-
 
 export default WarehouseTypes;

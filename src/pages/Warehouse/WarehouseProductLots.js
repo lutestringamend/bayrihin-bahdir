@@ -8,13 +8,7 @@ import Modal from "react-bootstrap/Modal";
 
 import {
   getWarehouseProductLotsData,
-  getWarehouseStorageData,
 } from "../../parse/warehouse";
-import {
-  createWarehouseStorageEntry,
-  deleteWarehouseStorageEntry,
-  updateWarehouseStorageEntry,
-} from "../../parse/warehouse/storages";
 import {
   createWarehouseProductLotEntry,
   deleteWarehouseProductLotEntry,
@@ -28,6 +22,7 @@ const defaultModalData = {
   loading: false,
   objectId: null,
   name: "",
+  remark: "",
 };
 const defaultModalErrors = {
   name: "",
@@ -84,11 +79,13 @@ function WarehouseProductLots() {
         result = await updateWarehouseProductLotEntry(
           modalData?.objectId,
           modalData?.name,
+          modalData?.remark
         );
       } else {
         result = await createWarehouseProductLotEntry(
           params.id,
           modalData?.name,
+          modalData?.remark,
         );
       }
       if (result) {
@@ -130,9 +127,9 @@ function WarehouseProductLots() {
               ? productList[0]
                 ? productList[0]?.warehouseProduct?.name
                   ? productList[0]?.warehouseProduct?.name
-                  : `Mutasi Stok Produk id ${params.id}`
-                : `Mutasi Stok Produk id ${params.id}`
-              : `Mutasi Stok Produk id ${params.id}`}
+                  : "Daftar Lot untuk produk ini masih kosong"
+                : "Daftar Lot untuk produk ini masih kosong"
+              : "Daftar Lot untuk produk ini masih kosong"}
           </h6>
         </div>
         <div className="card-body">
@@ -154,15 +151,19 @@ function WarehouseProductLots() {
               >
                 <thead>
                   <tr>
-                    <th>Index</th>
+                    <th>No</th>
                     <th>Nama Lot</th>
+                    <th>Kondisi / Lokasi</th>
+                    <th>Terakhir Update</th>
                     <th>Aksi</th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
-                    <th>Index</th>
+                    <th>No</th>
                     <th>Nama Lot</th>
+                    <th>Kondisi / Lokasi</th>
+                    <th>Terakhir Update</th>
                     <th>Aksi</th>
                   </tr>
                 </tfoot>
@@ -170,8 +171,16 @@ function WarehouseProductLots() {
                   {productList.map((p, index) => {
                     return (
                       <tr key={index}>
-                        <td>{index}</td>
-                        <td>{p.name}</td>
+                        <td>{index + 1}</td>
+                        <td>{p?.name}</td>
+                        <td>{p?.remark}</td>
+                        <td>
+                          <p>
+                            {p?.updatedAt
+                              ? new Date(p?.updatedAt).toLocaleString("id-ID")
+                              : ""}
+                          </p>
+                        </td>
                         <th>
                           <Link
                             to={`/portal/warehouse-product-mutations/${params.id}/${p.objectId}`}
@@ -231,6 +240,24 @@ function WarehouseProductLots() {
                 } `}
               />
               <span style={{ color: "red" }}>{modalErrors?.name}</span>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-lg-10">
+              <label>Kondisi / Lokasi</label>
+              <textarea
+                name="remark"
+                value={modalData?.remark}
+                onChange={(e) =>
+                  setModalData({ ...modalData, remark: e.target.value })
+                }
+                type={"text"}
+                rows="3"
+                className={`form-control ${
+                  modalErrors?.remark ? "is-invalid" : ""
+                } `}
+              />
+              <span style={{ color: "red" }}>{modalErrors?.remark}</span>
             </div>
           </div>
         </Modal.Body>
