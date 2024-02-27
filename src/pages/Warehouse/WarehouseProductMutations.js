@@ -23,6 +23,7 @@ import {
 import { getWarehouseProductStoragesData } from "../../parse/warehouse/product_storage";
 import CardProductStorage from "../../components/card/CardProductStorage";
 import { WarehouseProductMutationTypes } from "../../constants/warehouse_product_mutations";
+import { getWarehouseProductById } from "../../parse/warehouse/product";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
@@ -64,6 +65,7 @@ function WarehouseProductMutations() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const [productData, setProductData] = useState(null);
   const [productList, setProductList] = useState([]);
   const [productStorageList, setProductStorageList] = useState([]);
   const [storageList, setStorageList] = useState([]);
@@ -172,6 +174,8 @@ function WarehouseProductMutations() {
 
   let fetchData = async () => {
     setLoading(true);
+    const productData = await getWarehouseProductById(params.id);
+    setProductData(productData);
     const storageRes = await getWarehouseStorageData();
     setStorageList(storageRes);
     //console.log("getWarehouseProductMutationsData", params.id, params.lotId);
@@ -470,10 +474,13 @@ function WarehouseProductMutations() {
         <div className="card-header py-3">
           <h6 className="m-0 font-weight-bold text-primary">
             {`${
-              productList[0] === undefined ||
-              productList[0]?.warehouseProduct === undefined
-                ? "Mutasi stock untuk produk ini masih kosong"
-                : productList[0]?.warehouseProduct?.name
+              productData
+                ? `${
+                    productData?.warehouseType
+                      ? productData?.warehouseType?.name
+                      : ""
+                  } -- ${productData?.name}`
+                : "Loading..."
             }${
               productLotData === null || productLotData?.name === undefined
                 ? ""

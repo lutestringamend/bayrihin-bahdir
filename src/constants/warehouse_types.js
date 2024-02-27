@@ -3,5 +3,11 @@ export const WarehouseTypeCategories = [
     "Implant",
     "Instrument",
     "Unit",
-    "Unit - Camera System"
+]
+
+export const WarehouseTypeObjectIds = [
+    "",
+    "oHlBIii7CJ",
+    "76EyXWueYb",
+    "jkrp6A2unr"
 ]

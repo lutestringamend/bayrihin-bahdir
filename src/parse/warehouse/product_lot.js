@@ -1,10 +1,13 @@
 import Parse from "parse/dist/parse.min.js";
 
-export const updateWarehouseProductLotEntry = async (objectId, name, remark) => {
+export const updateWarehouseProductLotEntry = async (objectId, name, remark, tray) => {
   let item = new Parse.Object("warehouse_product_lots");
   item.set("objectId", objectId);
   item.set("name", name);
   item.set("remark", remark);
+  if (tray) {
+    item.set("tray", tray);
+  }
   try {
     await item.save();
     alert("Lot Produk berhasil diedit");
@@ -28,7 +31,7 @@ export const deleteWarehouseProductLotEntry = async (objectId) => {
   }
 };
 
-export const createWarehouseProductLotEntry = async (warehouseProductId, name, remark) => {
+export const createWarehouseProductLotEntry = async (warehouseProductId, name, remark, tray) => {
     let item = new Parse.Object("warehouse_product_lots");
     item.set("warehouseProduct", {
         __type: "Pointer",
@@ -37,6 +40,9 @@ export const createWarehouseProductLotEntry = async (warehouseProductId, name, r
       });
     item.set("name", name);
     item.set("remark", remark);
+    if (tray) {
+      item.set("tray", tray);
+    }
     try {
       await item.save();
       //alert("Tipe baru berhasil dibuat");

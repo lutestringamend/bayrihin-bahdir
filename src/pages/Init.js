@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+//import { bindActionCreators } from "redux";
 
 import "../App.css";
 import "../sb-admin-2.min.css";
@@ -28,7 +28,7 @@ const Init = (props) => {
     return (
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="*" element={<Login />} />
         </Routes>
       </BrowserRouter>
     );
@@ -37,7 +37,7 @@ const Init = (props) => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Portal />}>
+        <Route path="*" element={<Portal />}>
           <Route path="warehouse" element={<WarehouseMain />} />
           <Route path="warehouse-storages" element={<WarehouseStorages />} />
 
@@ -75,8 +75,6 @@ const Init = (props) => {
           <Route path="user-view/:id" element={<UserView />} />
           <Route path="user-edit/:id" element={<UserEdit />} />
         </Route>
-
-        <Route path="/portal" element={<Portal />}></Route>
       </Routes>
     </BrowserRouter>
   );

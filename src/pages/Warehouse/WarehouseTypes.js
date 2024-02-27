@@ -108,11 +108,8 @@ function WarehouseTypes() {
     }
   };
 
-  return (
-    <>
-      <div className="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 className="h3 mb-0 text-gray-800">Daftar Tipe Produk</h1>
-        <a
+  /*
+   <a
           href="#"
           className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
           onClick={() => setModalData({ ...defaultModalData, visible: true })}
@@ -123,6 +120,28 @@ function WarehouseTypes() {
           />
           Tambah Tipe
         </a>
+        
+ <a
+                            href="#"
+                            onClick={() =>
+                              setModalData({ visible: true, ...p })
+                            }
+                            className="btn btn-info btn-sm mr-1"
+                          >
+                            Edit
+                          </a>
+                          <button
+                            onClick={() => handleDelete(p.objectId)}
+                            className="btn btn-danger btn-sm mr-1"
+                          >
+                            Hapus
+                          </button>
+  */
+
+  return (
+    <>
+      <div className="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 className="h3 mb-0 text-gray-800">Daftar Tipe Produk</h1>
       </div>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
         <select
@@ -193,23 +212,7 @@ function WarehouseTypes() {
                         <td>{index + 1}</td>
                         <td>{WarehouseTypeCategories[p?.category]}</td>
                         <td>{p.name}</td>
-                        <th>
-                          <a
-                            href="#"
-                            onClick={() =>
-                              setModalData({ visible: true, ...p })
-                            }
-                            className="btn btn-info btn-sm mr-1"
-                          >
-                            Edit
-                          </a>
-                          <button
-                            onClick={() => handleDelete(p.objectId)}
-                            className="btn btn-danger btn-sm mr-1"
-                          >
-                            Hapus
-                          </button>
-                        </th>
+                        <th></th>
                       </tr>
                     );
                   })}

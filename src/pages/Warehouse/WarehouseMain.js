@@ -86,10 +86,8 @@ function WarehouseMain() {
                 <thead>
                   <tr>
                     <th>Kategori</th>
-                    <th>Tipe</th>
-                    <th>Merk</th>
                     <th>Cat No</th>
-                    <th width="70%">Nama</th>
+                    <th width="50%">Nama</th>
                     <th>Updated</th>
                     <th>Aksi</th>
                   </tr>
@@ -97,10 +95,8 @@ function WarehouseMain() {
                 <tfoot>
                   <tr>
                     <th>Kategori</th>
-                    <th>Tipe</th>
-                    <th>Merk</th>
                     <th>Cat No</th>
-                    <th width="70%">Nama</th>
+                    <th width="50%">Nama</th>
                     <th>Updated</th>
                     <th>Aksi</th>
                   </tr>
@@ -118,17 +114,12 @@ function WarehouseMain() {
                               : ""
                             : ""}
                         </td>
-                        <td>
-                          {p?.warehouseType
-                            ? p?.warehouseType?.name
-                              ? p?.warehouseType?.name
-                              : ""
-                            : ""}
-                        </td>
-                        <td>{p?.brand}</td>
                         <td>{p?.catalogNo}</td>
 
-                        <td>{p?.name}</td>
+                        <td>
+                          {p?.brand ? <p>{p?.brand}</p> : null}
+                          {p?.name}
+                        </td>
                         <td>
                           <p>
                             {p?.updatedAt
@@ -145,14 +136,16 @@ function WarehouseMain() {
                               Mutasi
                             </Link>
                           </p>
-                          <p>
-                            <Link
-                              to={`/warehouse-product-lots/${p.objectId}`}
-                              className="btn btn-info btn-sm mr-1"
-                            >
-                              Lot
-                            </Link>
-                          </p>
+                          {p?.category === 1 ? null : (
+                            <p>
+                              <Link
+                                to={`/warehouse-product-lots/${p.objectId}`}
+                                className="btn btn-info btn-sm mr-1"
+                              >
+                                Lot
+                              </Link>
+                            </p>
+                          )}
                         </th>
                       </tr>
                     );

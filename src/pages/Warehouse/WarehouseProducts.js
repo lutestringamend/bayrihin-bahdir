@@ -10,8 +10,14 @@ import {
   getWarehouseProductData,
   getWarehouseTypeData,
 } from "../../parse/warehouse";
-import { postWarehouseProductItem } from "../../parse/warehouse/product";
-import { WarehouseTypeCategories } from "../../constants/warehouse_types";
+import {
+  deleteWarehouseProduct,
+  postWarehouseProductItem,
+} from "../../parse/warehouse/product";
+import {
+  WarehouseTypeCategories,
+  WarehouseTypeObjectIds,
+} from "../../constants/warehouse_types";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
@@ -24,12 +30,14 @@ const defaultModalData = {
   brand: "",
   catalogNo: "",
   name: "",
+  subCategory: "",
 };
 const defaultModalErrors = {
   category: "",
   warehouseType: "",
   catalogNo: "",
   name: "",
+  subCategory: "",
 };
 
 function WarehouseProducts() {
@@ -110,13 +118,13 @@ function WarehouseProducts() {
     }
   };
 
-  /*const handleDelete = async (id) => {
+  const handleDelete = async (id) => {
     try {
       const confirmDelete = window.confirm(
         "Yakin mau menghapus data? Penghapusan bersifat permanen.",
       );
       if (confirmDelete) {
-        let result = await deleteWarehouseTypeEntry(id);
+        let result = await deleteWarehouseProduct(id);
         if (result) {
           fetchData();
         }
@@ -124,7 +132,7 @@ function WarehouseProducts() {
     } catch (error) {
       console.log(error);
     }
-  };*/
+  };
 
   const saveModalData = async () => {
     let newErrors = defaultModalErrors;
@@ -133,10 +141,20 @@ function WarehouseProducts() {
       isComplete = false;
       newErrors = { ...newErrors, category: "Isian Kategori wajib diisi" };
     }
-    if (modalData?.warehouseType === null || modalData?.warehouseType === "") {
+    if (
+      parseInt(modalData?.category) === 3 &&
+      (modalData?.subCategory === "" || modalData?.subCategory?.length < 3)
+    ) {
+      isComplete = false;
+      newErrors = {
+        ...newErrors,
+        subCategory: "Isian Sub Category wajib diisi",
+      };
+    }
+    /*if (modalData?.warehouseType === null || modalData?.warehouseType === "") {
       isComplete = false;
       newErrors = { ...newErrors, warehouseType: "Isian Tipe wajib diisi" };
-    }
+    }*/
     if (modalData?.catalogNo === "" || modalData?.catalogNo?.length < 3) {
       isComplete = false;
       newErrors = { ...newErrors, catalogNo: "Isian Catalog No wajib diisi" };
@@ -152,10 +170,12 @@ function WarehouseProducts() {
       setModalData({ ...modalData, loading: true });
       let result = await postWarehouseProductItem(
         modalData?.objectId,
-        modalData?.warehouseType?.objectId,
+        WarehouseTypeObjectIds[modalData?.category],
         modalData?.catalogNo,
         modalData?.brand,
         modalData?.name,
+        modalData?.subCategory,
+        modalData?.category,
       );
 
       if (result) {
@@ -187,7 +207,7 @@ function WarehouseProducts() {
     }
   };
 
-  const switchType = (e) => {
+  /*const switchType = (e) => {
     if (e?.target?.value) {
       navigate(
         `/warehouse-products/${params?.category}/${e.target.value}`,
@@ -203,7 +223,23 @@ function WarehouseProducts() {
         }`,
       );
     }
-  };
+  };*/
+
+  /*
+<select
+          name="warehouseType"
+          value={params?.type}
+          onChange={(e) => switchType(e)}
+          className="form-control ml-20"
+        >
+          <option value="">----Semua Tipe----</option>
+          {typeList.map((item, index) => (
+            <option key={index} value={item?.objectId}>
+              {item?.name}
+            </option>
+          ))}
+        </select>
+  */
 
   return (
     <>
@@ -241,20 +277,6 @@ function WarehouseProducts() {
           {WarehouseTypeCategories.map((item, index) => (
             <option key={index} value={index}>
               {index === 0 ? "----Semua Kategori----" : item}
-            </option>
-          ))}
-        </select>
-
-        <select
-          name="warehouseType"
-          value={params?.type}
-          onChange={(e) => switchType(e)}
-          className="form-control ml-20"
-        >
-          <option value="">----Semua Tipe----</option>
-          {typeList.map((item, index) => (
-            <option key={index} value={item?.objectId}>
-              {item?.name}
             </option>
           ))}
         </select>
@@ -299,10 +321,8 @@ function WarehouseProducts() {
                 <thead>
                   <tr>
                     <th>Kategori</th>
-                    <th>Tipe</th>
-                    <th>Merk</th>
                     <th>Cat No</th>
-                    <th width="70%">Nama</th>
+                    <th width="50%">Nama</th>
                     <th>Updated</th>
                     <th>Aksi</th>
                   </tr>
@@ -310,10 +330,8 @@ function WarehouseProducts() {
                 <tfoot>
                   <tr>
                     <th>Kategori</th>
-                    <th>Tipe</th>
-                    <th>Merk</th>
                     <th>Cat No</th>
-                    <th width="70%">Nama</th>
+                    <th width="50%">Nama</th>
                     <th>Updated</th>
                     <th>Aksi</th>
                   </tr>
@@ -323,25 +341,24 @@ function WarehouseProducts() {
                     return (
                       <tr key={index}>
                         <td>
-                          {p?.warehouseType
-                            ? p?.warehouseType?.category
-                              ? WarehouseTypeCategories[
-                                  p?.warehouseType?.category
-                                ]
-                              : ""
-                            : ""}
+                          <p>
+                            {" "}
+                            {p?.warehouseType
+                              ? p?.warehouseType?.category
+                                ? WarehouseTypeCategories[
+                                    p?.warehouseType?.category
+                                  ]
+                                : ""
+                              : ""}
+                          </p>
+                          {p?.subCategory ? <p>{p?.subCategory}</p> : null}
                         </td>
-                        <td>
-                          {p?.warehouseType
-                            ? p?.warehouseType?.name
-                              ? p?.warehouseType?.name
-                              : ""
-                            : ""}
-                        </td>
-                        <td>{p?.brand}</td>
                         <td>{p?.catalogNo}</td>
 
-                        <td>{p?.name}</td>
+                        <td>
+                          {p?.brand ? <p>{p?.brand}</p> : null}
+                          {p?.name}
+                        </td>
                         <td>
                           <p>
                             {p?.updatedAt
@@ -358,20 +375,31 @@ function WarehouseProducts() {
                               Mutasi
                             </Link>
                           </p>
-                          <p>
-                            <Link
-                              to={`/warehouse-product-lots/${p.objectId}`}
-                              className="btn btn-info btn-sm mr-1"
-                            >
-                              Lot
-                            </Link>
-                          </p>
+                          {p?.category === 1 ? null : (
+                            <p>
+                              <Link
+                                to={`/warehouse-product-lots/${p.objectId}`}
+                                className="btn btn-info btn-sm mr-1"
+                              >
+                                Lot
+                              </Link>
+                            </p>
+                          )}
+
                           <p>
                             <button
                               onClick={() => openModalEdit(p)}
                               className="btn btn-info btn-sm mr-1"
                             >
                               Edit
+                            </button>
+                          </p>
+                          <p>
+                            <button
+                              onClick={() => handleDelete(p?.objectId)}
+                              className="btn btn-danger btn-sm mr-1"
+                            >
+                              Hapus
                             </button>
                           </p>
                         </th>
@@ -422,35 +450,29 @@ function WarehouseProducts() {
               <span style={{ color: "red" }}>{modalErrors?.category}</span>
             </div>
           </div>
-          <div className="row">
-            <div className="col-lg-10">
-              <label>
-                <b>Tipe</b>
-              </label>
-              <select
-                name="warehouseType"
-                value={
-                  modalData?.warehouseType
-                    ? modalData?.warehouseType?.objectId
-                    : ""
-                }
-                onChange={(e) => setModalType(e.target.value)}
-                className={`form-control ${
-                  modalErrors.warehouseType ? "is-invalid" : ""
-                } `}
-              >
-                <option value="">----Pilih Tipe----</option>
-                {typeList?.length === undefined || typeList?.length < 1
-                  ? null
-                  : modalTypeList.map((item, index) => (
-                      <option key={index} value={item?.objectId}>
-                        {item?.name}
-                      </option>
-                    ))}
-              </select>
-              <span style={{ color: "red" }}>{modalErrors?.warehouseType}</span>
+
+          {modalData?.category === 3 ? (
+            <div className="row">
+              <div className="col-lg-10">
+                <label>
+                  <b>Sub-Kategori (khusus Unit)</b>
+                </label>
+                <input
+                  name="subCategory"
+                  value={modalData?.subCategory}
+                  onChange={(e) =>
+                    setModalData({ ...modalData, subCategory: e.target.value })
+                  }
+                  type={"text"}
+                  className={`form-control ${
+                    modalErrors?.subCategory ? "is-invalid" : ""
+                  } `}
+                />
+                <span style={{ color: "red" }}>{modalErrors?.subCategory}</span>
+              </div>
             </div>
-          </div>
+          ) : null}
+
           <div className="row">
             <div className="col-lg-10">
               <label>
@@ -534,5 +556,37 @@ function WarehouseProducts() {
     </>
   );
 }
+
+/*
+<div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Tipe</b>
+              </label>
+              <select
+                name="warehouseType"
+                value={
+                  modalData?.warehouseType
+                    ? modalData?.warehouseType?.objectId
+                    : ""
+                }
+                onChange={(e) => setModalType(e.target.value)}
+                className={`form-control ${
+                  modalErrors.warehouseType ? "is-invalid" : ""
+                } `}
+              >
+                <option value="">----Pilih Tipe----</option>
+                {typeList?.length === undefined || typeList?.length < 1
+                  ? null
+                  : modalTypeList.map((item, index) => (
+                      <option key={index} value={item?.objectId}>
+                        {item?.name}
+                      </option>
+                    ))}
+              </select>
+              <span style={{ color: "red" }}>{modalErrors?.warehouseType}</span>
+            </div>
+          </div>
+*/
 
 export default WarehouseProducts;

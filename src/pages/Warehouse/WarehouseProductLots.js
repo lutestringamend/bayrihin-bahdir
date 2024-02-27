@@ -6,14 +6,14 @@ import { faSquarePlus } from "@fortawesome/free-regular-svg-icons";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
-import {
-  getWarehouseProductLotsData,
-} from "../../parse/warehouse";
+import { getWarehouseProductLotsData } from "../../parse/warehouse";
 import {
   createWarehouseProductLotEntry,
   deleteWarehouseProductLotEntry,
   updateWarehouseProductLotEntry,
 } from "../../parse/warehouse/product_lot";
+import { getWarehouseProductById } from "../../parse/warehouse/product";
+import { WarehouseTypeCategories } from "../../constants/warehouse_types";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
@@ -23,9 +23,11 @@ const defaultModalData = {
   objectId: null,
   name: "",
   remark: "",
+  tray: "",
 };
 const defaultModalErrors = {
   name: "",
+  tray: "",
 };
 
 function WarehouseProductLots() {
@@ -33,6 +35,7 @@ function WarehouseProductLots() {
 
   const [loading, setLoading] = useState(true);
   const [productList, setProductList] = useState([]);
+  const [productData, setProductData] = useState(null);
   const [modalData, setModalData] = useState(defaultModalData);
   const [modalErrors, setModalErrors] = useState(defaultModalErrors);
 
@@ -42,6 +45,9 @@ function WarehouseProductLots() {
 
   let fetchData = async () => {
     setLoading(true);
+    const productData = await getWarehouseProductById(params.id);
+    console.log("productData", productData);
+    setProductData(productData);
     const result = await getWarehouseProductLotsData(params.id);
     setProductList(result);
     setLoading(false);
@@ -79,13 +85,15 @@ function WarehouseProductLots() {
         result = await updateWarehouseProductLotEntry(
           modalData?.objectId,
           modalData?.name,
-          modalData?.remark
+          modalData?.remark,
+          modalData?.tray,
         );
       } else {
         result = await createWarehouseProductLotEntry(
           params.id,
           modalData?.name,
           modalData?.remark,
+          modalData?.tray,
         );
       }
       if (result) {
@@ -123,13 +131,13 @@ function WarehouseProductLots() {
       <div className="card shadow mb-4">
         <div className="card-header py-3">
           <h6 className="m-0 font-weight-bold text-primary">
-            {productList
-              ? productList[0]
-                ? productList[0]?.warehouseProduct?.name
-                  ? productList[0]?.warehouseProduct?.name
-                  : "Daftar Lot untuk produk ini masih kosong"
-                : "Daftar Lot untuk produk ini masih kosong"
-              : "Daftar Lot untuk produk ini masih kosong"}
+            {productData
+              ? `${
+                  productData?.category
+                    ? WarehouseTypeCategories[productData?.category]
+                    : productData?.warehouseType?.name
+                } -- ${productData?.name}`
+              : "Loading..."}
           </h6>
         </div>
         <div className="card-body">
@@ -152,7 +160,8 @@ function WarehouseProductLots() {
                 <thead>
                   <tr>
                     <th>No</th>
-                    <th>Nama Lot</th>
+                    <th>Lot/SN</th>
+                    {productData?.category === 2 ? <th>Tray</th> : null}
                     <th>Kondisi / Lokasi</th>
                     <th>Terakhir Update</th>
                     <th>Aksi</th>
@@ -161,7 +170,8 @@ function WarehouseProductLots() {
                 <tfoot>
                   <tr>
                     <th>No</th>
-                    <th>Nama Lot</th>
+                    <th>Lot/SN</th>
+                    {productData?.category === 2 ? <th>Tray</th> : null}
                     <th>Kondisi / Lokasi</th>
                     <th>Terakhir Update</th>
                     <th>Aksi</th>
@@ -173,6 +183,9 @@ function WarehouseProductLots() {
                       <tr key={index}>
                         <td>{index + 1}</td>
                         <td>{p?.name}</td>
+                        {productData?.category === 2 ? (
+                          <td>{p?.tray}</td>
+                        ) : null}
                         <td>{p?.remark}</td>
                         <td>
                           <p>
@@ -242,6 +255,26 @@ function WarehouseProductLots() {
               <span style={{ color: "red" }}>{modalErrors?.name}</span>
             </div>
           </div>
+          {productData?.category === 2 ? (
+            <div className="row">
+              <div className="col-lg-10">
+                <label>Tray</label>
+                <input
+                  name="tray"
+                  value={modalData?.tray}
+                  onChange={(e) =>
+                    setModalData({ ...modalData, tray: e.target.value })
+                  }
+                  type={"text"}
+                  className={`form-control ${
+                    modalErrors?.tray ? "is-invalid" : ""
+                  } `}
+                />
+                <span style={{ color: "red" }}>{modalErrors?.tray}</span>
+              </div>
+            </div>
+          ) : null}
+
           <div className="row">
             <div className="col-lg-10">
               <label>Kondisi / Lokasi</label>
