@@ -131,8 +131,8 @@ function WarehouseTypes() {
           onChange={(e) =>
             navigate(
               parseInt(e.target.value) > 0
-                ? `/portal/warehouse-types/${e.target.value}`
-                : "/portal/warehouse-types",
+                ? `/warehouse-types/${e.target.value}`
+                : "/warehouse-types",
             )
           }
           className="form-control"

@@ -67,7 +67,7 @@ function UserEdit() {
                 setLoading(true);
                 await axios.put(`https://63a9bccb7d7edb3ae616b639.mockapi.io/users/${params.id}`, values);
                 setLoading(false);
-                navigate("/portal/user-list")
+                navigate("/user-list")
             } catch (error) {
                 console.log(error);
                 setLoading(false);

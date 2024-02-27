@@ -1,0 +1,2 @@
+export const CLEAR_USER_DATA = "CLEAR_USER_DATA";
+export const USER_STATE_CHANGE = "USER_STATE_CHANGE";

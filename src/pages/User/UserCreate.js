@@ -53,7 +53,7 @@ function UserCreate() {
         try {
           setLoading(true);
           await axios.post("https://63a9bccb7d7edb3ae616b639.mockapi.io/users", values);
-          navigate("/portal/user-list");
+          navigate("/user-list");
         } catch (error) {
           console.log(error);
           alert("Validation failed");

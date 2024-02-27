@@ -29,7 +29,7 @@ function WarehouseMain() {
 
   /*
 <ButtonModuleMain
-          target="/portal/warehouse/mutations"
+          target="/warehouse/mutations"
           title="Check Mutation"
           color="primary"
         />
@@ -42,19 +42,19 @@ function WarehouseMain() {
       </div>
       <div className="row">
         <ButtonModuleMain
-          target="/portal/warehouse-products"
+          target="/warehouse-products"
           title="Products"
           value={stats?.products}
           color="primary"
         />
         <ButtonModuleMain
-          target="/portal/warehouse-storages"
+          target="/warehouse-storages"
           title="Regions"
           value={stats?.storages}
           color="info"
         />
         <ButtonModuleMain
-          target="/portal/warehouse-types"
+          target="/warehouse-types"
           title="Types"
           value={stats?.types}
           color="info"
@@ -139,7 +139,7 @@ function WarehouseMain() {
                         <th>
                           <p>
                             <Link
-                              to={`/portal/warehouse-product-mutations/${p.objectId}`}
+                              to={`/warehouse-product-mutations/${p.objectId}`}
                               className="btn btn-primary btn-sm mr-1"
                             >
                               Mutasi
@@ -147,7 +147,7 @@ function WarehouseMain() {
                           </p>
                           <p>
                             <Link
-                              to={`/portal/warehouse-product-lots/${p.objectId}`}
+                              to={`/warehouse-product-lots/${p.objectId}`}
                               className="btn btn-info btn-sm mr-1"
                             >
                               Lot

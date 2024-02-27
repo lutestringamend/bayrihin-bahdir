@@ -190,11 +190,11 @@ function WarehouseProducts() {
   const switchType = (e) => {
     if (e?.target?.value) {
       navigate(
-        `/portal/warehouse-products/${params?.category}/${e.target.value}`,
+        `/warehouse-products/${params?.category}/${e.target.value}`,
       );
     } else {
       navigate(
-        `/portal/warehouse-products${
+        `/warehouse-products${
           params?.category === undefined ||
           isNaN(params?.category) ||
           parseInt(params?.category) < 1
@@ -232,8 +232,8 @@ function WarehouseProducts() {
                 e.target.value === null ||
                 e.target.value === "" ||
                 parseInt(e.target.value) < 1
-                ? "/portal/warehouse-products"
-                : `/portal/warehouse-products/${e.target.value}`,
+                ? "/warehouse-products"
+                : `/warehouse-products/${e.target.value}`,
             )
           }
           className="form-control"
@@ -352,7 +352,7 @@ function WarehouseProducts() {
                         <th>
                           <p>
                             <Link
-                              to={`/portal/warehouse-product-mutations/${p.objectId}`}
+                              to={`/warehouse-product-mutations/${p.objectId}`}
                               className="btn btn-primary btn-sm mr-1"
                             >
                               Mutasi
@@ -360,7 +360,7 @@ function WarehouseProducts() {
                           </p>
                           <p>
                             <Link
-                              to={`/portal/warehouse-product-lots/${p.objectId}`}
+                              to={`/warehouse-product-lots/${p.objectId}`}
                               className="btn btn-info btn-sm mr-1"
                             >
                               Lot

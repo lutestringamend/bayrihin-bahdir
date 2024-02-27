@@ -183,7 +183,7 @@ function WarehouseProductLots() {
                         </td>
                         <th>
                           <Link
-                            to={`/portal/warehouse-product-mutations/${params.id}/${p.objectId}`}
+                            to={`/warehouse-product-mutations/${params.id}/${p.objectId}`}
                             className="btn btn-primary btn-sm mr-1"
                           >
                             Mutasi

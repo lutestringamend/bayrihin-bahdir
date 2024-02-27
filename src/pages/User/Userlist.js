@@ -42,7 +42,7 @@ function Userlist() {
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 className="h3 mb-0 text-gray-800">User-List</h1>
-        <Link to="/portal/create-user" className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+        <Link to="/create-user" className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
           <FontAwesomeIcon icon={faUser} className="creatinguser mr-2" />
           Create User
         </Link>
@@ -96,8 +96,8 @@ function Userlist() {
                           <td>{user.state}</td>
                           <td>{user.country}</td>
                           <th>
-                            <Link to={`/portal/user-view/${user.id}`} className='btn btn-primary btn-sm mr-1'>View</Link>
-                            <Link to={`/portal/user-edit/${user.id}`} className='btn btn-info btn-sm mr-1'>Edit</Link>
+                            <Link to={`/user-view/${user.id}`} className='btn btn-primary btn-sm mr-1'>View</Link>
+                            <Link to={`/user-edit/${user.id}`} className='btn btn-info btn-sm mr-1'>Edit</Link>
                             <button onClick={() => handleDelete(user.id)} className='btn btn-danger btn-sm mr-1'>Delete</button>
                           </th>
                         </tr>

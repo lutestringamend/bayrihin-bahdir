@@ -1,0 +1,1 @@
+export const TEMP_DEV_USER_DATA = {"username":"developer","createdAt":"2024-02-27T06:15:34.115Z","updatedAt":"2024-02-27T06:15:50.396Z","email":"developer@allvacon.com","emailVerified":true,"ACL":{"*":{"read":true},"W8xc1L1j4B":{"read":true,"write":true}},"sessionToken":"r:a6ff64022c62ba9d08d3de15c4eeabc8","objectId":"W8xc1L1j4B"}

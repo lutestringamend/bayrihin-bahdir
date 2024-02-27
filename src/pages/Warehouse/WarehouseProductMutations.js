@@ -422,7 +422,7 @@ function WarehouseProductMutations() {
           value={params?.lotId}
           onChange={(e) =>
             navigate(
-              `/portal/warehouse-product-mutations/${params?.id}/${e.target.value}`,
+              `/warehouse-product-mutations/${params?.id}/${e.target.value}`,
             )
           }
           className="form-control"

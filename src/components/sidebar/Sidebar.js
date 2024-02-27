@@ -22,7 +22,7 @@ function Sidebar() {
             
 
             <li className="nav-item active">
-                <Link className="nav-link" to="/portal/warehouse">
+                <Link className="nav-link" to="/warehouse">
                     <FontAwesomeIcon icon={faWarehouse} style={{ marginRight: "0.5rem" }} />
                     <span>Warehouse</span>
                 </Link>
@@ -35,7 +35,7 @@ function Sidebar() {
 
 /*
 <li className="nav-item active">
-                <Link className="nav-link" to="/portal/dashboard">
+                <Link className="nav-link" to="/dashboard">
                     <FontAwesomeIcon icon={faTachographDigital} style={{ marginRight: "0.5rem" }} />
                     <span>Dashboard</span>
                 </Link>
@@ -43,7 +43,7 @@ function Sidebar() {
             <hr className="sidebar-divider my-0" />
 
             <li className="nav-item active">
-                <Link className="nav-link" to="/portal/user-list">
+                <Link className="nav-link" to="/user-list">
                     <FontAwesomeIcon icon={faUsers} style={{ marginRight: "0.5rem" }} />
                     <span>User</span>
                 </Link>
