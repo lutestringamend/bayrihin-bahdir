@@ -24,6 +24,15 @@ export const postWarehouseProductItem = async (
   category
 ) => {
   try {
+    const query = new Parse.Query("warehouse_products");
+    query.limit(999999);
+    query.equalTo("catalogNo", catalogNo);
+    const queriedProduct = await query.first();
+    if (queriedProduct) {
+      alert("Katalog No ini sudah ada!");
+      return false;
+    }
+
     let item = new Parse.Object("warehouse_products");
     if (productId) {
       item.set("objectId", productId);

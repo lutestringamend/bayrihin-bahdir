@@ -32,6 +32,20 @@ export const deleteWarehouseProductLotEntry = async (objectId) => {
 };
 
 export const createWarehouseProductLotEntry = async (warehouseProductId, name, remark, tray) => {
+  const query = new Parse.Query("warehouse_product_lots");
+    query.limit(999999);
+    query.equalTo("warehouseProduct", {
+      __type: "Pointer",
+      className: "warehouse_products",
+      objectId: warehouseProductId,
+    });
+    query.equalTo("name", name);
+    const queriedProduct = await query.first();
+    if (queriedProduct) {
+      alert("Lot/SN ini sudah ada!");
+      return false;
+    }
+
     let item = new Parse.Object("warehouse_product_lots");
     item.set("warehouseProduct", {
         __type: "Pointer",
