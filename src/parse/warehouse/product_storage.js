@@ -1,17 +1,19 @@
 import Parse from "parse/dist/parse.min.js";
 
-export const getWarehouseProductStoragesData = async (warehouseProductId, warehouseStorageId, warehouseProductLotId, limit) => {
+export const getWarehouseProductStoragesData = async (warehouseProductId, warehouseStorageId, warehouseProductLotId, limit, descendingBy, isIndex) => {
     let result = [];
     try {
       const query = new Parse.Query("warehouse_product_storages");
       query.limit(limit ? limit : 999999);
-      if (limit) {
+      if (isIndex) {
+        query.exclude("warehouseStorage");
+      } else if (limit) {
         query.include("warehouseProduct");
         query.include("warehouseProductLot");
       } else {
         query.include("warehouseStorage");
       }
-      query.descending("createdAt");
+      query.descending(descendingBy ? descendingBy : "createdAt");
       if (warehouseProductId) {
         query.equalTo("warehouseProduct", {
           __type: "Pointer",
@@ -37,35 +39,53 @@ export const getWarehouseProductStoragesData = async (warehouseProductId, wareho
       const res = await query.find();
       for (let r of res) {
         let item = r.toJSON();
-        const found = result.find(({warehouseStorage}) => warehouseStorage?.objectId === item?.warehouseStorage?.objectId);
-        if (found === undefined || found === null) {
-            result.push({
-                warehouseStorage: item?.warehouseStorage,
-                balanceStock: item.balanceStock,
-                balanceOnDelivery: item.balanceOnDelivery,
-                balanceTotal: item.balanceTotal,
-                productLots: [
-                    item?.warehouseProductLot,
-                ]
-            });
-        } else {
-            let productLots = found?.productLots;
-            productLots.push(item?.warehouseProductLot);
-            let newResult = [];
-            for (let n of result) {
-                if (n?.warehouseStorage?.objectId === found?.warehouseStorage?.objectId) {
-                    newResult.push({
-                        warehouseStorage: item?.warehouseStorage,
-                        balanceStock: found.balanceStock + item.balanceStock,
-                        balanceOnDelivery: found.balanceOnDelivery + item.balanceOnDelivery,
-                        balanceTotal: found.balanceTotal + item.balanceTotal,
-                        productLots,
-                    })
-                } else {
-                    newResult.push(n);
-                }
+        if (isIndex) {
+          /*const lQuery = new Parse.Query("warehouse_product_lots");
+          lQuery.equalTo("objectId", item?.warehouseProductLot?.objectId);
+          const lot = await lQuery.first();
+          console.log("lQuery", item?.warehouseProductLot?.objectId, lot);
+          if (lot) {
+            let lotJSON = lot.toJSON();
+            item = {
+              ...item,
+              warehouseProductLot: {
+                ...item?.warehouseProductLot,
+                ...lotJSON,
+              }
             }
-            result = newResult;
+          }*/
+          result.push(item);
+        } else {
+          const found = result.find(({warehouseStorage}) => warehouseStorage?.objectId === item?.warehouseStorage?.objectId);
+          if (found === undefined || found === null) {
+              result.push({
+                  warehouseStorage: item?.warehouseStorage,
+                  balanceStock: item.balanceStock,
+                  balanceOnDelivery: item.balanceOnDelivery,
+                  balanceTotal: item.balanceTotal,
+                  productLots: [
+                      item?.warehouseProductLot,
+                  ]
+              });
+          } else {
+              let productLots = found?.productLots;
+              productLots.push(item?.warehouseProductLot);
+              let newResult = [];
+              for (let n of result) {
+                  if (n?.warehouseStorage?.objectId === found?.warehouseStorage?.objectId) {
+                      newResult.push({
+                          warehouseStorage: item?.warehouseStorage,
+                          balanceStock: found.balanceStock + item.balanceStock,
+                          balanceOnDelivery: found.balanceOnDelivery + item.balanceOnDelivery,
+                          balanceTotal: found.balanceTotal + item.balanceTotal,
+                          productLots,
+                      })
+                  } else {
+                      newResult.push(n);
+                  }
+              }
+              result = newResult;
+          }
         }
       }
     } catch (e) {

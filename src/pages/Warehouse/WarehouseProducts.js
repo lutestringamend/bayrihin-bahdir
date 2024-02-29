@@ -31,6 +31,7 @@ const defaultModalData = {
   catalogNo: "",
   name: "",
   subCategory: "",
+  minimumStock: "",
 };
 const defaultModalErrors = {
   category: "",
@@ -38,6 +39,7 @@ const defaultModalErrors = {
   catalogNo: "",
   name: "",
   subCategory: "",
+  minimumStock: "",
 };
 
 function WarehouseProducts() {
@@ -162,6 +164,10 @@ function WarehouseProducts() {
     if (modalData?.name === "" || modalData?.name?.length < 3) {
       isComplete = false;
       newErrors = { ...newErrors, name: "Isian Nama wajib diisi" };
+    }
+    if (modalData?.minimumStock !== "" && isNaN(modalData?.minimumStock)) {
+      isComplete = false;
+      newErrors = { ...newErrors, minimumStock: "Minimum Stock harus berupa angka" };
     }
     console.log("newErrors", newErrors);
     setModalErrors(newErrors);
@@ -321,6 +327,7 @@ function WarehouseProducts() {
                 <thead>
                   <tr>
                     <th>Kategori</th>
+                    <th>Brand</th>
                     <th>Cat No</th>
                     <th width="50%">Nama</th>
                     <th>Updated</th>
@@ -330,6 +337,7 @@ function WarehouseProducts() {
                 <tfoot>
                   <tr>
                     <th>Kategori</th>
+                    <th>Brand</th>
                     <th>Cat No</th>
                     <th width="50%">Nama</th>
                     <th>Updated</th>
@@ -353,6 +361,7 @@ function WarehouseProducts() {
                           </p>
                           {p?.subCategory ? <p>{p?.subCategory}</p> : null}
                         </td>
+                        <td>{p?.brand}</td>
                         <td>{p?.catalogNo}</td>
 
                         <td>
@@ -451,7 +460,7 @@ function WarehouseProducts() {
             </div>
           </div>
 
-          {modalData?.category === 3 ? (
+          {parseInt(modalData?.category) === 3 ? (
             <div className="row">
               <div className="col-lg-10">
                 <label>
@@ -529,6 +538,25 @@ function WarehouseProducts() {
                 } `}
               />
               <span style={{ color: "red" }}>{modalErrors?.name}</span>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Minimum Stock</b>
+              </label>
+              <input
+                name="minimumStock"
+                value={modalData?.minimumStock}
+                onChange={(e) =>
+                  setModalData({ ...modalData, minimumStock: e.target.value })
+                }
+                type={"number"}
+                className={`form-control ${
+                  modalErrors?.minimumStock ? "is-invalid" : ""
+                } `}
+              />
+              <span style={{ color: "red" }}>{modalErrors?.minimumStock}</span>
             </div>
           </div>
         </Modal.Body>

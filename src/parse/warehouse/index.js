@@ -13,10 +13,10 @@ export const fetchWarehouseMainData = async () => {
   let productList = [];
 
   try {
-    //productList = await getWarehouseProductStoragesData(null, null, null, 20);
-    //let products = await getWarehouseProductData();
-    productList = await getWarehouseProductData();
-    stats["products"] = productList?.length;
+    productList = await getWarehouseProductStoragesData(null, null, null, 20, "updatedAt", true);
+    let products = await getWarehouseProductData();
+    //productList = await getWarehouseProductData();
+    stats["products"] = products?.length;
 
     const resStorages = await getWarehouseStorageData();
     stats["storages"] = resStorages?.length;

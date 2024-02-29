@@ -21,7 +21,8 @@ export const postWarehouseProductItem = async (
   brand,
   name,
   subCategory,
-  category
+  category,
+  minimumStock
 ) => {
   try {
     const query = new Parse.Query("warehouse_products");
@@ -54,6 +55,9 @@ export const postWarehouseProductItem = async (
     }
     if (subCategory) {
       item.set("subCategory", subCategory);
+    }
+    if (minimumStock) {
+      item.set("minimumStock", parseInt(minimumStock));
     }
     await item.save();
 

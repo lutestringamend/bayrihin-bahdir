@@ -85,20 +85,24 @@ function WarehouseMain() {
               >
                 <thead>
                   <tr>
-                    <th>Kategori</th>
+                    <th>Brand</th>
                     <th>Cat No</th>
-                    <th width="50%">Nama</th>
-                    <th>Updated</th>
-                    <th>Aksi</th>
+                    <th width="40%">Product Desc</th>
+                    <th width="15%">Lot</th>
+                    <th width="7%">Stock</th>
+                    <th width="7%">On-Deliv</th>
+                    <th width="7%">Aksi</th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
-                    <th>Kategori</th>
+                    <th>Brand</th>
                     <th>Cat No</th>
-                    <th width="50%">Nama</th>
-                    <th>Updated</th>
-                    <th>Aksi</th>
+                    <th width="40%">Product Desc</th>
+                    <th width="15%">Lot</th>
+                    <th width="7%">Stock</th>
+                    <th width="7%">On-Deliv</th>
+                    <th width="7%">Aksi</th>
                   </tr>
                 </tfoot>
                 <tbody>
@@ -106,26 +110,19 @@ function WarehouseMain() {
                     return (
                       <tr key={index}>
                         <td>
-                          {p?.warehouseType
-                            ? p?.warehouseType?.category
-                              ? WarehouseTypeCategories[
-                                  p?.warehouseType?.category
-                                ]
-                              : ""
-                            : ""}
+                          {p?.brand}
                         </td>
                         <td>{p?.catalogNo}</td>
 
                         <td>
-                          {p?.brand ? <p>{p?.brand}</p> : null}
                           {p?.name}
                         </td>
+                        <td></td>
                         <td>
-                          <p>
-                            {p?.updatedAt
-                              ? new Date(p?.updatedAt).toLocaleString("id-ID")
-                              : ""}
-                          </p>
+                         {p?.balanceStock}
+                        </td>
+                        <td>
+                          {p?.balanceOnDelivery}
                         </td>
                         <th>
                           <p>
