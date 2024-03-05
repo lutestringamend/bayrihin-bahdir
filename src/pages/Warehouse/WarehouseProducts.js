@@ -7,8 +7,8 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
 import {
+  getWarehousePackageData,
   getWarehouseProductData,
-  getWarehouseTypeData,
 } from "../../parse/warehouse";
 import {
   deleteWarehouseProduct,
@@ -26,7 +26,7 @@ const defaultModalData = {
   loading: false,
   objectId: null,
   category: null,
-  warehouseType: null,
+  warehousePackage: null,
   brand: "",
   catalogNo: "",
   name: "",
@@ -35,7 +35,7 @@ const defaultModalData = {
 };
 const defaultModalErrors = {
   category: "",
-  warehouseType: "",
+  warehousePackage: "",
   catalogNo: "",
   name: "",
   subCategory: "",
@@ -48,35 +48,14 @@ function WarehouseProducts() {
 
   const [loading, setLoading] = useState(true);
   const [productList, setProductList] = useState([]);
-  const [typeList, setTypeList] = useState([]);
 
   const [modalData, setModalData] = useState(defaultModalData);
   const [modalErrors, setModalErrors] = useState(defaultModalErrors);
-  const [modalTypeList, setModalTypeList] = useState([]);
+  const [modalPackages, setModalPackages] = useState([]);
 
   useEffect(() => {
     fetchData();
   }, [params?.category, params?.type]);
-
-  useEffect(() => {
-    if (modalData?.category === null || parseInt(modalData?.category) < 1) {
-      setModalTypeList([]);
-      return;
-    }
-    fetchModalTypeList();
-  }, [modalData?.category]);
-
-  const fetchModalTypeList = async (category) => {
-    const typeRes = await getWarehouseTypeData(
-      category ? category : modalData?.category,
-    );
-    setModalTypeList(typeRes);
-    if (category) {
-      setModalData({ ...modalData, category });
-    } else {
-      setModalData(modalData);
-    }
-  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -86,10 +65,12 @@ function WarehouseProducts() {
       params?.type,
       "name",
     );
-    const typeRes = await getWarehouseTypeData(
+    const packages = await getWarehousePackageData();
+    setModalPackages(packages);
+    /*const typeRes = await getWarehouseTypeData(
       params?.category ? params?.category : null,
     );
-    setTypeList(typeRes);
+    setTypeList(typeRes);*/
 
     try {
       if (params?.category) {
@@ -113,10 +94,10 @@ function WarehouseProducts() {
     setLoading(false);
   };
 
-  const setModalType = (id) => {
-    let warehouseType = typeList.find(({ objectId }) => id === objectId);
-    if (!(warehouseType === undefined || warehouseType === null)) {
-      setModalData({ ...modalData, warehouseType });
+  const setModalPackage = (id) => {
+    let warehousePackage = modalPackages.find(({ objectId }) => id === objectId);
+    if (!(warehousePackage === undefined || warehousePackage === null)) {
+      setModalData({ ...modalData, warehousePackage });
     }
   };
 
@@ -165,11 +146,11 @@ function WarehouseProducts() {
       isComplete = false;
       newErrors = { ...newErrors, name: "Isian Nama wajib diisi" };
     }
-    if (modalData?.minimumStock !== "" && isNaN(modalData?.minimumStock)) {
+    /*if (!(modalData?.minimumStock === null || modalData?.minimumStock === "") && isNaN(modalData?.minimumStock)) {
       isComplete = false;
       newErrors = { ...newErrors, minimumStock: "Minimum Stock harus berupa angka" };
-    }
-    console.log("newErrors", newErrors);
+    }*/
+    //console.log("newErrors", newErrors);
     setModalErrors(newErrors);
 
     if (isComplete) {
@@ -181,7 +162,7 @@ function WarehouseProducts() {
         modalData?.brand,
         modalData?.name,
         modalData?.subCategory,
-        modalData?.category,
+        modalData?.category, modalData?.minimumStock, modalData?.warehousePackage
       );
 
       if (result) {
@@ -195,11 +176,12 @@ function WarehouseProducts() {
 
   const openModalEdit = async (p) => {
     try {
-      //await fetchModalTypeList(p?.warehouseType?.category);
+      console.log("modal edit", p);
       setModalData({
         visible: true,
         ...p,
         category: p?.warehouseType?.category,
+        warehousePackage: p?.warehousePackage,
       });
     } catch (e) {
       console.error(e);
@@ -300,7 +282,7 @@ function WarehouseProducts() {
             }${
               params?.type
                 ? ` --- ${
-                    typeList.find(({ objectId }) => objectId === params?.type)
+                    modalPackages.find(({ objectId }) => objectId === params?.type)
                       ?.name
                   }`
                 : ""
@@ -351,13 +333,11 @@ function WarehouseProducts() {
                         <td>
                           <p>
                             {" "}
-                            {p?.warehouseType
-                              ? p?.warehouseType?.category
-                                ? WarehouseTypeCategories[
-                                    p?.warehouseType?.category
+                            {p?.category
+                              ? WarehouseTypeCategories[
+                                    p?.category
                                   ]
-                                : ""
-                              : ""}
+                                : ""}
                           </p>
                           {p?.subCategory ? <p>{p?.subCategory}</p> : null}
                         </td>
@@ -365,7 +345,6 @@ function WarehouseProducts() {
                         <td>{p?.catalogNo}</td>
 
                         <td>
-                          {p?.brand ? <p>{p?.brand}</p> : null}
                           {p?.name}
                         </td>
                         <td>
@@ -457,6 +436,36 @@ function WarehouseProducts() {
                 ))}
               </select>
               <span style={{ color: "red" }}>{modalErrors?.category}</span>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Paket (opsional)</b>
+              </label>
+              <select
+                name="warehousePackage"
+                value={
+                  modalData?.warehousePackage
+                    ? modalData?.warehousePackage?.objectId
+                    : ""
+                }
+                onChange={(e) => setModalData({ ...modalData, warehousePackage: e.target.value })}
+                className={`form-control ${
+                  modalErrors.warehousePackage ? "is-invalid" : ""
+                } `}
+              >
+                <option value="">----Pilih Paket----</option>
+                {modalPackages?.length === undefined || modalPackages?.length < 1
+                  ? null
+                  : modalPackages.map((item, index) => (
+                      <option key={index} value={item?.objectId}>
+                        {item?.name}
+                      </option>
+                    ))}
+              </select>
+              <span style={{ color: "red" }}>{modalErrors?.warehousePackage}</span>
             </div>
           </div>
 
@@ -586,35 +595,7 @@ function WarehouseProducts() {
 }
 
 /*
-<div className="row">
-            <div className="col-lg-10">
-              <label>
-                <b>Tipe</b>
-              </label>
-              <select
-                name="warehouseType"
-                value={
-                  modalData?.warehouseType
-                    ? modalData?.warehouseType?.objectId
-                    : ""
-                }
-                onChange={(e) => setModalType(e.target.value)}
-                className={`form-control ${
-                  modalErrors.warehouseType ? "is-invalid" : ""
-                } `}
-              >
-                <option value="">----Pilih Tipe----</option>
-                {typeList?.length === undefined || typeList?.length < 1
-                  ? null
-                  : modalTypeList.map((item, index) => (
-                      <option key={index} value={item?.objectId}>
-                        {item?.name}
-                      </option>
-                    ))}
-              </select>
-              <span style={{ color: "red" }}>{modalErrors?.warehouseType}</span>
-            </div>
-          </div>
+
 */
 
 export default WarehouseProducts;

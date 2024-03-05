@@ -21,8 +21,11 @@ export const fetchWarehouseMainData = async () => {
     const resStorages = await getWarehouseStorageData();
     stats["storages"] = resStorages?.length;
 
-    const resTypes = await getWarehouseTypeData();
-    stats["types"] = resTypes?.length;
+    const resPackages = await getWarehousePackageData();
+    stats["packages"] = resPackages?.length;
+
+    /*const resTypes = await getWarehouseTypeData();
+    stats["types"] = resTypes?.length;*/
   } catch (error) {
     console.error(error);
   }
@@ -32,7 +35,7 @@ export const fetchWarehouseMainData = async () => {
   };
 };
 
-export const getWarehouseProductData = async (limit, sortDescendingBy, warehouseTypeId, sortAscendingBy) => {
+export const getWarehouseProductData = async (limit, sortDescendingBy, category, sortAscendingBy) => {
   let result = [];
   try {
     const query = new Parse.Query("warehouse_products");
@@ -42,14 +45,10 @@ export const getWarehouseProductData = async (limit, sortDescendingBy, warehouse
     } else {
       query.descending(sortDescendingBy ? sortDescendingBy : "updatedAt");
     }
-    if (warehouseTypeId) {
-      query.equalTo("warehouseType", {
-        __type: "Pointer",
-        className: "warehouse_types",
-        objectId: warehouseTypeId,
-      });
+    if (category) {
+      query.equalTo("category", parseInt(category));
     }
-    query.include("warehouseType");
+    query.exclude("warehouseType");
     const resProducts = await query.find();
     for (let r of resProducts) {
       result.push(r.toJSON());
@@ -117,6 +116,59 @@ export const getWarehouseProductLotsData = async (warehouseProductId) => {
     }
     const res = await query.find();
     for (let r of res) {
+      result.push(r.toJSON());
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+};
+
+export const getWarehousePackageData = async (category, objectId) => {
+  let result = [];
+  try {
+    const queryType = new Parse.Query("warehouse_packages");
+    queryType.limit(99);
+    queryType.ascending("name");
+    if (parseInt(category) > 0) {
+      queryType.equalTo("category", parseInt(category));
+    }
+    if (objectId) {
+      queryType.equalTo("objectId", objectId);
+    }
+    
+    let res = null;
+    if (objectId) {
+      res = await queryType.first();
+      return res.toJSON();
+    } else {
+      res = await queryType.find();
+      for (let r of res) {
+        result.push(r.toJSON());
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+};
+
+export const getWarehousePackageProductData = async (warehousePackageId) => {
+  let result = [];
+  try {
+    const queryType = new Parse.Query("warehouse_package_products");
+    queryType.limit(99999);
+    queryType.include("warehouseProduct");
+    if (warehousePackageId) {
+      queryType.equalTo("warehousePackage", {
+        __type: "Pointer",
+        className: "warehouse_packages",
+        objectId: warehousePackageId,
+      });
+    }
+
+    const resTypes = await queryType.find();
+    for (let r of resTypes) {
       result.push(r.toJSON());
     }
   } catch (e) {

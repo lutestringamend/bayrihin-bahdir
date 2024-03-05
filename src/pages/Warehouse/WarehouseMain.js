@@ -54,9 +54,9 @@ function WarehouseMain() {
           color="info"
         />
         <ButtonModuleMain
-          target="/warehouse-types"
-          title="Types"
-          value={stats?.types}
+          target="/warehouse-packages"
+          title="Paket"
+          value={stats?.packages}
           color="info"
         />
       </div>

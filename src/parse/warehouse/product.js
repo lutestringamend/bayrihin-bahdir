@@ -1,5 +1,51 @@
 import Parse from "parse/dist/parse.min.js";
 
+export const searchWarehouseProductItem = async (category, searchKey) => {
+  let result = [];
+  try {
+    console.log("searchWarehouseProductItem", category, searchKey);
+    const query = new Parse.Query("warehouse_products");
+    query.limit(999999);
+    if (category) {
+      query.equalTo("category", parseInt(category));
+    }
+    query.contains("name", searchKey);
+    const resProducts = await query.find();
+    if (resProducts?.length === undefined || resProducts?.length < 1) {
+      const queryCat = new Parse.Query("warehouse_products");
+      queryCat.limit(999999);
+      if (category) {
+        queryCat.equalTo("category", parseInt(category));
+      }
+      queryCat.contains("catalogNo", searchKey);
+      const search = await queryCat.find();
+      if (!(search?.length === undefined || search?.length < 1)) {
+        for (let r of search) {
+          let item = r.toJSON();
+          result.push({
+            objectId: item?.objectId,
+            name: item?.name,
+            catalogNo: item?.catalogNo,
+          });
+        }
+      }
+    } else {
+      for (let r of resProducts) {
+        let item = r.toJSON();
+          result.push({
+            objectId: item?.objectId,
+            name: item?.name,
+            catalogNo: item?.catalogNo,
+          });
+      }
+    }
+   
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+};
+
 export const getWarehouseProductById = async (id) => {
   let result = null;
   try {
@@ -22,16 +68,19 @@ export const postWarehouseProductItem = async (
   name,
   subCategory,
   category,
-  minimumStock
+  minimumStock,
+  warehousePackageId,
 ) => {
   try {
-    const query = new Parse.Query("warehouse_products");
-    query.limit(999999);
-    query.equalTo("catalogNo", catalogNo);
-    const queriedProduct = await query.first();
-    if (queriedProduct) {
-      alert("Katalog No ini sudah ada!");
-      return false;
+    if (productId === null) {
+      const query = new Parse.Query("warehouse_products");
+      query.limit(999999);
+      query.equalTo("catalogNo", catalogNo);
+      const queriedProduct = await query.first();
+      if (queriedProduct) {
+        alert("Katalog No ini sudah ada!");
+        return false;
+      }
     }
 
     let item = new Parse.Object("warehouse_products");
@@ -47,6 +96,13 @@ export const postWarehouseProductItem = async (
       className: "warehouse_types",
       objectId: warehouseTypeId,
     });
+    if (warehousePackageId) {
+      item.set("warehousePackage", {
+        __type: "Pointer",
+        className: "warehouse_packages",
+        objectId: warehousePackageId,
+      });
+    }
     item.set("catalogNo", catalogNo);
     item.set("brand", brand ? brand : "");
     item.set("name", name);

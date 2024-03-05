@@ -17,9 +17,11 @@ import UserEdit from "../pages/User/UserEdit";
 import WarehouseMain from "../pages/Warehouse/WarehouseMain";
 import WarehouseProducts from "../pages/Warehouse/WarehouseProducts";
 import WarehouseStorages from "../pages/Warehouse/WarehouseStorages";
+import WarehousePackages from "./Warehouse/WarehousePackages";
 import WarehouseTypes from "../pages/Warehouse/WarehouseTypes";
 import WarehouseProductMutations from "../pages/Warehouse/WarehouseProductMutations";
 import WarehouseProductLots from "../pages/Warehouse/WarehouseProductLots";
+import WarehousePackageProducts from "./Warehouse/WarehousePackageProducts";
 
 const Init = (props) => {
   const { currentUser } = props;
@@ -50,6 +52,14 @@ const Init = (props) => {
             path="warehouse-products/:category/:type"
             element={<WarehouseProducts />}
           />
+
+          <Route path="warehouse-packages" element={<WarehousePackages />} />
+          <Route
+            path="warehouse-packages/:category"
+            element={<WarehousePackages />}
+          />
+
+          <Route path="warehouse-package-products/:id" element={<WarehousePackageProducts />} />
 
           <Route path="warehouse-types" element={<WarehouseTypes />} />
           <Route

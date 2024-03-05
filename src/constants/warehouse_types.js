@@ -1,6 +1,6 @@
 export const WarehouseTypeCategories = [
     "",
-    "Implant",
+    "Implant & Disposables",
     "Instrument",
     "Unit",
 ]
