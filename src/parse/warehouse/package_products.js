@@ -3,7 +3,8 @@ import Parse from "parse/dist/parse.min.js";
 export const createWarehousePackageProductEntry = async (
   warehousePackage,
   warehouseProductId,
-  quantity
+  quantity,
+  notes
 ) => {
   let item = new Parse.Object("warehouse_package_products");
   item.set("warehouseProduct", {
@@ -18,6 +19,9 @@ export const createWarehousePackageProductEntry = async (
   });
   item.set("category", parseInt(warehousePackage?.category));
   item.set("quantity", parseInt(quantity));
+  if (notes) {
+    item.set("notes", notes);
+  }
 
   item.set("isPartOfUnitFullSetPackage", warehousePackage?.isUnitFullSetPackage || warehousePackage?.isPartOfUnitFullSetPackage);
   item.set("isPartOfUnitPartialSetPackage", warehousePackage?.isUnitPartialSetPackage || warehousePackage?.isPartOfUnitPartialSetPackage);
@@ -36,7 +40,8 @@ export const updateWarehousePackageProductEntry = async (
   objectId,
   warehousePackage,
   warehouseProductId,
-  quantity
+  quantity,
+  notes
 ) => {
   let item = new Parse.Object("warehouse_package_products");
   item.set("objectId", objectId);
@@ -52,6 +57,9 @@ export const updateWarehousePackageProductEntry = async (
   });
   item.set("category", parseInt(warehousePackage?.category));
   item.set("quantity", parseInt(quantity));
+  if (notes) {
+    item.set("notes", notes);
+  }
 
   item.set("isPartOfUnitFullSetPackage", warehousePackage?.isUnitFullSetPackage || warehousePackage?.isPartOfUnitFullSetPackage);
   item.set("isPartOfUnitPartialSetPackage", warehousePackage?.isUnitPartialSetPackage || warehousePackage?.isPartOfUnitPartialSetPackage);

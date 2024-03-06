@@ -6,7 +6,7 @@ export const searchWarehouseProductItem = async (category, searchKey) => {
     console.log("searchWarehouseProductItem", category, searchKey);
     const query = new Parse.Query("warehouse_products");
     query.limit(999999);
-    if (category) {
+    if (category && parseInt(category) === 1) {
       query.equalTo("category", parseInt(category));
     }
     query.contains("name", searchKey);
@@ -14,7 +14,7 @@ export const searchWarehouseProductItem = async (category, searchKey) => {
     if (resProducts?.length === undefined || resProducts?.length < 1) {
       const queryCat = new Parse.Query("warehouse_products");
       queryCat.limit(999999);
-      if (category) {
+      if (category && parseInt(category) === 1) {
         queryCat.equalTo("category", parseInt(category));
       }
       queryCat.contains("catalogNo", searchKey);

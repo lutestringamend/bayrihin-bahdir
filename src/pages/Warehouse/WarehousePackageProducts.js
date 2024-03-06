@@ -29,10 +29,12 @@ const defaultModalData = {
   warehouseProductName: "",
   searchList: [],
   quantity: "",
+  notes: "",
 };
 const defaultModalErrors = {
   warehouseProductId: "",
   quantity: "",
+  notes: "",
 };
 
 function WarehousePackageProducts() {
@@ -133,12 +135,14 @@ function WarehousePackageProducts() {
           item,
           modalData?.warehouseProductId,
           modalData?.quantity,
+          modalData?.notes,
         );
       } else {
         result = await createWarehousePackageProductEntry(
           item,
           modalData?.warehouseProductId,
           modalData?.quantity,
+          modalData?.notes,
         );
       }
       if (result) {
@@ -395,6 +399,26 @@ function WarehousePackageProducts() {
                 } `}
               />
               <span style={{ color: "red" }}>{modalErrors?.quantity}</span>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Catatan</b>
+              </label>
+              <textarea
+                name="notes"
+                value={modalData?.notes}
+                onChange={(e) =>
+                  setModalData({ ...modalData, notes: e.target.value })
+                }
+                type={"text"}
+                rows="3"
+                className={`form-control ${
+                  modalErrors?.notes ? "is-invalid" : ""
+                } `}
+              />
+              <span style={{ color: "red" }}>{modalErrors?.notes}</span>
             </div>
           </div>
         </Modal.Body>
