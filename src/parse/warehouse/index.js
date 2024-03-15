@@ -153,7 +153,7 @@ export const getWarehousePackageData = async (category, objectId) => {
   return result;
 };
 
-export const getWarehousePackageProductData = async (warehousePackageId) => {
+export const getWarehousePackageProductData = async (warehousePackageId, category) => {
   let result = [];
   try {
     const queryType = new Parse.Query("warehouse_package_products");
@@ -166,6 +166,9 @@ export const getWarehousePackageProductData = async (warehousePackageId) => {
         objectId: warehousePackageId,
       });
     }
+    if (category) {
+      queryType.equalTo("category", parseInt(category));
+    }
 
     const resTypes = await queryType.find();
     for (let r of resTypes) {
@@ -174,6 +177,7 @@ export const getWarehousePackageProductData = async (warehousePackageId) => {
   } catch (e) {
     console.error(e);
   }
+  console.log("getWarehousePackageProductData", result);
   return result;
 };
 

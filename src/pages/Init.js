@@ -22,6 +22,8 @@ import WarehouseTypes from "../pages/Warehouse/WarehouseTypes";
 import WarehouseProductMutations from "../pages/Warehouse/WarehouseProductMutations";
 import WarehouseProductLots from "../pages/Warehouse/WarehouseProductLots";
 import WarehousePackageProducts from "./Warehouse/WarehousePackageProducts";
+import CreateRequestOrder from "./Order/CreateRequestOrder";
+import OrderPackageItem from "./Order/OrderPackageItem";
 
 const Init = (props) => {
   const { currentUser } = props;
@@ -59,7 +61,10 @@ const Init = (props) => {
             element={<WarehousePackages />}
           />
 
-          <Route path="warehouse-package-products/:id" element={<WarehousePackageProducts />} />
+          <Route
+            path="warehouse-package-products/:id"
+            element={<WarehousePackageProducts />}
+          />
 
           <Route path="warehouse-types" element={<WarehouseTypes />} />
           <Route
@@ -78,6 +83,12 @@ const Init = (props) => {
           <Route
             path="warehouse-product-lots/:id"
             element={<WarehouseProductLots />}
+          />
+
+          <Route path="create-request-order" element={<CreateRequestOrder />} />
+          <Route
+            path="order-package-item/:category/:id"
+            element={<OrderPackageItem />}
           />
 
           <Route path="user-list" element={<Userlist />} />
