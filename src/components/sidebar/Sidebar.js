@@ -8,6 +8,24 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import { Link } from "react-router-dom";
 
+/*
+
+<li className="nav-item active">
+            <Link className="nav-link" to="/warehouse-packages">
+              <span>Balas Request Order</span>
+            </Link>
+          </li>
+
+           <hr className="sidebar-divider my-0" />
+
+      <li className="nav-item active">
+        <Link className="nav-link" to="/user">
+          <FontAwesomeIcon icon={faUsers} style={{ marginRight: "0.5rem" }} />
+          <span>User Management</span>
+        </Link>
+      </li>
+*/
+
 function Sidebar() {
   return (
     <ul
@@ -66,21 +84,14 @@ function Sidebar() {
             </Link>
           </li>
           <li className="nav-item active">
-            <Link className="nav-link" to="/warehouse-packages">
-              <span>Balas Request Order</span>
+            <Link className="nav-link" to="/hospitals">
+              <span>Daftar Hospital</span>
             </Link>
           </li>
+          
         </ul>
       </li>
-      <hr className="sidebar-divider my-0" />
-
-      <li className="nav-item active">
-        <Link className="nav-link" to="/user">
-          <FontAwesomeIcon icon={faUsers} style={{ marginRight: "0.5rem" }} />
-          <span>User Management</span>
-        </Link>
-      </li>
-      <hr className="sidebar-divider my-0" />
+     
     </ul>
   );
 }

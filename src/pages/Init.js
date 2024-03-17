@@ -24,6 +24,7 @@ import WarehouseProductLots from "../pages/Warehouse/WarehouseProductLots";
 import WarehousePackageProducts from "./Warehouse/WarehousePackageProducts";
 import CreateRequestOrder from "./Order/CreateRequestOrder";
 import OrderPackageItem from "./Order/OrderPackageItem";
+import Hospitals from "./Order/Hospitals";
 
 const Init = (props) => {
   const { currentUser } = props;
@@ -90,6 +91,8 @@ const Init = (props) => {
             path="order-package-item/:category/:id"
             element={<OrderPackageItem />}
           />
+          <Route path="hospitals" element={<Hospitals />} />
+          <Route path="hospitals/:storageId" element={<Hospitals />} />
 
           <Route path="user-list" element={<Userlist />} />
           <Route path="create-user" element={<UserCreate />} />
