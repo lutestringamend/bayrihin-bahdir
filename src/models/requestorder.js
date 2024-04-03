@@ -9,4 +9,5 @@ export const RequestOrderModel = {
     createdAt: "",
     surgeryDate: "",
     deliveryDate: "",
+    inventoryJSON: "",
 }

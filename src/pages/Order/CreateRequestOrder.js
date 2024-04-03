@@ -5,6 +5,9 @@ import { bindActionCreators } from "redux";
 import { FadeLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheckCircle } from "@fortawesome/free-regular-svg-icons";
+import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
@@ -14,33 +17,22 @@ import {
 } from "../../parse/warehouse";
 import {
   deleteItemsFromRequestOrderPackage,
-  formatDeliveryOrderNumber,
   overhaulReduxNewOrder,
   updateReduxNewRequestOrder,
   overhaulReduxOrderDoctors,
   overhaulReduxOrderHospitals,
   overhaulReduxOrderWarehouseStorages,
+  processRequestOrderInventory,
+  formatDeliveryOrderNumber,
 } from "../../utils/order";
 import RequestOrderTable from "../../components/tables/RequestOrderTable";
 import { RequestOrderModel } from "../../models/requestorder";
 import { getDoctorsData, getHospitalsData } from "../../parse/order";
-import { convertDateISOStringtoDisplayDateTime } from "../../utils";
+import { DATE_TIME_PICKER_FORMAT } from "../../constants/strings";
+import { createUpdateRequestOrderEntry } from "../../parse/order/requestorders";
+
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
-
-const defaultModalData = {
-  visible: false,
-  loading: false,
-  objectId: null,
-  category: null,
-  name: "",
-  unitPackageGrouping: "",
-};
-const defaultModalErrors = {
-  name: "",
-  category: "",
-  unitPackageGrouping: "",
-};
 
 const DefaultPackages = {
   implants: [],
@@ -61,8 +53,6 @@ function CreateRequestOrder(props) {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [storages, setStorages] = useState([]);
-  const [selectedStorage, setSelectedStorage] = useState(null);
   const [errors, setErrors] = useState(RequestOrderModel);
 
   useEffect(() => {
@@ -82,24 +72,28 @@ function CreateRequestOrder(props) {
   }, [doctors]);
 
   useEffect(() => {
-    console.log("redux newOrder", newOrder);
+    //console.log("redux newOrder", newOrder);
     if (newOrder !== null && loading) {
       setLoading(false);
     }
   }, [newOrder]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     console.log("newRequestOrder", newRequestOrder);
-  }, [newRequestOrder]);
+  }, [newRequestOrder]);*/
 
-  useEffect(() => {
-    if (newRequestOrder?.warehouseStorageId === undefined || newRequestOrder?.warehouseStorageId === null || newRequestOrder?.warehouseStorageId === "") {
-
-    } else {
-      props.updateReduxNewRequestOrder({ ...newOrder, hospitalId: null });
-      fetchHospitals(newRequestOrder?.warehouseStorageId);
+  /*useEffect(() => {
+    if (
+      !(newRequestOrder?.warehouseStorageId === undefined ||
+      newRequestOrder?.warehouseStorageId === null ||
+      newRequestOrder?.warehouseStorageId === "")
+    ) {
+      props.updateReduxNewRequestOrder({
+        ...newRequestOrder,
+        hospitalId: null,
+      });
     }
-  }, [newRequestOrder?.warehouseStorageId]);
+  }, [newRequestOrder?.warehouseStorageId]);*/
 
   let prepareData = () => {
     if (newOrder === null) {
@@ -130,9 +124,6 @@ function CreateRequestOrder(props) {
 
   const fetchData = async () => {
     setLoading(true);
-    const storages = await getWarehouseStorageData();
-    console.log("Storages", storages);
-    setStorages(storages);
     const result = await getWarehousePackageData();
     let implants = [];
     let instruments = [];
@@ -186,6 +177,96 @@ function CreateRequestOrder(props) {
     });
   };
 
+  const submit = async () => {
+    let newErrors = RequestOrderModel;
+    let isComplete = true;
+    let processedJSON = processRequestOrderInventory(newOrder);
+    //console.log("processedJSON", processedJSON);
+
+    if (processedJSON?.count < 1) {
+      newErrors = { ...newErrors, inventoryJSON: "Inventory masih kosong" };
+      isComplete = false;
+    }
+    if (
+      newRequestOrder?.deliveryOrderNumber === "" ||
+      newRequestOrder?.deliveryOrderNumber?.length < 3
+    ) {
+      newErrors = {
+        ...newErrors,
+        deliveryOrderNumber: "Delivery Order No harus diisi",
+      };
+      isComplete = false;
+    }
+    if (
+      newRequestOrder?.doctorId === null ||
+      newRequestOrder?.doctorId === ""
+    ) {
+      newErrors = { ...newErrors, doctorId: "Dokter harus diisi" };
+      isComplete = false;
+    }
+    if (
+      newRequestOrder?.warehouseStorageId === null ||
+      newRequestOrder?.warehouseStorageId === ""
+    ) {
+      newErrors = { ...newErrors, warehouseStorageId: "Region harus diisi" };
+      isComplete = false;
+    }
+    if (
+      newRequestOrder?.hospitalId === null ||
+      newRequestOrder?.hospitalId === ""
+    ) {
+      newErrors = { ...newErrors, hospitalId: "Rumah Sakit harus diisi" };
+      isComplete = false;
+    }
+    if (
+      newRequestOrder?.procedure === "" ||
+      newRequestOrder?.procedure?.length < 3
+    ) {
+      newErrors = { ...newErrors, procedure: "Prosedur harus diisi" };
+      isComplete = false;
+    }
+    if (
+      newRequestOrder?.surgeryDate === null ||
+      newRequestOrder?.surgeryDate === ""
+    ) {
+      newErrors = { ...newErrors, surgeryDate: "Tanggal Prosedur harus diisi" };
+      isComplete = false;
+    }
+    if (
+      newRequestOrder?.deliveryDate === null ||
+      newRequestOrder?.deliveryDate === ""
+    ) {
+      newErrors = {
+        ...newErrors,
+        deliveryDate: "Tanggal Delivery harus diisi",
+      };
+      isComplete = false;
+    }
+    setErrors(newErrors);
+
+    if (isComplete) {
+      const result = await createUpdateRequestOrderEntry(
+        null,
+        newRequestOrder?.deliveryOrderNumber,
+        newRequestOrder?.doctorId,
+        newRequestOrder?.hospitalId,
+        newRequestOrder?.warehouseStorageId,
+        newRequestOrder?.procedure,
+        newRequestOrder?.surgeryDate,
+        newRequestOrder?.deliveryDate,
+        processedJSON?.inventoryJSON,
+      );
+      if (result) {
+        props.updateReduxNewRequestOrder({
+          ...RequestOrderModel,
+          deliveryOrderNumber: formatDeliveryOrderNumber(),
+        });
+        props.overhaulReduxNewOrder(null);
+        navigate("/order");
+      }
+    }
+  };
+
   return (
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
@@ -193,7 +274,7 @@ function CreateRequestOrder(props) {
         <a
           href="#"
           className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-          onClick={() => console.log("createrequestorder")}
+          onClick={() => submit()}
         >
           <FontAwesomeIcon
             icon={faCheckCircle}
@@ -201,6 +282,10 @@ function CreateRequestOrder(props) {
           />
           Submit
         </a>
+      </div>
+
+      <div className="d-sm-flex align-items-center justify-content-between mb-4">
+        <span style={{ color: "red" }}>{errors?.inventoryJSON}</span>
       </div>
 
       <div className="d-sm justify-content-between mb-4">
@@ -258,13 +343,19 @@ function CreateRequestOrder(props) {
         </label>
         <select
           name="warehouseStorage"
-          value={newRequestOrder?.warehouseStorageId}
-          onChange={(e) =>
+          value={
+            newRequestOrder?.warehouseStorageId
+              ? newRequestOrder?.warehouseStorageId
+              : ""
+          }
+          onChange={(e) => {
             props.updateReduxNewRequestOrder({
               ...newRequestOrder,
               warehouseStorageId: e.target.value,
-            })
-          }
+              hospitalId: null,
+            });
+            fetchHospitals(e.target.value);
+          }}
           className={`form-control ${
             errors?.warehouseStorageId ? "is-invalid" : ""
           } `}
@@ -287,7 +378,7 @@ function CreateRequestOrder(props) {
         </label>
         <select
           name="hospital"
-          value={newRequestOrder?.hospitalId}
+          value={newRequestOrder?.hospitalId ? newRequestOrder?.hospitalId : ""}
           onChange={(e) =>
             props.updateReduxNewRequestOrder({
               ...newRequestOrder,
@@ -331,18 +422,70 @@ function CreateRequestOrder(props) {
         <label>
           <b>Tanggal Request</b>
         </label>
-        <input
-          name="createdAt"
-          value={convertDateISOStringtoDisplayDateTime(new Date().toISOString(), true, true)}
-          disabled
-          type={"text"}
-          className="form-control"
-        />
+        <br />
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="id">
+          <DateTimePicker
+            readOnly
+            format={DATE_TIME_PICKER_FORMAT}
+            views={["year", "month", "day", "hours", "minutes"]}
+            defaultValue={dayjs()}
+            className="w-100"
+          />
+        </LocalizationProvider>
+        <p />
       </div>
-
-
-      <p>Tanggal Prosedur</p>
-      <p>Tanggal Delivery</p>
+      <div className="d-sm justify-content-between mb-4">
+        <label>
+          <b>Tanggal Prosedur</b>
+        </label>
+        <br />
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="id">
+          <DateTimePicker
+            format={DATE_TIME_PICKER_FORMAT}
+            views={["year", "month", "day", "hours", "minutes"]}
+            onChange={(e) =>
+              props.updateReduxNewRequestOrder({
+                ...newRequestOrder,
+                surgeryDate: e.toISOString(),
+              })
+            }
+            value={
+              newRequestOrder?.surgeryDate
+                ? dayjs(newRequestOrder?.surgeryDate)
+                : null
+            }
+            className={`w-100 ${errors?.surgeryDate ? "is-invalid" : ""} `}
+          />
+        </LocalizationProvider>
+        <span style={{ color: "red" }}>{errors?.surgeryDate}</span>
+        <p />
+      </div>
+      <div className="d-sm justify-content-between mb-4">
+        <label>
+          <b>Tanggal Delivery</b>
+        </label>
+        <br />
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="id">
+          <DateTimePicker
+            format={DATE_TIME_PICKER_FORMAT}
+            views={["year", "month", "day", "hours", "minutes"]}
+            onChange={(e) =>
+              props.updateReduxNewRequestOrder({
+                ...newRequestOrder,
+                deliveryDate: e.toISOString(),
+              })
+            }
+            value={
+              newRequestOrder?.deliveryDate
+                ? dayjs(newRequestOrder?.deliveryDate)
+                : null
+            }
+            className={`w-100 ${errors?.deliveryDate ? "is-invalid" : ""} `}
+          />
+        </LocalizationProvider>
+        <span style={{ color: "red" }}>{errors?.deliveryDate}</span>
+        <p />
+      </div>
 
       {loading || newOrder === null ? (
         <FadeLoader

@@ -44,6 +44,52 @@ export function clearReduxOrderData() {
     };
   }
 
+  export const processRequestOrderInventory = (newOrder) => {
+    let inventory = {
+      implants: [],
+      instruments: [],
+      units: [],
+    };
+    let count = 0;
+    try {
+      let implants = listRequestOrderInventoryByCategory(newOrder["implants"]);
+      let instruments = listRequestOrderInventoryByCategory(newOrder["instruments"]);
+      let units = listRequestOrderInventoryByCategory(newOrder["units"]);
+      inventory = {
+        implants: implants?.result,
+        instruments: instruments?.result,
+        units: units?.result,
+      };
+      count = implants?.count + instruments?.count + units?.count;
+
+    } catch (e) {
+      console.error(e);
+    }
+    return {
+      inventoryJSON: JSON.stringify(inventory),
+      count,
+    };
+  }
+
+  export const listRequestOrderInventoryByCategory = (data) => {
+    let result = [];
+    let count = 0;
+    try {
+      for (let i = 0; i < data?.length; i++) {
+        if (!(data[i]?.items === undefined || data[i]?.items?.length === undefined || data[i]?.items?.length < 1)) {
+          result.push(data[i]);
+          count += data[i]?.items?.length;
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return {
+      result,
+      count,
+    }
+  }
+
   export const formatDeliveryOrderNumber = (number, month, year) => {
     try {
       let code = DELIVERY_ORDER_NUMBER_DEFAULT_FORMAT

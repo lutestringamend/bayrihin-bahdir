@@ -8,7 +8,8 @@ export const createUpdateRequestOrderEntry = async (
         warehouseStorageId,
         procedure,
         surgeryDate,
-        deliveryDate
+        deliveryDate,
+        inventoryJSON
     ) => {
     let item = new Parse.Object("request_orders");
     if (objectId) {
@@ -19,6 +20,7 @@ export const createUpdateRequestOrderEntry = async (
     item.set("procedure", procedure);
     item.set("surgeryDate", surgeryDate);
     item.set("deliveryDate", deliveryDate);
+    item.set("inventoryJSON", inventoryJSON);
 
     item.set("doctor", {
         __type: "Pointer",

@@ -22,3 +22,5 @@ export const DAY_NAMES = [
     "Jumat",
     "Sabtu"
 ]
+
+export const DATE_TIME_PICKER_FORMAT = "dddd, DD MMMM YYYY, hh:mm a"
