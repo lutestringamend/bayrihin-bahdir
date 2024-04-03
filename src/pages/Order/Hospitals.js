@@ -138,7 +138,7 @@ function Hospitals() {
   return (
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 className="h3 mb-0 text-gray-800">Daftar Hospital</h1>
+        <h1 className="h3 mb-0 text-gray-800">Daftar Rumah Sakit</h1>
         <a
           href="#"
           className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
@@ -148,7 +148,7 @@ function Hospitals() {
             icon={faSquarePlus}
             style={{ marginRight: "0.25rem", color: "white" }}
           />
-          Tambah Hospital
+          Tambah Rumah Sakit
         </a>
       </div>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
@@ -179,7 +179,7 @@ function Hospitals() {
       <div className="card shadow mb-4">
         <div className="card-header py-3">
           <h6 className="m-0 font-weight-bold text-primary">
-            Daftar Hospitals berdasarkan code
+            Daftar Rumah Sakit berdasarkan code
           </h6>
         </div>
         <div className="card-body">
@@ -264,14 +264,14 @@ function Hospitals() {
       <Modal show={modalData?.visible} onHide={() => closeModal()}>
         <Modal.Header closeButton>
           <Modal.Title>
-            {modalData?.objectId ? "Edit Hospital" : "Tambah Hospital"}
+            {modalData?.objectId ? "Edit Rumah Sakit" : "Tambah Rumah Sakit"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>
             {modalData?.objectId
-              ? `Edit keterangan Hospital berikut ini`
-              : "Tambahkan Hospital dengan keterangan berikut ini"}
+              ? `Edit keterangan Rumah Sakit berikut ini`
+              : "Tambahkan Rumah Sakit dengan keterangan berikut ini"}
           </p>
           <div className="row">
             <div className="col-lg-10">

@@ -1,5 +1,28 @@
 import Parse from "parse/dist/parse.min.js";
 
+export const getDoctorsData = async (params) => {
+  let result = [];
+  try {
+    const query = new Parse.Query("doctors");
+    query.limit(9999);
+    query.ascending("name");
+    if (params === undefined || params === null || params === "") {
+      query.equalTo("isActive", true);
+    } else if (params === "inactive") {
+      query.equalTo("isActive", false);
+    }
+  
+    const res = await query.find();
+    for (let r of res) {
+      result.push(r.toJSON());
+    }
+    console.log("doctors", result?.length);
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+};
+
 export const getHospitalsData = async (warehouseStorageId) => {
     let result = [];
     try {

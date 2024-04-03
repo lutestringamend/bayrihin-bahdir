@@ -85,7 +85,12 @@ function Sidebar() {
           </li>
           <li className="nav-item active">
             <Link className="nav-link" to="/hospitals">
-              <span>Daftar Hospital</span>
+              <span>Daftar Rumah Sakit</span>
+            </Link>
+          </li>
+          <li className="nav-item active">
+            <Link className="nav-link" to="/doctors">
+              <span>Daftar Dokter</span>
             </Link>
           </li>
           

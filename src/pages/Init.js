@@ -22,9 +22,11 @@ import WarehouseTypes from "../pages/Warehouse/WarehouseTypes";
 import WarehouseProductMutations from "../pages/Warehouse/WarehouseProductMutations";
 import WarehouseProductLots from "../pages/Warehouse/WarehouseProductLots";
 import WarehousePackageProducts from "./Warehouse/WarehousePackageProducts";
+
 import CreateRequestOrder from "./Order/CreateRequestOrder";
 import OrderPackageItem from "./Order/OrderPackageItem";
 import Hospitals from "./Order/Hospitals";
+import Doctors from "./Order/Doctors";
 
 const Init = (props) => {
   const { currentUser } = props;
@@ -93,6 +95,9 @@ const Init = (props) => {
           />
           <Route path="hospitals" element={<Hospitals />} />
           <Route path="hospitals/:storageId" element={<Hospitals />} />
+
+          <Route path="doctors" element={<Doctors />} />
+          <Route path="doctors/:status" element={<Doctors />} />
 
           <Route path="user-list" element={<Userlist />} />
           <Route path="create-user" element={<UserCreate />} />
