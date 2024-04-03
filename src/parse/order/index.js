@@ -41,7 +41,7 @@ export const getHospitalsData = async (warehouseStorageId) => {
       for (let r of resStorages) {
         result.push(r.toJSON());
       }
-      console.log("hospitals", result);
+      //console.log("hospitals", result);
     } catch (e) {
       console.error(e);
     }

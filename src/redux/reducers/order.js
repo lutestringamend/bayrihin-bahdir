@@ -1,11 +1,24 @@
 
+import { RequestOrderModel } from "../../models/requestorder";
+import { formatDeliveryOrderNumber } from "../../utils/order";
 import {
     CLEAR_ORDER_DATA,
     NEW_ORDER_STATE_OVERHAUL,
+    NEW_REQUEST_ORDER_STATE_UPDATE,
+    ORDER_DOCTORS_STATE_OVERHAUL,
+    ORDER_HOSPITALS_STATE_OVERHAUL,
+    ORDER_WAREHOUSE_STORAGES_STATE_OVERHAUL,
   } from "../constants";
   
   export const initialState = {
+    newRequestOrder: {
+      ...RequestOrderModel,
+      deliveryOrderNumber: formatDeliveryOrderNumber(),
+    },
     newOrder: null,
+    doctors: null,
+    hospitals: null,
+    warehouseStorages: null,
   };
   
   export const order = (state = initialState, action) => {
@@ -15,6 +28,27 @@ import {
           ...state,
           newOrder: action.data,
         };
+      case NEW_REQUEST_ORDER_STATE_UPDATE:
+        return {
+          ...state,
+          newRequestOrder: action.data,
+        };
+      case ORDER_DOCTORS_STATE_OVERHAUL:
+        return {
+          ...state,
+          doctors: action.data,
+        };
+      case ORDER_HOSPITALS_STATE_OVERHAUL:
+        return {
+          ...state,
+          hospitals: action.data,
+        };
+      case ORDER_WAREHOUSE_STORAGES_STATE_OVERHAUL:
+        return {
+          ...state,
+          warehouseStorages: action.data,
+        };
+          
       case CLEAR_ORDER_DATA:
         return initialState;
       default:

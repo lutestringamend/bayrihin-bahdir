@@ -204,6 +204,7 @@ export const getWarehouseStorageData = async () => {
   let result = [];
   try {
     const queryStorage = new Parse.Query("warehouse_storages");
+    queryStorage.limit(99);
     queryStorage.ascending("createdAt");
     const resStorages = await queryStorage.find();
     for (let r of resStorages) {
