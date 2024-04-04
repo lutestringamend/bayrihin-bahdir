@@ -175,6 +175,7 @@ function WarehouseProductMutations() {
   let fetchData = async () => {
     setLoading(true);
     const productData = await getWarehouseProductById(params.id);
+    console.log("productData", productData);
     setProductData(productData);
     const storageRes = await getWarehouseStorageData();
     setStorageList(storageRes);
@@ -513,14 +514,19 @@ function WarehouseProductMutations() {
                     <th>Jenis</th>
                     <th>Mutasi</th>
                     <th>
-                      Saldo
-                      <br />
                       Stock
                     </th>
                     <th>
-                      Saldo
-                      <br />
-                      Delivery
+                      On-Delivery
+                    </th>
+                    <th>
+                      Pending
+                    </th>
+                    <th>
+                      Service
+                    </th>
+                    <th>
+                      Marketing
                     </th>
                   </tr>
                 </thead>
@@ -532,14 +538,19 @@ function WarehouseProductMutations() {
                     <th>Jenis</th>
                     <th>Mutasi</th>
                     <th>
-                      Saldo
-                      <br />
                       Stock
                     </th>
                     <th>
-                      Saldo
-                      <br />
-                      Delivery
+                      On-Delivery
+                    </th>
+                    <th>
+                      Pending
+                    </th>
+                    <th>
+                      Service
+                    </th>
+                    <th>
+                      Marketing
                     </th>
                   </tr>
                 </tfoot>
@@ -561,7 +572,7 @@ function WarehouseProductMutations() {
                         <td>
                           <div
                             className={
-                              p?.numOutbound > 0
+                              p?.numOutDelivery > 0 || p?.numOutNextOrder > 0 || p?.numOutService > 0 || p?.numOutMarketing > 0 || p?.numOutBroken > 0
                                 ? p?.type === "Transfer Out"
                                   ? "text-dark-yellow"
                                   : "text-danger"
@@ -576,7 +587,7 @@ function WarehouseProductMutations() {
                         <td>
                           <div
                             className={
-                              p?.numOutbound > 0
+                              p?.numOutDelivery > 0 || p?.numOutNextOrder > 0 || p?.numOutService > 0 || p?.numOutMarketing > 0 || p?.numOutBroken > 0
                                 ? p?.type === "Transfer Out"
                                   ? "text-dark-yellow"
                                   : "text-danger"
@@ -585,14 +596,32 @@ function WarehouseProductMutations() {
                                   : "text-primary"
                             }
                           >
-                            {p?.numInbound ? <p>{p.numInbound}</p> : null}
-                            {p?.numOutbound ? (
-                              <p>{`(${p.numOutbound})`}</p>
+                            {p?.numInSupplier ? <p>{p.numInSupplier}</p> : null}
+                            {p?.numInReturn ? <p>{p.numInReturn}</p> : null}
+                            {p?.numInMarketing ? <p>{p.numInMarketing}</p> : null}
+                            {p?.numInService ? <p>{p.numInService}</p> : null}
+                            {p?.numOutDelivery ? (
+                              <p>{p?.numOutDelivery}</p>
+                            ) : null}
+                            {p?.numOutService ? (
+                              <p>{p?.numOutService}</p>
+                            ) : null}
+                            {p?.numOutNextOrder ? (
+                              <p>{p?.numOutNextOrder}</p>
+                            ) : null}
+                            {p?.numOutMarketing ? (
+                              <p>{p?.numOutMarketing}</p>
+                            ) : null}
+                            {p?.numOutBroken ? (
+                              <p>{p?.numOutBroken}</p>
                             ) : null}
                           </div>
                         </td>
                         <td>{p.balanceStock}</td>
                         <td>{p.balanceOnDelivery}</td>
+                        <td>{p.balancePending}</td>
+                        <td>{p.balanceService}</td>
+                        <td>{p.balanceMarketing}</td>
                       </tr>
                     );
                   })}

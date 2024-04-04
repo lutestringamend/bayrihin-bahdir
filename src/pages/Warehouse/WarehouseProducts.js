@@ -55,16 +55,17 @@ function WarehouseProducts() {
 
   useEffect(() => {
     fetchData();
-  }, [params?.category, params?.type]);
+  }, [params?.category]);
 
   const fetchData = async () => {
     setLoading(true);
     const result = await getWarehouseProductData(
       null,
       null,
-      params?.type,
+      params?.category,
       "name",
     );
+    console.log("getWarehouseProductData result", result);
     const packages = await getWarehousePackageData();
     setModalPackages(packages);
     /*const typeRes = await getWarehouseTypeData(
@@ -72,7 +73,7 @@ function WarehouseProducts() {
     );
     setTypeList(typeRes);*/
 
-    try {
+    /*try {
       if (params?.category) {
         let newArray = [];
         for (let r of result) {
@@ -88,7 +89,7 @@ function WarehouseProducts() {
       }
     } catch (e) {
       console.error(e);
-    }
+    }*/
 
     setProductList(result);
     setLoading(false);

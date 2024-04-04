@@ -1,5 +1,11 @@
 export const WarehouseProductMutationTypes = [
-    "Stock In",
-    "Delivery Out",
-    "Delivery In"
+    "In Supplier",
+    "Out Delivery",
+    "In Return",
+    "Out Next Order",
+    "Out Marketing",
+    "In Marketing",
+    "Out Service",
+    "In Service",
+    "Out Broken"
 ]

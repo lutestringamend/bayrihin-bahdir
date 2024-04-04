@@ -41,6 +41,13 @@ const Init = (props) => {
     );
   }
 
+  /*
+<Route
+            path="warehouse-products/:category/:type"
+            element={<WarehouseProducts />}
+          />
+  */
+
   return (
     <BrowserRouter>
       <Routes>
@@ -53,10 +60,7 @@ const Init = (props) => {
             path="warehouse-products/:category"
             element={<WarehouseProducts />}
           />
-          <Route
-            path="warehouse-products/:category/:type"
-            element={<WarehouseProducts />}
-          />
+          
 
           <Route path="warehouse-packages" element={<WarehousePackages />} />
           <Route
