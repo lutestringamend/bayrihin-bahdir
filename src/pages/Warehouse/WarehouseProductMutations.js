@@ -22,8 +22,13 @@ import {
 } from "../../parse/warehouse/product_mutation";
 import { getWarehouseProductStoragesData } from "../../parse/warehouse/product_storage";
 import CardProductStorage from "../../components/card/CardProductStorage";
-import { WarehouseProductMutationTypes } from "../../constants/warehouse_product_mutations";
+import {
+  WarehouseProductMutationDefaultActions,
+  WarehouseProductMutationImplantActions,
+  WarehouseProductMutationTypes,
+} from "../../constants/warehouse_product_mutations";
 import { getWarehouseProductById } from "../../parse/warehouse/product";
+import { WarehouseTypeCategories } from "../../constants/warehouse_types";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
@@ -76,6 +81,7 @@ function WarehouseProductMutations() {
   const [modalData, setModalData] = useState(defaultModalData);
   const [modalErrors, setModalErrors] = useState(defaultModalErrors);
   const [modalBalances, setModalBalances] = useState(defaultModalBalances);
+  const [mutationActions, setMutationActions] = useState([]);
 
   const [transferModalData, setTransferModalData] = useState(
     defaultTransferModalData,
@@ -112,6 +118,22 @@ function WarehouseProductMutations() {
     }
     setProductLotData(null);
   }, [productLotList]);
+
+  useEffect(() => {
+    if (
+      productData?.category === undefined ||
+      productData?.category === null ||
+      productData?.category === ""
+    ) {
+      setMutationActions([]);
+      return;
+    }
+    if (parseInt(productData?.category) === 1) {
+      setMutationActions(WarehouseProductMutationImplantActions);
+    } else {
+      setMutationActions(WarehouseProductMutationDefaultActions);
+    }
+  }, [productData]);
 
   useEffect(() => {
     if (
@@ -293,6 +315,7 @@ function WarehouseProductMutations() {
           : modalData?.warehouseProductLot,
         type: modalData?.type,
         num: parseInt(modalData?.value),
+        category: parseInt(productData?.category),
         newWarehouseProductLotName: modalData?.newProductLot
           ? modalData?.newWarehouseProductLotName
           : null,
@@ -354,6 +377,7 @@ function WarehouseProductMutations() {
         params.id,
         transferModalData?.warehouseProductLot,
         parseInt(transferModalData?.value),
+        parseInt(productData?.category)
       );
       if (result) {
         fetchData();
@@ -464,6 +488,9 @@ function WarehouseProductMutations() {
               title={item?.warehouseStorage?.name}
               balanceStock={item?.balanceStock}
               balanceOnDelivery={item?.balanceOnDelivery}
+              balancePending={item?.balancePending}
+              balanceMarketing={item?.balanceMarketing}
+              balanceService={item?.balanceService}
               numLots={item?.productLots?.length}
               color="info"
             />
@@ -477,8 +504,8 @@ function WarehouseProductMutations() {
             {`${
               productData
                 ? `${
-                    productData?.warehouseType
-                      ? productData?.warehouseType?.name
+                    productData?.category
+                      ? WarehouseTypeCategories[parseInt(productData?.category)]
                       : ""
                   } -- ${productData?.name}`
                 : "Loading..."
@@ -513,21 +540,11 @@ function WarehouseProductMutations() {
                     <th>Lot</th>
                     <th>Jenis</th>
                     <th>Mutasi</th>
-                    <th>
-                      Stock
-                    </th>
-                    <th>
-                      On-Delivery
-                    </th>
-                    <th>
-                      Pending
-                    </th>
-                    <th>
-                      Service
-                    </th>
-                    <th>
-                      Marketing
-                    </th>
+                    <th>Stock</th>
+                    <th>On-Delivery</th>
+                    <th>Pending</th>
+                    <th>Service</th>
+                    <th>Marketing</th>
                   </tr>
                 </thead>
                 <tfoot>
@@ -537,21 +554,11 @@ function WarehouseProductMutations() {
                     <th>Lot</th>
                     <th>Jenis</th>
                     <th>Mutasi</th>
-                    <th>
-                      Stock
-                    </th>
-                    <th>
-                      On-Delivery
-                    </th>
-                    <th>
-                      Pending
-                    </th>
-                    <th>
-                      Service
-                    </th>
-                    <th>
-                      Marketing
-                    </th>
+                    <th>Stock</th>
+                    <th>On-Delivery</th>
+                    <th>Pending</th>
+                    <th>Service</th>
+                    <th>Marketing</th>
                   </tr>
                 </tfoot>
                 <tbody>
@@ -572,7 +579,11 @@ function WarehouseProductMutations() {
                         <td>
                           <div
                             className={
-                              p?.numOutDelivery > 0 || p?.numOutNextOrder > 0 || p?.numOutService > 0 || p?.numOutMarketing > 0 || p?.numOutBroken > 0
+                              p?.numOutDelivery > 0 ||
+                              p?.numOutNextOrder > 0 ||
+                              p?.numOutService > 0 ||
+                              p?.numOutMarketing > 0 ||
+                              p?.numOutBroken > 0
                                 ? p?.type === "Transfer Out"
                                   ? "text-dark-yellow"
                                   : "text-danger"
@@ -587,7 +598,11 @@ function WarehouseProductMutations() {
                         <td>
                           <div
                             className={
-                              p?.numOutDelivery > 0 || p?.numOutNextOrder > 0 || p?.numOutService > 0 || p?.numOutMarketing > 0 || p?.numOutBroken > 0
+                              p?.numOutDelivery > 0 ||
+                              p?.numOutNextOrder > 0 ||
+                              p?.numOutService > 0 ||
+                              p?.numOutMarketing > 0 ||
+                              p?.numOutBroken > 0
                                 ? p?.type === "Transfer Out"
                                   ? "text-dark-yellow"
                                   : "text-danger"
@@ -598,7 +613,9 @@ function WarehouseProductMutations() {
                           >
                             {p?.numInSupplier ? <p>{p.numInSupplier}</p> : null}
                             {p?.numInReturn ? <p>{p.numInReturn}</p> : null}
-                            {p?.numInMarketing ? <p>{p.numInMarketing}</p> : null}
+                            {p?.numInMarketing ? (
+                              <p>{p.numInMarketing}</p>
+                            ) : null}
                             {p?.numInService ? <p>{p.numInService}</p> : null}
                             {p?.numOutDelivery ? (
                               <p>{p?.numOutDelivery}</p>
@@ -612,9 +629,7 @@ function WarehouseProductMutations() {
                             {p?.numOutMarketing ? (
                               <p>{p?.numOutMarketing}</p>
                             ) : null}
-                            {p?.numOutBroken ? (
-                              <p>{p?.numOutBroken}</p>
-                            ) : null}
+                            {p?.numOutBroken ? <p>{p?.numOutBroken}</p> : null}
                           </div>
                         </td>
                         <td>{p.balanceStock}</td>
@@ -769,7 +784,7 @@ function WarehouseProductMutations() {
                     {WarehouseProductMutationTypes[0]}
                   </option>
                 ) : (
-                  WarehouseProductMutationTypes.map((item, index) => (
+                  mutationActions.map((item, index) => (
                     <option key={index} value={item}>
                       {item}
                     </option>
@@ -788,7 +803,7 @@ function WarehouseProductMutations() {
                 modalBalances?.balanceStock === null ||
                 modalBalances?.balanceOnDelivery === null
                   ? ""
-                  : `\n(Delivery Out maksimal ${modalBalances?.balanceStock}, Delivery In maksimal ${modalBalances?.balanceOnDelivery})`}
+                  : `\n(Saldo Stock ${modalBalances?.balanceStock}, Saldo On-Delivery ${modalBalances?.balanceOnDelivery})`}
               </label>
               <input
                 name="value"

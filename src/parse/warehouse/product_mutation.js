@@ -2,19 +2,22 @@ import Parse from "parse/dist/parse.min.js";
 
 export const transferWarehouseProduct = async (
   warehouseStorageId,
-        destinationWarehouseStorageId,
-        warehouseProductId,
-        warehouseProductLotId,
-        num,) => {
+  destinationWarehouseStorageId,
+  warehouseProductId,
+  warehouseProductLotId,
+  num,
+  category,
+) => {
   let error = null;
   let result = null;
   const params = {
     warehouseStorageId,
-        destinationWarehouseStorageId,
-        warehouseProductId,
-        warehouseProductLotId,
+    destinationWarehouseStorageId,
+    warehouseProductId,
+    warehouseProductLotId,
+    category,
     num: parseInt(num),
-  }
+  };
 
   console.log("transferWarehouseProduct", params);
   try {
@@ -24,12 +27,12 @@ export const transferWarehouseProduct = async (
     error = e.toString();
     alert(`Error! ${e.toString()}`);
   }
-  
+
   return {
     result,
-    error
-  }
-}
+    error,
+  };
+};
 
 export const createNewWarehouseProductMutation = async (params) => {
   let error = null;
@@ -49,12 +52,12 @@ export const createNewWarehouseProductMutation = async (params) => {
     error = e.toString();
     alert(`Error! ${e.toString()}`);
   }
-  
+
   return {
     result,
-    error
-  }
-}
+    error,
+  };
+};
 
 export const createWarehouseProductMutationEntry = async (
   warehouseProductId,

@@ -2,7 +2,7 @@ import { faBuilding } from '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 
-function CardProductStorage({ title, balanceStock, balanceOnDelivery, color, numLots }) {
+function CardProductStorage({ title, balanceStock, balanceOnDelivery, balancePending, balanceMarketing, balanceService, color, numLots }) {
     return (
         <div className="col-xl-3 col-md-6 mb-4">
             <div className={`card border-left-${color} shadow h-100 py-2`}>
@@ -15,9 +15,24 @@ function CardProductStorage({ title, balanceStock, balanceOnDelivery, color, num
                             <div className="h6 mb-0 font-weight-bold text-blue-800">
                                 {`Stock ${balanceStock}`}
                             </div>
-                            <div className="h6 mb-0 font-weight-bold text-red-800">
+                            <div className="h6 mb-0 font-weight-bold text-black-800">
                                 {`On-Delivery: ${balanceOnDelivery}`}
                             </div>
+                            {balancePending ?
+                            <div className="h6 mb-0 font-weight-bold text-red-800">
+                            {`Balancing: ${balancePending}`}
+                        </div>
+                            : null}
+                            {balanceMarketing ?
+                            <div className="h6 mb-0 font-weight-bold text-black-800">
+                            {`Marketing: ${balanceMarketing}`}
+                        </div>
+                            : null}
+                            {balanceService ?
+                            <div className="h6 mb-0 font-weight-bold text-black-800">
+                            {`Servicing: ${balanceService}`}
+                        </div>
+                            : null}
                             
                             {numLots ? <div className={`text-xs text-${color} text-uppercase mt-1`}>
                                 {`${numLots} lot`}

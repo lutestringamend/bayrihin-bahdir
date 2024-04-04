@@ -312,7 +312,7 @@ function WarehouseProducts() {
                     <th>Kategori</th>
                     <th>Brand</th>
                     <th>Cat No</th>
-                    <th width="50%">Nama</th>
+                    <th width="50%">Product Desc</th>
                     <th>Updated</th>
                     <th>Aksi</th>
                   </tr>
@@ -322,7 +322,7 @@ function WarehouseProducts() {
                     <th>Kategori</th>
                     <th>Brand</th>
                     <th>Cat No</th>
-                    <th width="50%">Nama</th>
+                    <th width="50%">Product Desc</th>
                     <th>Updated</th>
                     <th>Aksi</th>
                   </tr>

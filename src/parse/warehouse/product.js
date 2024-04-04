@@ -1,4 +1,46 @@
 import Parse from "parse/dist/parse.min.js";
+import { WarehouseMainTabs } from "../../constants/warehouse";
+import { capitalizeFirstLetterOfEachWord } from "../../utils";
+
+export const searchWarehouseMainByName = async (name) => {
+  let result = [];
+  try {
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+};
+
+export const getWarehouseProductByName = async (name, category) => {
+  let result = [];
+  try {
+    const query = new Parse.Query("warehouse_products");
+    query.limit(999999);
+    /*let arrayValues = [name, name.toLowerCase(), name.toUpperCase(), capitalizeFirstLetterOfEachWord(name)];
+    console.log("arrayvalues", arrayValues);
+    query.containedBy("name", arrayValues);*/
+    query.ascending("name");
+    if (category === WarehouseMainTabs[0].category) {
+      query.equalTo("category", 1);
+    } else if (category === WarehouseMainTabs[1].category) {
+      query.notEqualTo("category", 1);
+    }
+    const res = await query.find();
+    for (let r of res) {
+      let obj = r.toJSON();
+      if (
+        obj?.catalogNo?.toLowerCase().includes(name?.toLowerCase()) ||
+        obj?.name?.toLowerCase().includes(name?.toLowerCase()) ||
+        obj?.brand?.toLowerCase().includes(name?.toLowerCase())
+      ) {
+        result.push(obj);
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+};
 
 export const searchWarehouseProductItem = async (category, searchKey) => {
   let result = [];
@@ -32,14 +74,13 @@ export const searchWarehouseProductItem = async (category, searchKey) => {
     } else {
       for (let r of resProducts) {
         let item = r.toJSON();
-          result.push({
-            objectId: item?.objectId,
-            name: item?.name,
-            catalogNo: item?.catalogNo,
-          });
+        result.push({
+          objectId: item?.objectId,
+          name: item?.name,
+          catalogNo: item?.catalogNo,
+        });
       }
     }
-   
   } catch (e) {
     console.error(e);
   }

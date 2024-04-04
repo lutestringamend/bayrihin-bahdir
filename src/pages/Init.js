@@ -53,6 +53,8 @@ const Init = (props) => {
       <Routes>
         <Route path="*" element={<Portal />}>
           <Route path="warehouse" element={<WarehouseMain />} />
+          <Route path="warehouse/:category" element={<WarehouseMain />} />
+
           <Route path="warehouse-storages" element={<WarehouseStorages />} />
 
           <Route path="warehouse-products" element={<WarehouseProducts />} />

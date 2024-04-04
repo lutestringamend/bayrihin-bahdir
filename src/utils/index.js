@@ -1,5 +1,19 @@
 import { DAY_NAMES, MONTH_NAMES } from "../constants/strings";
 
+export const capitalizeFirstLetterOfEachWord = (text) => {
+    try {
+        const items = text.split(" ");
+        let result = "";
+        for (let i = 0; i < items?.length; i++) {
+            result = result + ` ${items[i].substring(0,1).toUpperCase()}${items[i].substring(1, items[i]?.length)}`;
+        }
+        return result;
+    } catch (e) {
+        console.error(e);
+    }
+    return text;
+}
+
 export const convertDateISOStringtoDisplayDateTime = (dateISO, withDay, withTime) => {
     try {
         let date = new Date(dateISO);

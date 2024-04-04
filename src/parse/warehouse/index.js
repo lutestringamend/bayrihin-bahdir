@@ -1,19 +1,28 @@
 import Parse from "parse/dist/parse.min.js";
 import { WarehouseMainStats } from "../../models/warehouse";
-import { getWarehouseProductStoragesData } from "./product_storage";
+import { WarehouseMainTabs } from "../../constants/warehouse";
 
-/*var uArray = {
-  __type: "Pointer",
-  className: "_User",
-  objectId: userId,
-};*/
-
-export const fetchWarehouseMainData = async () => {
+export const fetchWarehouseMainData = async (category) => {
   let stats = WarehouseMainStats;
   let productList = [];
 
   try {
-    productList = await getWarehouseProductStoragesData(null, null, null, 20, "updatedAt", true);
+    const query = new Parse.Query("warehouse_product_storages");
+    query.limit(999999);
+    if (category === WarehouseMainTabs[1].category) {
+      query.notEqualTo("category", 1);
+    } else {
+      query.equalTo("category", 1);
+    }
+    query.include("warehouseProduct");
+    query.include("warehouseProductLot");
+    query.descending("updatedAt");
+    const res = await query.find();
+    for (let r of res) {
+      let item = r.toJSON();
+      productList.push(item);
+    }
+
     let products = await getWarehouseProductData();
     //productList = await getWarehouseProductData();
     stats["products"] = products?.length;
@@ -35,7 +44,12 @@ export const fetchWarehouseMainData = async () => {
   };
 };
 
-export const getWarehouseProductData = async (limit, sortDescendingBy, category, sortAscendingBy) => {
+export const getWarehouseProductData = async (
+  limit,
+  sortDescendingBy,
+  category,
+  sortAscendingBy,
+) => {
   let result = [];
   try {
     const query = new Parse.Query("warehouse_products");
@@ -59,7 +73,11 @@ export const getWarehouseProductData = async (limit, sortDescendingBy, category,
   return result;
 };
 
-export const getWarehouseProductMutationsData = async (warehouseProductId, warehouseProductLotId, warehouseStorageId) => {
+export const getWarehouseProductMutationsData = async (
+  warehouseProductId,
+  warehouseProductLotId,
+  warehouseStorageId,
+) => {
   let result = [];
   try {
     const query = new Parse.Query("warehouse_product_mutations");
@@ -97,7 +115,12 @@ export const getWarehouseProductMutationsData = async (warehouseProductId, wareh
   } catch (e) {
     console.error(e);
   }
-  console.log("mutation list", warehouseProductId, warehouseProductLotId, result);
+  console.log(
+    "mutation list",
+    warehouseProductId,
+    warehouseProductLotId,
+    result,
+  );
   return result;
 };
 
@@ -136,7 +159,7 @@ export const getWarehousePackageData = async (category, objectId) => {
     if (objectId) {
       queryType.equalTo("objectId", objectId);
     }
-    
+
     let res = null;
     if (objectId) {
       res = await queryType.first();
@@ -153,7 +176,10 @@ export const getWarehousePackageData = async (category, objectId) => {
   return result;
 };
 
-export const getWarehousePackageProductData = async (warehousePackageId, category) => {
+export const getWarehousePackageProductData = async (
+  warehousePackageId,
+  category,
+) => {
   let result = [];
   try {
     const queryType = new Parse.Query("warehouse_package_products");
