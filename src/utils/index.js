@@ -1,4 +1,18 @@
+import { defaultcurrency, localisationID } from "../constants";
 import { DAY_NAMES, MONTH_NAMES } from "../constants/strings";
+
+export const formatPrice = (price) => {
+    try {
+      return `${new Intl.NumberFormat(localisationID, {
+        style: "currency",
+        currency: defaultcurrency,
+        minimumFractionDigits: 0,
+      }).format(price)}`;
+    } catch (e) {
+      console.error(e);
+    }
+    return price.toString();
+  };
 
 export const capitalizeFirstLetterOfEachWord = (text) => {
     try {

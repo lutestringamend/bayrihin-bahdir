@@ -5,7 +5,7 @@ import {
   } from "../constants";
   
   export const initialState = {
-    currentUser: TEMP_DEV_USER_DATA,
+    currentUser: null,
   };
   
   export const user = (state = initialState, action) => {

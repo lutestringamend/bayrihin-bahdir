@@ -171,8 +171,8 @@ function WarehouseMain() {
                       <th>Brand</th>
                       <th>Cat No</th>
                       <th width="50%">Product Desc</th>
-                      <th>Updated</th>
-                      <th>Aksi</th>
+                      <th width="5%">Updated</th>
+                      <th width="15%">Aksi</th>
                     </tr>
                   </thead>
                 ) : (
@@ -196,8 +196,8 @@ function WarehouseMain() {
                       <th>Brand</th>
                       <th>Cat No</th>
                       <th width="50%">Product Desc</th>
-                      <th>Updated</th>
-                      <th>Aksi</th>
+                      <th width="5%">Updated</th>
+                      <th width="15%">Aksi</th>
                     </tr>
                   </tfoot>
                 ) : (
@@ -239,6 +239,14 @@ function WarehouseMain() {
                             </p>
                           </td>
                           <th>
+                          <p>
+                                    <Link
+                                      to={`/warehouse-products/prices/${p?.objectId}`}
+                                      className="btn btn-primary btn-sm mr-1"
+                                    >
+                                      Price List
+                                    </Link>
+                                  </p>
                             <p>
                               <Link
                                 to={`/warehouse-product-mutations/${p.objectId}`}
@@ -287,6 +295,14 @@ function WarehouseMain() {
                             <td>{p?.balanceStock}</td>
                             <td>{p?.balanceOnDelivery}</td>
                             <th>
+                            <p>
+                                    <Link
+                                      to={`/warehouse-products/prices/${p?.warehouseProduct?.objectId}`}
+                                      className="btn btn-primary btn-sm mr-1"
+                                    >
+                                      Price List
+                                    </Link>
+                                  </p>
                               {p?.warehouseProduct ? (
                                 p?.warehouseProduct?.objectId ? (
                                   <p>

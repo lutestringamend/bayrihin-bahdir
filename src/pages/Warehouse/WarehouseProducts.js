@@ -356,6 +356,14 @@ function WarehouseProducts() {
                           </p>
                         </td>
                         <th>
+                        <p>
+                                    <Link
+                                      to={`/warehouse-products/prices/${p?.objectId}`}
+                                      className="btn btn-primary btn-sm mr-1"
+                                    >
+                                      Price List
+                                    </Link>
+                                  </p>
                           <p>
                             <Link
                               to={`/warehouse-product-mutations/${p.objectId}`}
