@@ -1,18 +1,16 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { connect } from "react-redux";
-//import { bindActionCreators } from "redux";
+import { bindActionCreators } from "redux";
 
 import "../App.css";
 import "../sb-admin-2.min.css";
 
+import { updateReduxUserPrivileges } from "../utils/user";
+
 //import Dashboard from '.../src/pages/Dashboard/Dashboard';
 import Login from "../pages/Auth/Login";
-import Userlist from "../pages/User/Userlist";
 import Portal from "../pages/Portal/Portal";
-import UserCreate from "../pages/User/UserCreate";
-import UserView from "../pages/User/UserView";
-import UserEdit from "../pages/User/UserEdit";
 
 import WarehouseMain from "../pages/Warehouse/WarehouseMain";
 import WarehouseProducts from "../pages/Warehouse/WarehouseProducts";
@@ -29,8 +27,60 @@ import Hospitals from "./Order/Hospitals";
 import Doctors from "./Order/Doctors";
 import WarehouseProductPrices from "./Warehouse/WarehouseProductPrices";
 
+import UserManagement from "./User/UserManagement";
+import AccountPrivilegeEdit from "./User/AccountPrivilegeEdit";
+import {
+  ACCOUNT_PRIVILEGE_UPDATE_ADMIN,
+  ACCOUNT_PRIVILEGE_CUSTOMIZE_PRIVILEGE,
+  ACCOUNT_PRIVILEGE_WAREHOUSE_CRUD,
+  ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD,
+  ACCOUNT_PRIVILEGE_CREATE_ORDER,
+  ACCOUNT_PRIVILEGE_PRICING_CRUD,
+  ACCOUNT_PRIVILEGE_HOSPITALS_CRUD,
+  ACCOUNT_PRIVILEGE_DOCTORS_CRUD,
+} from "../constants/account";
+import { hasPrivilege } from "../utils/account";
+import { getAccountRoleEntry } from "../parse/account";
+
 const Init = (props) => {
-  const { currentUser } = props;
+  const { currentUser, privileges } = props;
+
+  useEffect(() => {
+    if (currentUser === null) {
+      return;
+    }
+    fetchPrivileges();
+    console.log("redux currentUser", currentUser);
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (privileges?.length === undefined || privileges?.length < 1) {
+      return;
+    }
+    console.log("redux privileges", privileges);
+  }, [privileges]);
+
+  const fetchPrivileges = async () => {
+    try {
+      const result = await getAccountRoleEntry(currentUser?.accountRole?.objectId);
+      if (!(result === undefined || result?.privileges === undefined || result?.privileges?.length === undefined)) {
+        props.updateReduxUserPrivileges(result?.privileges);
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    if (
+      currentUser === null ||
+      currentUser?.accountRole === undefined ||
+      currentUser?.accountRole?.privileges === undefined ||
+      currentUser?.accountRole?.privileges?.length === undefined
+    ) {
+      props.updateReduxUserPrivileges([]);
+    } else {
+      props.updateReduxUserPrivileges(currentUser?.accountRole?.privileges);
+    }
+  }
 
   if (currentUser === null) {
     return (
@@ -53,65 +103,113 @@ const Init = (props) => {
     <BrowserRouter>
       <Routes>
         <Route path="*" element={<Portal />}>
-          <Route path="warehouse" element={<WarehouseMain />} />
-          <Route path="warehouse/:category" element={<WarehouseMain />} />
+          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_UPDATE_ADMIN) ? (
+            <Route path="user-management" element={<UserManagement />} />
+          ) : null}
 
-          <Route path="warehouse-storages" element={<WarehouseStorages />} />
+          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_UPDATE_ADMIN) &&
+          hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CUSTOMIZE_PRIVILEGE) ? (
+            <Route
+              path="account-privilege/:id"
+              element={<AccountPrivilegeEdit />}
+            />
+          ) : null}
 
-          <Route path="warehouse-products" element={<WarehouseProducts />} />
-          <Route
-            path="warehouse-products/:category"
-            element={<WarehouseProducts />}
-          />
-          
+          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_WAREHOUSE_CRUD) ? (
+            <>
+              <Route path="warehouse" element={<WarehouseMain />} />
+              <Route path="warehouse/:category" element={<WarehouseMain />} />
 
-          <Route path="warehouse-packages" element={<WarehousePackages />} />
-          <Route
-            path="warehouse-packages/:category"
-            element={<WarehousePackages />}
-          />
+              <Route
+                path="warehouse-storages"
+                element={<WarehouseStorages />}
+              />
 
-          <Route
-            path="warehouse-package-products/:id"
-            element={<WarehousePackageProducts />}
-          />
+              <Route
+                path="warehouse-products"
+                element={<WarehouseProducts />}
+              />
+              <Route
+                path="warehouse-products/:category"
+                element={<WarehouseProducts />}
+              />
 
-          <Route path="warehouse-types" element={<WarehouseTypes />} />
-          <Route
-            path="warehouse-types/:category"
-            element={<WarehouseTypes />}
-          />
+              <Route
+                path="warehouse-packages"
+                element={<WarehousePackages />}
+              />
+              <Route
+                path="warehouse-packages/:category"
+                element={<WarehousePackages />}
+              />
 
-          <Route
-            path="warehouse-product-mutations/:id"
-            element={<WarehouseProductMutations />}
-          />
-          <Route
-            path="warehouse-product-mutations/:id/:lotId"
-            element={<WarehouseProductMutations />}
-          />
-          <Route
-            path="warehouse-product-lots/:id"
-            element={<WarehouseProductLots />}
-          />
+              <Route
+                path="warehouse-package-products/:id"
+                element={<WarehousePackageProducts />}
+              />
 
-        <Route path="warehouse-products/prices/:id" element={<WarehouseProductPrices />} />
+              <Route path="warehouse-types" element={<WarehouseTypes />} />
+              <Route
+                path="warehouse-types/:category"
+                element={<WarehouseTypes />}
+              />
 
-          <Route path="create-request-order" element={<CreateRequestOrder />} />
-          <Route
-            path="order-package-item/:category/:id"
-            element={<OrderPackageItem />}
-          />
-          <Route path="hospitals" element={<Hospitals />} />
-          <Route path="hospitals/:storageId" element={<Hospitals />} />
+              <Route
+                path="warehouse-product-lots/:id"
+                element={<WarehouseProductLots />}
+              />
 
-          <Route path="doctors" element={<Doctors />} />
-          <Route path="doctors/:status" element={<Doctors />} />
+              {hasPrivilege(
+                privileges,
+                ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD,
+              ) ? (
+                <>
+                  <Route
+                    path="warehouse-product-mutations/:id"
+                    element={<WarehouseProductMutations />}
+                  />
+                  <Route
+                    path="warehouse-product-mutations/:id/:lotId"
+                    element={<WarehouseProductMutations />}
+                  />
+                </>
+              ) : null}
+            </>
+          ) : null}
 
-          <Route path="user-list" element={<Userlist />} />
-          <Route path="create-user" element={<UserCreate />} />
-          <Route path="user-view/:id" element={<UserView />} />
-          <Route path="user-edit/:id" element={<UserEdit />} />
+          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_PRICING_CRUD) ? (
+            <Route
+              path="warehouse-products/prices/:id"
+              element={<WarehouseProductPrices />}
+            />
+          ) : null}
+
+          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ? (
+            <>
+              <Route
+                path="create-request-order"
+                element={<CreateRequestOrder />}
+              />
+              <Route
+                path="order-package-item/:category/:id"
+                element={<OrderPackageItem />}
+              />
+            </>
+          ) : null}
+
+          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_HOSPITALS_CRUD) ? (
+            <>
+              <Route path="hospitals" element={<Hospitals />} />
+              <Route path="hospitals/:storageId" element={<Hospitals />} />
+            </>
+          ) : null}
+
+          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_DOCTORS_CRUD) ? (
+            <>
+              <Route path="doctors" element={<Doctors />} />
+              <Route path="doctors/:status" element={<Doctors />} />
+            </>
+          ) : null}
         </Route>
       </Routes>
     </BrowserRouter>
@@ -120,13 +218,15 @@ const Init = (props) => {
 
 const mapStateToProps = (store) => ({
   currentUser: store.userState.currentUser,
+  privileges: store.userState.privileges,
 });
 
-/*const mapDispatchProps = (dispatch) =>
-    bindActionCreators(
-      {
-      },
-      dispatch,
-    );*/
+const mapDispatchProps = (dispatch) =>
+  bindActionCreators(
+    {
+      updateReduxUserPrivileges,
+    },
+    dispatch,
+  );
 
-export default connect(mapStateToProps, null)(Init);
+export default connect(mapStateToProps, mapDispatchProps)(Init);
