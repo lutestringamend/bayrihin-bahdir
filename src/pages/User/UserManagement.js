@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
@@ -49,21 +50,40 @@ const defaultModalErrors = {
 
 function UserManagement(props) {
   const { currentUser, accountRoles, privileges } = props;
+  const timeoutRef = useRef();
+
   const [userList, setUserList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [modalData, setModalData] = useState(defaultModalData);
   const [modalErrors, setModalErrors] = useState(defaultModalErrors);
 
-  useEffect(() => {
+  const [searchText, setSearchText] = useState("");
+  const [searchList, setSearchList] = useState([]);
+
+  /*useEffect(() => {
     getUsers();
-  }, []);
+  }, []);*/
 
   useEffect(() => {
     if (accountRoles?.length === undefined || accountRoles?.length < 1) {
       fetchAccountRoles();
     }
   }, [accountRoles]);
+
+  useEffect(() => {
+    clearTimeout(timeoutRef.current);
+    if (searchText === null || searchText === "") {
+      getUsers();
+      setSearchList([]);
+      return;
+    }
+    timeoutRef.current = setTimeout(searchUsers, 500);
+  }, [searchText]);
+
+  useEffect(() => {
+    console.log("searchList", searchList);
+  }, [searchList]);
 
   const fetchAccountRoles = async () => {
     setLoading(true);
@@ -95,7 +115,28 @@ function UserManagement(props) {
     setLoading(false);
   };
 
-  let handleStatus = async (objectId, isActive) => {
+  let searchUsers = async () => {
+    clearTimeout(timeoutRef.current);
+    setLoading(true);
+    let searchList = [];
+    const result = await getUserData();
+    if (!(result?.length === undefined || result?.length < 1)) {
+      for (let r of result) {
+        if (
+          r?.username?.toLowerCase().includes(searchText?.toLowerCase()) ||
+          r?.email?.toLowerCase().includes(searchText?.toLowerCase()) ||
+          r?.fullName?.toLowerCase().includes(searchText?.toLowerCase()) ||
+          r?.phoneNumber?.toLowerCase().includes(searchText?.toLowerCase())
+        ) {
+          searchList.push(r);
+        }
+      }
+    }
+    setSearchList(searchList);
+    setLoading(false);
+  };
+
+  const handleStatus = async (objectId, isActive) => {
     try {
       const confirm = window.confirm(
         isActive
@@ -247,9 +288,30 @@ function UserManagement(props) {
           Tambah User Baru
         </button>
       </div>
+      <div className="d-sm-flex mb-4">
+        <div className="input-group">
+          <input
+            type="text"
+            className="form-control bg-white"
+            placeholder="Cari username, nama lengkap, email atau nomor telepon"
+            aria-label="Search"
+            aria-describedby="basic-addon2"
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+          <div className="input-group-append">
+            <button className="btn btn-primary" type="button">
+              <FontAwesomeIcon icon={faSearch} />
+            </button>
+          </div>
+        </div>
+      </div>
       <div className="card shadow mb-4">
         <div className="card-header py-3">
-          <h6 className="m-0 font-weight-bold text-primary">Daftar User</h6>
+          <h6 className="m-0 font-weight-bold text-primary">
+          {searchText
+              ? `Hasil pencarian "${searchText}"`
+              : "Daftar User"}
+          </h6>
         </div>
         <div className="card-body">
           {loading ? (
@@ -285,9 +347,60 @@ function UserManagement(props) {
                   </tr>
                 </tfoot>
                 <tbody>
-                  {userList.map((user) => {
+                  {searchText ? searchList.map((user, index) => {
                     return (
-                      <tr>
+                      <tr key={index}>
+                        <td>{user?.username}</td>
+                        <td>{user?.fullName}</td>
+                        <td>
+                          {user?.accountRole
+                            ? user?.accountRole?.name
+                              ? USER_ROLES.find(
+                                  ({ name }) =>
+                                    name === user?.accountRole?.name,
+                                )?.caption
+                              : ""
+                            : ""}
+                        </td>
+
+                        <td>
+                          <p>
+                            <button
+                              onClick={() => setUserModal(user)}
+                              className="btn btn-primary btn-sm mr-1"
+                            >
+                              Edit User
+                            </button>
+                          </p>
+                          {user?.accountRole && user?.accountRole?.objectId ? (
+                            <p>
+                              <Link
+                                to={`/account-privilege/${user?.accountRole?.objectId}`}
+                                className="btn btn-secondary btn-sm mr-1"
+                              >
+                                Edit Role
+                              </Link>
+                            </p>
+                          ) : null}
+
+                          <p>
+                            <button
+                              onClick={() =>
+                                handleStatus(user?.objectId, user?.isActive)
+                              }
+                              className={`btn ${
+                                user?.isActive ? "btn-danger" : "btn-info"
+                              } btn-sm mr-1`}
+                            >
+                              {user?.isActive ? "Matikan" : "Aktifkan"}
+                            </button>
+                          </p>
+                        </td>
+                      </tr>
+                    );
+                  })  : userList.map((user, index) => {
+                    return (
+                      <tr key={index}>
                         <td>{user?.username}</td>
                         <td>{user?.fullName}</td>
                         <td>

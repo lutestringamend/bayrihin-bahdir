@@ -37,12 +37,8 @@ function WarehouseMain() {
       setSearchList([]);
       return;
     }
-    timeoutRef.current = setTimeout(searchProductByName, 1000);
+    timeoutRef.current = setTimeout(searchProductByName, 500);
   }, [searchText]);
-
-  useEffect(() => {
-    console.log("searchList", searchList);
-  }, [searchList]);
 
   let fetchData = async () => {
     setLoading(true);
@@ -54,6 +50,7 @@ function WarehouseMain() {
   };
 
   let searchProductByName = async () => {
+    clearTimeout(timeoutRef.current);
     setLoading(true);
     const result = await getWarehouseProductByName(
       searchText,

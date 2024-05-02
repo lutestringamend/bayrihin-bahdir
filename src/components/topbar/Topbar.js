@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
 import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
+import Dropdown from "react-bootstrap/Dropdown";
 import {
   faBell,
   faCircleUser,
@@ -8,6 +9,9 @@ import {
 } from "@fortawesome/free-regular-svg-icons";
 import { faBars, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import { clearReduxUserData } from "../../utils/user";
+import { authLogout } from "../../parse/auth";
 
 /*
  <form
@@ -161,7 +165,22 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function Topbar(props) {
   const { currentUser } = props;
-  const [userMenu, setUserMenu] = useState(false);
+
+  let handleLogout = async () => {
+    try {
+      const confirm = window.confirm(
+        "Anda yakin ingin Logout? Anda perlu login kembali untuk beraktifitas.",
+      );
+      if (confirm) {
+        let logout = await authLogout();
+        if (logout) {
+          props.clearReduxUserData();
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
@@ -174,55 +193,55 @@ function Topbar(props) {
       </button>
 
       {/* <!-- Topbar Navbar --> */}
-      <ul className="navbar-nav ml-auto">
-        <li className="nav-item dropdown no-arrow">
-          <button
-            className="nav-link dropdown-toggle"
-            id="userDropdown"
-            onClick={() => setUserMenu((userMenu) => !userMenu)}
+      <Dropdown className="navbar-nav ml-auto nav-item dropdown no-arrow">
+        <Dropdown.Toggle
+          className="nav-link dropdown-toggle"
+          variant="transparent"
+        >
+          <span className="mr-2 d-none d-lg-inline text-gray-600 small">
+            {currentUser?.username ? currentUser?.username : "User"}
+          </span>
+          <FontAwesomeIcon icon={faCircleUser} size={"xl"} />
+        </Dropdown.Toggle>
+
+        <Dropdown.Menu className="dropdown-menu dropdown-menu-right shadow animated--grow-in">
+          <Dropdown.Item
+            className="dropdown-item"
+            onClick={() => handleLogout()}
           >
-            <span className="mr-2 d-none d-lg-inline text-gray-600 small">
-              {currentUser?.username ? currentUser?.username : "User"}
-            </span>
-            <FontAwesomeIcon icon={faCircleUser} size={"xl"} />
-          </button>
-          {
-            userMenu ? (<div
-                className="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-              >
-                <a className="dropdown-item" href="#">
-                  <i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Profile
-                </a>
-                <a className="dropdown-item" href="#">
-                  <i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Settings
-                </a>
-                <a className="dropdown-item" href="#">
-                  <i className="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Activity Log
-                </a>
-                <div className="dropdown-divider"></div>
-                <a
-                  className="dropdown-item"
-                  href="#"
-                  data-toggle="modal"
-                  data-target="#logoutModal"
-                >
-                  <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Logout
-                </a>
-              </div>) : null
-          }
-          
-        </li>
-      </ul>
+            <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+            Logout
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Dropdown>
     </nav>
   );
 }
+
+/*
+<div className="dropdown-divider"></div>
+            <a
+              className="dropdown-item"
+              href="#"
+              data-toggle="modal"
+              data-target="#logoutModal"
+            >
+              <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+              Logout
+            </a>
+          </div>
+*/
 
 const mapStateToProps = (store) => ({
   currentUser: store.userState.currentUser,
 });
 
-export default connect(mapStateToProps, null)(Topbar);
+const mapDispatchProps = (dispatch) =>
+  bindActionCreators(
+    {
+      clearReduxUserData,
+    },
+    dispatch,
+  );
+
+export default connect(mapStateToProps, mapDispatchProps)(Topbar);

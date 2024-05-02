@@ -1,5 +1,18 @@
 import Parse from "parse/dist/parse.min.js";
 
+export const authLogout = async () => {
+    let result = null;
+    try {
+        result = await Parse.User.logOut();
+        if (result) {
+            alert("Logout berhasil!");
+        }
+    } catch (error) {
+        alert(`Error! ${error.message}`);
+    }
+    return result;
+}
+
 export const authLogin = async (username, password) => {
     let error = null;
     let result = null;
