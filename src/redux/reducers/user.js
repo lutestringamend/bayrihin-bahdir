@@ -7,7 +7,7 @@ import {
   } from "../constants";
   
   export const initialState = {
-    currentUser: TEMP_DEV_USER_DATA,
+    currentUser: null,
     privileges: [],
     accountRoles: null,
   };

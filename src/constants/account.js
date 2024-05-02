@@ -102,7 +102,7 @@ export const ACCOUNT_PRIVILEGES = [
         ]
     },
     {
-        section: "Delivery dan Tracking",
+        section: "Edit Data Stakeholder",
         privileges: [
             {
                 name: ACCOUNT_PRIVILEGE_HOSPITALS_CRUD,
@@ -119,7 +119,7 @@ export const ACCOUNT_PRIVILEGES = [
         ]
     },
     {
-        section: "Order Management",
+        section: "Delivery, Tracking, Pickup",
         privileges: [
             {
                 name: ACCOUNT_PRIVILEGE_ASSIGN_DRIVER,
