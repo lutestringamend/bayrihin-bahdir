@@ -13,6 +13,7 @@ import {
   ACCOUNT_PRIVILEGE_CREATE_ORDER,
   ACCOUNT_PRIVILEGE_DOCTORS_CRUD,
   ACCOUNT_PRIVILEGE_HOSPITALS_CRUD,
+  ACCOUNT_PRIVILEGE_PRICING_CRUD,
   ACCOUNT_PRIVILEGE_UPDATE_ADMIN,
   ACCOUNT_PRIVILEGE_WAREHOUSE_CRUD,
 } from "../../constants/account";
@@ -104,6 +105,13 @@ function Sidebar(props) {
                   <span>Paket</span>
                 </Link>
               </li>
+              {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_PRICING_CRUD) ? (
+                <li className="nav-item active">
+                <Link className="nav-link" to="/warehouse-products/prices">
+                  <span>Harga Produk</span>
+                </Link>
+                </li>
+              ) : null}
             </ul>
           </li>
           <hr className="sidebar-divider my-0" />

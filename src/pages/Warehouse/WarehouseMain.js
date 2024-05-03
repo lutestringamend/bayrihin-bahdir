@@ -1,20 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { faBars, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import ButtonModuleMain from "../../components/buttons/ButtonModuleMain";
 import { WarehouseMainStats } from "../../models/warehouse";
 import { fetchWarehouseMainData } from "../../parse/warehouse";
 import { WarehouseTypeCategories } from "../../constants/warehouse_types";
 import { WarehouseMainTabs } from "../../constants/warehouse";
 import { getWarehouseProductByName } from "../../parse/warehouse/product";
+import { hasPrivilege } from "../../utils/account";
+import { ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD } from "../../constants/account";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
-function WarehouseMain() {
+function WarehouseMain(props) {
+  const { privileges } = props;
   const params = useParams();
   const navigate = useNavigate();
   const timeoutRef = useRef();
@@ -129,7 +133,7 @@ function WarehouseMain() {
             onChange={(e) => setSearchText(e.target.value)}
           />
           <div className="input-group-append">
-            <button className="btn btn-primary" type="button">
+            <button onClick={() => searchProductByName()} className="btn btn-primary" type="button">
               <FontAwesomeIcon icon={faSearch} />
             </button>
           </div>
@@ -236,32 +240,38 @@ function WarehouseMain() {
                             </p>
                           </td>
                           <th>
-                          <p>
-                                    <Link
-                                      to={`/warehouse-products/prices/${p?.objectId}`}
-                                      className="btn btn-primary btn-sm mr-1"
-                                    >
-                                      Price List
-                                    </Link>
-                                  </p>
-                            <p>
-                              <Link
-                                to={`/warehouse-product-mutations/${p.objectId}`}
-                                className="btn btn-primary btn-sm mr-1"
-                              >
-                                Mutasi
-                              </Link>
-                            </p>
+                            {hasPrivilege(
+                              privileges,
+                              ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD,
+                            ) ? (
+                              <p>
+                                <Link
+                                  to={`/warehouse-product-mutations/${p.objectId}`}
+                                  className="btn btn-primary btn-sm mr-1"
+                                >
+                                  Mutasi
+                                </Link>
+                              </p>
+                            ) : null}
+
                             {p?.category === 1 ? null : (
                               <p>
                                 <Link
                                   to={`/warehouse-product-lots/${p.objectId}`}
-                                  className="btn btn-info btn-sm mr-1"
+                                  className="btn btn-secondary btn-sm mr-1"
                                 >
                                   Lot
                                 </Link>
                               </p>
                             )}
+                            <p>
+                              <Link
+                                to={`/warehouse-products/prices/${p?.objectId}`}
+                                className="btn btn-info btn-sm mr-1"
+                              >
+                                Price List
+                              </Link>
+                            </p>
                           </th>
                         </tr>
                       ))
@@ -292,15 +302,11 @@ function WarehouseMain() {
                             <td>{p?.balanceStock}</td>
                             <td>{p?.balanceOnDelivery}</td>
                             <th>
-                            <p>
-                                    <Link
-                                      to={`/warehouse-products/prices/${p?.warehouseProduct?.objectId}`}
-                                      className="btn btn-primary btn-sm mr-1"
-                                    >
-                                      Price List
-                                    </Link>
-                                  </p>
-                              {p?.warehouseProduct ? (
+                              {p?.warehouseProduct &&
+                              hasPrivilege(
+                                privileges,
+                                ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD,
+                              ) ? (
                                 p?.warehouseProduct?.objectId ? (
                                   <p>
                                     <Link
@@ -317,12 +323,21 @@ function WarehouseMain() {
                                 <p>
                                   <Link
                                     to={`/warehouse-product-lots/${p.objectId}`}
-                                    className="btn btn-info btn-sm mr-1"
+                                    className="btn btn-secondary btn-sm mr-1"
                                   >
                                     Lot
                                   </Link>
                                 </p>
                               )}
+
+                              <p>
+                                <Link
+                                  to={`/warehouse-products/prices/${p?.warehouseProduct?.objectId}`}
+                                  className="btn btn-info btn-sm mr-1"
+                                >
+                                  Price List
+                                </Link>
+                              </p>
                             </th>
                           </tr>
                         );
@@ -343,5 +358,8 @@ function WarehouseMain() {
                     Generate Report
                 </a>
 */
+const mapStateToProps = (store) => ({
+  privileges: store.userState.privileges,
+});
 
-export default WarehouseMain;
+export default connect(mapStateToProps, null)(WarehouseMain);

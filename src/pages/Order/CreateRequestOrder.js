@@ -30,6 +30,7 @@ import { RequestOrderModel } from "../../models/requestorder";
 import { getDoctorsData, getHospitalsData } from "../../parse/order";
 import { DATE_TIME_PICKER_FORMAT } from "../../constants/strings";
 import { createUpdateRequestOrderEntry } from "../../parse/order/requestorders";
+import SearchTextInput from "../../components/textinput/SearchTextInput";
 
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
@@ -271,8 +272,7 @@ function CreateRequestOrder(props) {
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 className="h3 mb-0 text-gray-800">Buat Request Order Baru</h1>
-        <a
-          href="#"
+        <button
           className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
           onClick={() => submit()}
         >
@@ -281,7 +281,7 @@ function CreateRequestOrder(props) {
             style={{ marginRight: "0.25rem", color: "white" }}
           />
           Submit
-        </a>
+        </button>
       </div>
 
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
@@ -309,33 +309,21 @@ function CreateRequestOrder(props) {
         <span style={{ color: "red" }}>{errors?.deliveryOrderNumber}</span>
       </div>
 
-      <div className="d-sm justify-content-between mb-4">
-        <label>
-          <b>Nama Dokter</b>
-        </label>
-        <select
-          name="doctor"
-          value={newRequestOrder?.doctorId}
-          onChange={(e) =>
-            props.updateReduxNewRequestOrder({
-              ...newRequestOrder,
-              doctorId: e.target.value,
-            })
-          }
-          className={`form-control ${errors?.doctorId ? "is-invalid" : ""} `}
-        >
-          <option value="">----Pilih Dokter----</option>
-          {doctors?.length === undefined
-            ? null
-            : doctors.map((item, index) => (
-                <option key={index} value={item?.objectId}>
-                  {item?.name}
-                </option>
-              ))}
-        </select>
-
-        <span style={{ color: "red" }}>{errors?.doctorId}</span>
-      </div>
+      <SearchTextInput
+        label="Nama Dokter"
+        name="doctor"
+        value={newRequestOrder?.doctorId}
+        error={errors?.doctorId}
+        defaultOption="----Pilih Dokter----"
+        data={doctors}
+        searchPlaceholder="Cari nama dokter"
+        onChange={(e) =>
+          props.updateReduxNewRequestOrder({
+            ...newRequestOrder,
+            doctorId: e.target.value,
+          })
+        }
+      />
 
       <div className="d-sm justify-content-between mb-4">
         <label>
@@ -372,32 +360,21 @@ function CreateRequestOrder(props) {
         <span style={{ color: "red" }}>{errors?.warehouseStorageId}</span>
       </div>
 
-      <div className="d-sm justify-content-between mb-4">
-        <label>
-          <b>Rumah Sakit</b>
-        </label>
-        <select
-          name="hospital"
-          value={newRequestOrder?.hospitalId ? newRequestOrder?.hospitalId : ""}
-          onChange={(e) =>
-            props.updateReduxNewRequestOrder({
-              ...newRequestOrder,
-              hospitalId: e.target.value,
-            })
-          }
-          className={`form-control ${errors?.hospitalId ? "is-invalid" : ""} `}
-        >
-          <option value="">----Pilih Rumah Sakit----</option>
-          {hospitals?.length === undefined
-            ? null
-            : hospitals.map((item, index) => (
-                <option key={index} value={item?.objectId}>
-                  {item?.name}
-                </option>
-              ))}
-        </select>
-        <span style={{ color: "red" }}>{errors?.warehouseStorageId}</span>
-      </div>
+      <SearchTextInput
+        label="Rumah Sakit"
+        name="hospital"
+        value={newRequestOrder?.hospitalId}
+        error={errors?.hospitalId}
+        defaultOption="----Pilih Rumah Sakit----"
+        data={hospitals}
+        searchPlaceholder="Cari nama rumah sakit"
+        onChange={(e) =>
+          props.updateReduxNewRequestOrder({
+            ...newRequestOrder,
+            hospitalId: e.target.value,
+          })
+        }
+      />
 
       <div className="d-sm justify-content-between mb-4">
         <label>
@@ -502,18 +479,21 @@ function CreateRequestOrder(props) {
             category={1}
             list={newOrder?.implants}
             deleteItem={(e) => deleteItem(1, e)}
+            warehouseStorageId={newRequestOrder?.warehouseStorageId}
           />
           <RequestOrderTable
             title="Instrument"
             category={2}
             list={newOrder?.instruments}
             deleteItem={(e) => deleteItem(2, e)}
+            warehouseStorageId={newRequestOrder?.warehouseStorageId}
           />
           <RequestOrderTable
             title="Unit"
             category={3}
             list={newOrder?.units}
             deleteItem={(e) => deleteItem(3, e)}
+            warehouseStorageId={newRequestOrder?.warehouseStorageId}
           />
         </>
       )}

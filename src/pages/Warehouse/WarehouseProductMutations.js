@@ -6,7 +6,6 @@ import {
   faSquarePlus,
   faShareSquare,
   faArrowAltCircleUp,
-  faMap,
 } from "@fortawesome/free-regular-svg-icons";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -421,9 +420,8 @@ function WarehouseProductMutations() {
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 className="h3 mb-0 text-gray-800">Catatan Mutasi Stok</h1>
         <div className="d-sm-flex flex-1 mb-0 align-items-center justify-content-between">
-          <a
-            href="#"
-            className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+          <button
+            className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mx-3"
             onClick={() => openNewMutationModal()}
           >
             <FontAwesomeIcon
@@ -431,9 +429,8 @@ function WarehouseProductMutations() {
               style={{ marginRight: "0.25rem", color: "white" }}
             />
             Tambah Mutasi
-          </a>
-          <a
-            href="#"
+          </button>
+          <button
             className="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm"
             onClick={() => openNewTransferModal()}
           >
@@ -442,7 +439,7 @@ function WarehouseProductMutations() {
               style={{ marginRight: "0.25rem", color: "white" }}
             />
             Transfer
-          </a>
+          </button>
         </div>
       </div>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
@@ -700,9 +697,8 @@ function WarehouseProductMutations() {
               <label>
                 <b>Lot Produk</b>
               </label>{" "}
-              <a
-                href="#"
-                className="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm ml-10"
+              <button
+                className="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm mx-1"
                 onClick={() =>
                   setModalData((modalData) => ({
                     ...modalData,
@@ -715,7 +711,7 @@ function WarehouseProductMutations() {
                   style={{ marginRight: "0.25rem", color: "white" }}
                 />
                 {modalData?.newProductLot ? "Lot yang Ada" : "Lot Baru"}
-              </a>
+              </button>
               {modalData.newProductLot ? (
                 <input
                   name="newWarehouseProductLotName"

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { connect } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,6 +15,8 @@ import {
 } from "../../parse/warehouse/product_lot";
 import { getWarehouseProductById } from "../../parse/warehouse/product";
 import { WarehouseTypeCategories } from "../../constants/warehouse_types";
+import { hasPrivilege } from "../../utils/account";
+import { ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD } from "../../constants/account";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
@@ -30,7 +33,8 @@ const defaultModalErrors = {
   tray: "",
 };
 
-function WarehouseProductLots() {
+function WarehouseProductLots(props) {
+  const { privileges } = props;
   const params = useParams();
 
   const [loading, setLoading] = useState(true);
@@ -195,24 +199,26 @@ function WarehouseProductLots() {
                           </p>
                         </td>
                         <th>
-                          <Link
+                          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD) ? (
+                            <Link
                             to={`/warehouse-product-mutations/${params.id}/${p.objectId}`}
                             className="btn btn-primary btn-sm mr-1"
                           >
                             Mutasi
                           </Link>
-                          <a
-                            href="#"
+                          ) : null}
+                          
+                          <button
                             onClick={() =>
                               setModalData({ visible: true, ...p })
                             }
-                            className="btn btn-info btn-sm mr-1"
+                            className="btn btn-info btn-sm mx-1"
                           >
                             Edit
-                          </a>
+                          </button>
                           <button
                             onClick={() => handleDelete(p.objectId)}
-                            className="btn btn-danger btn-sm mr-1"
+                            className="btn btn-danger btn-sm"
                           >
                             Hapus
                           </button>
@@ -319,4 +325,8 @@ function WarehouseProductLots() {
   );
 }
 
-export default WarehouseProductLots;
+const mapStateToProps = (store) => ({
+  privileges: store.userState.privileges,
+});
+
+export default connect(mapStateToProps, null)(WarehouseProductLots);

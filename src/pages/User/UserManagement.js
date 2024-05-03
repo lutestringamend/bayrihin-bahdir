@@ -299,7 +299,7 @@ function UserManagement(props) {
             onChange={(e) => setSearchText(e.target.value)}
           />
           <div className="input-group-append">
-            <button className="btn btn-primary" type="button">
+            <button onClick={() => searchUsers()} className="btn btn-primary" type="button">
               <FontAwesomeIcon icon={faSearch} />
             </button>
           </div>

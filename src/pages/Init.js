@@ -25,6 +25,7 @@ import CreateRequestOrder from "./Order/CreateRequestOrder";
 import OrderPackageItem from "./Order/OrderPackageItem";
 import Hospitals from "./Order/Hospitals";
 import Doctors from "./Order/Doctors";
+import WarehouseProductPriceList from "./Warehouse/WarehouseProductPriceList";
 import WarehouseProductPrices from "./Warehouse/WarehouseProductPrices";
 
 import UserManagement from "./User/UserManagement";
@@ -178,10 +179,20 @@ const Init = (props) => {
           ) : null}
 
           {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_PRICING_CRUD) ? (
+            <>
+            <Route
+              path="warehouse-products/prices"
+              element={<WarehouseProductPriceList />}
+            />
+            <Route
+                path="warehouse-products/prices/category/:category"
+                element={<WarehouseProductPriceList />}
+              />
             <Route
               path="warehouse-products/prices/:id"
               element={<WarehouseProductPrices />}
             />
+            </>
           ) : null}
 
           {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ? (
@@ -191,7 +202,7 @@ const Init = (props) => {
                 element={<CreateRequestOrder />}
               />
               <Route
-                path="order-package-item/:category/:id"
+                path="order-package-item/:category/:id/:storageId"
                 element={<OrderPackageItem />}
               />
             </>

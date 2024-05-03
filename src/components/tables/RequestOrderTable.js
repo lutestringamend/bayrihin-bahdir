@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const RequestOrderTable = (props) => {
-  const { title, category, list } = props;
+  const { title, category, list, warehouseStorageId } = props;
   const [expand, setExpand] = useState(false);
   const [sum, setSum] = useState([]);
 
@@ -79,10 +79,17 @@ const RequestOrderTable = (props) => {
                       </td>
 
                       <td>
-                        {p?.items?.length === undefined ||
+                        {warehouseStorageId === undefined || warehouseStorageId === null || warehouseStorageId === "" ? (
+                          <button
+                          disabled
+                          className="btn btn-secondary btn-sm mr-1"
+                        >
+                          Region Belum Dipilih
+                        </button>
+                        ) : p?.items?.length === undefined ||
                         p?.items?.length < 1 ? (
                           <Link
-                            to={`/order-package-item/${category}/${p.objectId}`}
+                            to={`/order-package-item/${category}/${p.objectId}/${warehouseStorageId}`}
                             className="btn btn-primary btn-sm mr-1"
                           >
                             Tambah

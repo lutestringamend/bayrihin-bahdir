@@ -13,6 +13,7 @@ import {
   insertItemsToRequestOrderPackage,
   overhaulReduxNewOrder,
 } from "../../utils/order";
+import { getWarehouseProductStoragesData } from "../../parse/warehouse/product_storage";
 
 function OrderPackageItem(props) {
   const { currentUser, newOrder } = props;
@@ -23,6 +24,7 @@ function OrderPackageItem(props) {
   const [productList, setProductList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [quantities, setQuantities] = useState([]);
+  const [availabilities, setAvailabilities] = useState([]);
   const [errors, setErrors] = useState([]);
   const [notes, setNotes] = useState("");
 
@@ -44,6 +46,10 @@ function OrderPackageItem(props) {
     fetchData();
     setNotes(packageData?.notes ? packageData?.notes : "");
   }, [packageData]);
+
+  useEffect(() => {
+    console.log("availabilities", availabilities);
+  }, [availabilities]);
 
   let prepareData = () => {
     if (newOrder === null) {
@@ -69,6 +75,7 @@ function OrderPackageItem(props) {
   };
 
   let fetchData = async () => {
+    setAvailabilities([]);
     const result = await getWarehousePackageProductData(
       params?.id,
       params?.category,
@@ -76,12 +83,10 @@ function OrderPackageItem(props) {
     let newList = [];
     let newQuantities = [];
     let newErrors = [];
+    let newAvailabilites = [];
 
     for (let r of result) {
       let quantity = r?.quantity;
-      let availability = r?.warehouseProduct
-        ? parseInt(r?.warehouseProduct?.balanceStock)
-        : 0;
       if (
         !(
           packageData === null ||
@@ -103,7 +108,6 @@ function OrderPackageItem(props) {
             ? r?.warehouseProduct?.name
             : r?.objectId
           : r?.objectId,
-        availability: quantity,
       });
       newQuantities.push({
         objectId: r?.objectId,
@@ -113,11 +117,61 @@ function OrderPackageItem(props) {
         objectId: r?.objectId,
         error: "",
       });
+      newAvailabilites.push({
+        objectId: r?.objectId,
+        productId: r?.warehouseProduct ? r?.warehouseProduct?.objectId : null,
+        availability: null,
+      });
     }
     setProductList(newList);
     setQuantities(newQuantities);
     setErrors(newErrors);
+    fetchAvailabilites(newAvailabilites);
     setLoading(false);
+  };
+
+  const fetchAvailabilites = async (avail) => {
+    let newAvailabilites = [];
+    try {
+      for (let a of avail) {
+        let availability = null;
+        let availabilityOnDelivery = null;
+        const result = await getWarehouseProductStoragesData(
+          a?.productId,
+          params?.storageId,
+          null,
+          null,
+          null,
+          null,
+        );
+        console.log(
+          "getWarehouseProductStoragesData",
+          a?.productId,
+          params?.storageId,
+          result,
+        );
+        if (result === undefined) {
+          availability = null;
+        } else if (result?.length === undefined || result?.length < 1) {
+          availability = 0;
+        } else {
+          for (let i of result) {
+            availability += i?.balanceStock ? i?.balanceStock : 0;
+            availabilityOnDelivery += i?.balanceOnDelivery
+              ? i?.balanceOnDelivery
+              : 0;
+          }
+        }
+        newAvailabilites.push({
+          objectId: a?.objectId,
+          availability,
+          availabilityOnDelivery,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    setAvailabilities(newAvailabilites);
   };
 
   const setQuantity = (p, quantity) => {
@@ -200,8 +254,7 @@ function OrderPackageItem(props) {
             ? `Paket ${packageData?.name}`
             : "Detil Paket Request"}
         </h1>
-        <a
-          href="#"
+        <button
           className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
           onClick={() => saveData()}
         >
@@ -210,7 +263,7 @@ function OrderPackageItem(props) {
             style={{ marginRight: "0.25rem", color: "white" }}
           />
           Tambahkan Paket
-        </a>
+        </button>
       </div>
 
       <div className="d-sm-flex flex-column mb-4">
@@ -254,16 +307,16 @@ function OrderPackageItem(props) {
                   <tr>
                     <th>No</th>
                     <th width="60%">Nama</th>
+                    <th>Jumlah Dibutuhkan</th>
                     <th>Ketersediaan</th>
-                    <th>Jumlah</th>
                   </tr>
                 </thead>
                 <tfoot>
                   <tr>
                     <th>No</th>
                     <th width="60%">Nama</th>
+                    <th>Jumlah Dibutuhkan</th>
                     <th>Ketersediaan</th>
-                    <th>Jumlah</th>
                   </tr>
                 </tfoot>
                 <tbody>
@@ -272,7 +325,6 @@ function OrderPackageItem(props) {
                       <tr key={index}>
                         <td>{index + 1}</td>
                         <td>{p?.name ? p?.name : ""}</td>
-                        <td>{p?.availability}</td>
                         <td>
                           <input
                             name="quantity"
@@ -300,6 +352,57 @@ function OrderPackageItem(props) {
                             }
                           </span>
                         </td>
+                        <td>
+                          {availabilities?.length < 1 ||
+                          availabilities.find(
+                            ({ objectId }) => objectId === p?.objectId,
+                          ) === undefined ||
+                          availabilities.find(
+                            ({ objectId }) => objectId === p?.objectId,
+                          ) === null ||
+                          availabilities.find(
+                            ({ objectId }) => objectId === p?.objectId,
+                          )?.availability === undefined ||
+                          availabilities.find(
+                            ({ objectId }) => objectId === p?.objectId,
+                          )?.availability === null ? (
+                            <FadeLoader
+                              color="#4e73df"
+                              loading={true}
+                              size={12}
+                            />
+                          ) : (
+                            <div
+                              className={
+                                availabilities.find(
+                                  ({ objectId }) => objectId === p?.objectId,
+                                )?.availability <
+                                quantities.find(
+                                  ({ objectId }) => objectId === p?.objectId,
+                                )?.quantity
+                                  ? "text-danger"
+                                  : "text-primary"
+                              }
+                            >
+                              {
+                                availabilities.find(
+                                  ({ objectId }) => objectId === p?.objectId,
+                                )?.availability
+                              }
+                              {availabilities.find(
+                                ({ objectId }) => objectId === p?.objectId,
+                              )?.availabilityOnDelivery ? (
+                                <p>{`On-Delivery: ${
+                                  availabilities.find(
+                                    ({ objectId }) => objectId === p?.objectId,
+                                  )?.availabilityOnDelivery
+                                }`}</p>
+                              ) : null}
+                            </div>
+                          )}
+                          {}
+                        </td>
+                       
                       </tr>
                     );
                   })}

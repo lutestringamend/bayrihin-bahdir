@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { connect } from "react-redux";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSquarePlus } from "@fortawesome/free-regular-svg-icons";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
@@ -12,12 +14,15 @@ import {
 } from "../../parse/warehouse";
 import {
   deleteWarehouseProduct,
+  getWarehouseProductByName,
   postWarehouseProductItem,
 } from "../../parse/warehouse/product";
 import {
   WarehouseTypeCategories,
   WarehouseTypeObjectIds,
 } from "../../constants/warehouse_types";
+import { hasPrivilege } from "../../utils/account";
+import { ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD } from "../../constants/account";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
@@ -42,12 +47,17 @@ const defaultModalErrors = {
   minimumStock: "",
 };
 
-function WarehouseProducts() {
+function WarehouseProducts(props) {
+  const { privileges } = props;
   const params = useParams();
   const navigate = useNavigate();
+  const timeoutRef = useRef();
 
   const [loading, setLoading] = useState(true);
   const [productList, setProductList] = useState([]);
+
+  const [searchText, setSearchText] = useState("");
+  const [searchList, setSearchList] = useState([]);
 
   const [modalData, setModalData] = useState(defaultModalData);
   const [modalErrors, setModalErrors] = useState(defaultModalErrors);
@@ -57,10 +67,19 @@ function WarehouseProducts() {
     fetchData();
   }, [params?.category]);
 
+  useEffect(() => {
+    clearTimeout(timeoutRef.current);
+    if (searchText === null || searchText === "") {
+      setSearchList([]);
+      return;
+    }
+    timeoutRef.current = setTimeout(searchProductByName, 500);
+  }, [searchText]);
+
   const fetchData = async () => {
     setLoading(true);
     const result = await getWarehouseProductData(
-      null,
+      params?.category ? null : 20,
       null,
       params?.category,
       "name",
@@ -95,8 +114,21 @@ function WarehouseProducts() {
     setLoading(false);
   };
 
+  let searchProductByName = async () => {
+    clearTimeout(timeoutRef.current);
+    setLoading(true);
+    const result = await getWarehouseProductByName(
+      searchText,
+      params?.category,
+    );
+    setSearchList(result);
+    setLoading(false);
+  };
+
   const setModalPackage = (id) => {
-    let warehousePackage = modalPackages.find(({ objectId }) => id === objectId);
+    let warehousePackage = modalPackages.find(
+      ({ objectId }) => id === objectId,
+    );
     if (!(warehousePackage === undefined || warehousePackage === null)) {
       setModalData({ ...modalData, warehousePackage });
     }
@@ -163,7 +195,9 @@ function WarehouseProducts() {
         modalData?.brand,
         modalData?.name,
         modalData?.subCategory,
-        modalData?.category, modalData?.minimumStock, modalData?.warehousePackage
+        modalData?.category,
+        modalData?.minimumStock,
+        modalData?.warehousePackage,
       );
 
       if (result) {
@@ -230,6 +264,77 @@ function WarehouseProducts() {
         </select>
   */
 
+  const ProductTableRow = ({ p }) => {
+    return (
+      <tr>
+        <td>
+          <p> {p?.category ? WarehouseTypeCategories[p?.category] : ""}</p>
+          {p?.subCategory ? <p>{p?.subCategory}</p> : null}
+        </td>
+        <td>{p?.brand}</td>
+        <td>{p?.catalogNo}</td>
+
+        <td>{p?.name}</td>
+        <td>
+          <p>
+            {p?.updatedAt ? new Date(p?.updatedAt).toLocaleString("id-ID") : ""}
+          </p>
+        </td>
+        <th>
+          <p>
+            <Link
+              to={`/warehouse-products/prices/${p?.objectId}`}
+              className="btn btn-primary btn-sm mr-1"
+            >
+              Price List
+            </Link>
+          </p>
+          {hasPrivilege(
+            privileges,
+            ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD,
+          ) ? (
+            <p>
+              <Link
+                to={`/warehouse-product-mutations/${p.objectId}`}
+                className="btn btn-primary btn-sm mr-1"
+              >
+                Mutasi
+              </Link>
+            </p>
+          ) : null}
+
+          {p?.category === 1 ? null : (
+            <p>
+              <Link
+                to={`/warehouse-product-lots/${p.objectId}`}
+                className="btn btn-info btn-sm mr-1"
+              >
+                Lot
+              </Link>
+            </p>
+          )}
+
+          <p>
+            <button
+              onClick={() => openModalEdit(p)}
+              className="btn btn-info btn-sm mr-1"
+            >
+              Edit
+            </button>
+          </p>
+          <p>
+            <button
+              onClick={() => handleDelete(p?.objectId)}
+              className="btn btn-danger btn-sm mr-1"
+            >
+              Hapus
+            </button>
+          </p>
+        </th>
+      </tr>
+    );
+  };
+
   return (
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
@@ -271,23 +376,44 @@ function WarehouseProducts() {
         </select>
       </div>
 
+      <div className="d-sm-flex mb-4">
+        <div className="input-group">
+          <input
+            type="text"
+            className="form-control bg-white"
+            placeholder="Cari nama produk, brand atau catalog no"
+            aria-label="Search"
+            aria-describedby="basic-addon2"
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+          <div className="input-group-append">
+            <button onClick={() => searchProductByName()} className="btn btn-primary" type="button">
+              <FontAwesomeIcon icon={faSearch} />
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="card shadow mb-4">
         <div className="card-header py-3">
           <h6 className="m-0 font-weight-bold text-primary">
-            {`Daftar Produk, berdasarkan abjad${
-              params?.category === undefined ||
-              isNaN(params?.category) ||
-              parseInt(params?.category) < 1
-                ? ""
-                : ` --- ${WarehouseTypeCategories[params?.category]}`
-            }${
-              params?.type
-                ? ` --- ${
-                    modalPackages.find(({ objectId }) => objectId === params?.type)
-                      ?.name
-                  }`
-                : ""
-            }`}
+            {searchText
+              ? `Hasil pencarian "${searchText}"`
+              : `Daftar Produk, berdasarkan abjad${
+                  params?.category === undefined ||
+                  isNaN(params?.category) ||
+                  parseInt(params?.category) < 1
+                    ? ""
+                    : ` --- ${WarehouseTypeCategories[params?.category]}`
+                }${
+                  params?.type
+                    ? ` --- ${
+                        modalPackages.find(
+                          ({ objectId }) => objectId === params?.type,
+                        )?.name
+                      }`
+                    : ""
+                }`}
           </h6>
         </div>
         <div className="card-body">
@@ -328,81 +454,13 @@ function WarehouseProducts() {
                   </tr>
                 </tfoot>
                 <tbody>
-                  {productList.map((p, index) => {
-                    return (
-                      <tr key={index}>
-                        <td>
-                          <p>
-                            {" "}
-                            {p?.category
-                              ? WarehouseTypeCategories[
-                                    p?.category
-                                  ]
-                                : ""}
-                          </p>
-                          {p?.subCategory ? <p>{p?.subCategory}</p> : null}
-                        </td>
-                        <td>{p?.brand}</td>
-                        <td>{p?.catalogNo}</td>
-
-                        <td>
-                          {p?.name}
-                        </td>
-                        <td>
-                          <p>
-                            {p?.updatedAt
-                              ? new Date(p?.updatedAt).toLocaleString("id-ID")
-                              : ""}
-                          </p>
-                        </td>
-                        <th>
-                        <p>
-                                    <Link
-                                      to={`/warehouse-products/prices/${p?.objectId}`}
-                                      className="btn btn-primary btn-sm mr-1"
-                                    >
-                                      Price List
-                                    </Link>
-                                  </p>
-                          <p>
-                            <Link
-                              to={`/warehouse-product-mutations/${p.objectId}`}
-                              className="btn btn-primary btn-sm mr-1"
-                            >
-                              Mutasi
-                            </Link>
-                          </p>
-                          {p?.category === 1 ? null : (
-                            <p>
-                              <Link
-                                to={`/warehouse-product-lots/${p.objectId}`}
-                                className="btn btn-info btn-sm mr-1"
-                              >
-                                Lot
-                              </Link>
-                            </p>
-                          )}
-
-                          <p>
-                            <button
-                              onClick={() => openModalEdit(p)}
-                              className="btn btn-info btn-sm mr-1"
-                            >
-                              Edit
-                            </button>
-                          </p>
-                          <p>
-                            <button
-                              onClick={() => handleDelete(p?.objectId)}
-                              className="btn btn-danger btn-sm mr-1"
-                            >
-                              Hapus
-                            </button>
-                          </p>
-                        </th>
-                      </tr>
-                    );
-                  })}
+                  {searchText
+                    ? searchList.map((p, index) => (
+                        <ProductTableRow key={index} p={p} />
+                      ))
+                    : productList.map((p, index) => (
+                        <ProductTableRow key={index} p={p} index={index} />
+                      ))}
                 </tbody>
               </table>
             </div>
@@ -460,13 +518,19 @@ function WarehouseProducts() {
                     ? modalData?.warehousePackage?.objectId
                     : ""
                 }
-                onChange={(e) => setModalData({ ...modalData, warehousePackage: e.target.value })}
+                onChange={(e) =>
+                  setModalData({
+                    ...modalData,
+                    warehousePackage: e.target.value,
+                  })
+                }
                 className={`form-control ${
                   modalErrors.warehousePackage ? "is-invalid" : ""
                 } `}
               >
                 <option value="">----Pilih Paket----</option>
-                {modalPackages?.length === undefined || modalPackages?.length < 1
+                {modalPackages?.length === undefined ||
+                modalPackages?.length < 1
                   ? null
                   : modalPackages.map((item, index) => (
                       <option key={index} value={item?.objectId}>
@@ -474,7 +538,9 @@ function WarehouseProducts() {
                       </option>
                     ))}
               </select>
-              <span style={{ color: "red" }}>{modalErrors?.warehousePackage}</span>
+              <span style={{ color: "red" }}>
+                {modalErrors?.warehousePackage}
+              </span>
             </div>
           </div>
 
@@ -603,8 +669,8 @@ function WarehouseProducts() {
   );
 }
 
-/*
+const mapStateToProps = (store) => ({
+  privileges: store.userState.privileges,
+});
 
-*/
-
-export default WarehouseProducts;
+export default connect(mapStateToProps, null)(WarehouseProducts);
