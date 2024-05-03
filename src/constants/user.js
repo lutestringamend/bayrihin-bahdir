@@ -13,6 +13,8 @@ export const USER_ROLE_DELIVERY_STAFF = "USER_ROLE_DELIVERY_STAFF"
 export const USER_ROLE_SUPERADMIN = "USER_ROLE_SUPERADMIN"
 export const USER_ROLE_DEVELOPER = "USER_ROLE_DEVELOPER"
 
+export const USER_ROLE_INVENTORY_SUPERVISOR = "USER_ROLE_INVENTORY_SUPERVISOR"
+
 export const USER_ROLES = [
     {
         name: USER_ROLE_DEVELOPER,
@@ -61,6 +63,10 @@ export const USER_ROLES = [
     {
         name: USER_ROLE_SUPERADMIN,
         caption: "Superadmin"
+    },
+    {
+        name: USER_ROLE_INVENTORY_SUPERVISOR,
+        caption: "Inventory Supervisor"
     },
 ]
 

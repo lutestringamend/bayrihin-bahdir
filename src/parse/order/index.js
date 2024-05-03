@@ -1,5 +1,74 @@
 import Parse from "parse/dist/parse.min.js";
 
+export const fetchOrdersData = async (deliveryOrderStatus) => {
+  let requestOrders = [];
+  let deliveryOrders = [];
+  try {
+    let result = await getRequestOrdersData(true);
+    if (!(result === undefined || result?.length === undefined)) {
+      requestOrders = result;
+    }
+    result = await getDeliveryOrdersData(deliveryOrderStatus);
+    if (!(result === undefined || result?.length === undefined)) {
+      deliveryOrders = result;
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return {
+    requestOrders,
+    deliveryOrders,
+  }
+}
+
+export const getRequestOrdersData = async (isActive) => {
+  let result = [];
+  try {
+    const query = new Parse.Query("request_orders");
+    query.limit(99999);
+    query.ascending("createdAt");
+    query.include("warehouseStorage");
+    query.include("hospital");
+    query.include("doctor");
+    if (isActive === undefined || isActive === null) {
+      query.equalTo("isActive", true);
+    } else {
+      query.equalTo("isActive", isActive);
+    }
+    const res = await query.find();
+    for (let r of res) {
+      result.push(r.toJSON());
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+};
+
+export const getDeliveryOrdersData = async (status) => {
+  let result = [];
+  try {
+    const query = new Parse.Query("request_orders");
+    query.limit(99999);
+    query.ascending("createdAt");
+    query.include("approverUser");
+    query.include("tsPICUser");
+    query.include("warehouseStorage");
+    query.include("hospital");
+    query.include("doctor");
+    if (status) {
+      query.equalTo("status", status);
+    } 
+    const res = await query.find();
+    for (let r of res) {
+      result.push(r.toJSON());
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+};
+
 export const getDoctorsData = async (params) => {
   let result = [];
   try {

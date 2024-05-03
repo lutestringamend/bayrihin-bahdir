@@ -5,8 +5,10 @@ import {
     CLEAR_ORDER_DATA,
     NEW_ORDER_STATE_OVERHAUL,
     NEW_REQUEST_ORDER_STATE_UPDATE,
+    ORDER_DELIVERY_ORDERS_STATE_OVERHAUL,
     ORDER_DOCTORS_STATE_OVERHAUL,
     ORDER_HOSPITALS_STATE_OVERHAUL,
+    ORDER_REQUEST_ORDERS_STATE_OVERHAUL,
     ORDER_WAREHOUSE_STORAGES_STATE_OVERHAUL,
   } from "../constants";
   
@@ -16,6 +18,8 @@ import {
       deliveryOrderNumber: formatDeliveryOrderNumber(),
     },
     newOrder: null,
+    requestOrders: null,
+    deliveryOrders : null,
     doctors: null,
     hospitals: null,
     warehouseStorages: null,
@@ -32,6 +36,16 @@ import {
         return {
           ...state,
           newRequestOrder: action.data,
+        };
+      case ORDER_REQUEST_ORDERS_STATE_OVERHAUL:
+        return {
+          ...state,
+          requestOrders: action.data,
+        };
+      case ORDER_DELIVERY_ORDERS_STATE_OVERHAUL:
+        return {
+          ...state,
+          deliveryOrders: action.data,
         };
       case ORDER_DOCTORS_STATE_OVERHAUL:
         return {

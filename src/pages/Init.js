@@ -21,6 +21,7 @@ import WarehouseProductMutations from "../pages/Warehouse/WarehouseProductMutati
 import WarehouseProductLots from "../pages/Warehouse/WarehouseProductLots";
 import WarehousePackageProducts from "./Warehouse/WarehousePackageProducts";
 
+import OrderMain from "./Order/OrderMain";
 import CreateRequestOrder from "./Order/CreateRequestOrder";
 import OrderPackageItem from "./Order/OrderPackageItem";
 import Hospitals from "./Order/Hospitals";
@@ -195,6 +196,10 @@ const Init = (props) => {
             </>
           ) : null}
 
+              <Route
+                path="order"
+                element={<OrderMain />}
+              />
           {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ? (
             <>
               <Route
