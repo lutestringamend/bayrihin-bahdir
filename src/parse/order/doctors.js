@@ -1,6 +1,6 @@
 import Parse from "parse/dist/parse.min.js";
 
-export const createUpdateDoctorEntry = async (objectId, name, gender, birthdate) => {
+export const createUpdateDoctorEntry = async (objectId, name, gender, birthdate, specialization, organization) => {
     let item = new Parse.Object("doctors");
     if (objectId) {
         item.set("objectId", objectId);
@@ -12,6 +12,8 @@ export const createUpdateDoctorEntry = async (objectId, name, gender, birthdate)
     if (birthdate) {
       item.set("birthdate", birthdate);
     }
+    item.set("specialization", specialization ? specialization : "");
+    item.set("organization", organization ? organization : "");
     try {
       await item.save();
       alert(objectId ? "Entry Dokter berhasil diedit" : "Dokter baru berhasil ditambahkan");
@@ -20,6 +22,24 @@ export const createUpdateDoctorEntry = async (objectId, name, gender, birthdate)
       alert(`Error! ${error.message}`);
       return false;
     }
+  };
+
+  export const getDoctorById = async (doctorId, isActive) => {
+    let result = [];
+    try {
+      const query = new Parse.Query("doctors");
+      query.limit(9999);
+      query.equalTo("objectId", doctorId);
+      if (!(isActive === undefined || isActive === null)) {
+        query.equalTo("isActive", isActive);
+      } 
+    
+      const res = await query.first();
+      result = res.toJSON();
+    } catch (e) {
+      console.error(e);
+    }
+    return result;
   };
 
   export const switchDoctorStatus = async (objectId, isActive) => {

@@ -48,6 +48,20 @@ export const createUpdateRequestOrderEntry = async (
     }
   };
 
+  export const getRequestOrderById = async (objectId) => {
+    let result = [];
+    try {
+      const query = new Parse.Query("request_orders");
+      query.limit(99999);
+      query.equalTo("objectId", objectId);
+      const res = await query.first();
+      result = res.toJSON();
+    } catch (e) {
+      console.error(e);
+    }
+    return result;
+  };
+
   export const switchRequestOrderStatus = async (objectId, isActive) => {
     let item = new Parse.Object("request_order");
     item.set("objectId", objectId);

@@ -23,9 +23,11 @@ import WarehousePackageProducts from "./Warehouse/WarehousePackageProducts";
 
 import OrderMain from "./Order/OrderMain";
 import CreateRequestOrder from "./Order/CreateRequestOrder";
+import RequestOrder from "./Order/RequestOrder";
 import OrderPackageItem from "./Order/OrderPackageItem";
 import Hospitals from "./Order/Hospitals";
 import Doctors from "./Order/Doctors";
+import Doctor from "./Order/Doctor";
 import WarehouseProductPriceList from "./Warehouse/WarehouseProductPriceList";
 import WarehouseProductPrices from "./Warehouse/WarehouseProductPrices";
 
@@ -43,6 +45,7 @@ import {
 } from "../constants/account";
 import { hasPrivilege } from "../utils/account";
 import { getAccountRoleEntry } from "../parse/account";
+
 
 const Init = (props) => {
   const { currentUser, privileges } = props;
@@ -210,6 +213,10 @@ const Init = (props) => {
                 path="order-package-item/:category/:id/:storageId"
                 element={<OrderPackageItem />}
               />
+              <Route
+                path="request-order/:id"
+                element={<RequestOrder />}
+              />
             </>
           ) : null}
 
@@ -224,6 +231,7 @@ const Init = (props) => {
             <>
               <Route path="doctors" element={<Doctors />} />
               <Route path="doctors/:status" element={<Doctors />} />
+              <Route path="doctor/:id" element={<Doctor />} />
             </>
           ) : null}
         </Route>

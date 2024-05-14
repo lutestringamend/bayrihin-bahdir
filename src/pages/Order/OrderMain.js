@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
+import { bindActionCreators, combineReducers } from "redux";
 import { Link } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faSquarePlus } from "@fortawesome/free-solid-svg-icons";
 import ButtonModuleMain from "../../components/buttons/ButtonModuleMain";
 import { WarehouseMainStats } from "../../models/warehouse";
 import { fetchWarehouseMainData } from "../../parse/warehouse";
@@ -14,14 +14,14 @@ import { WarehouseTypeCategories } from "../../constants/warehouse_types";
 import { WarehouseMainTabs } from "../../constants/warehouse";
 import { getWarehouseProductByName } from "../../parse/warehouse/product";
 import { hasPrivilege } from "../../utils/account";
-import { ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD } from "../../constants/account";
-import { overhaulReduxOrderRequestOrders, overhaulReduxOrderDeliveryOrders } from "../../utils/order";
+import { ACCOUNT_PRIVILEGE_CREATE_ORDER, ACCOUNT_PRIVILEGE_ORDER_APPROVAL, ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD } from "../../constants/account";
+import { overhaulReduxOrderRequestOrders, overhaulReduxOrderDeliveryOrders, overhaulReduxOrderCombinedOrders } from "../../utils/order";
 import { fetchOrdersData } from "../../parse/order";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
 function OrderMain(props) {
-  const { privileges, requestOrders, deliveryOrders } = props;
+  const { privileges, requestOrders, deliveryOrders, combinedOrders } = props;
   const params = useParams();
   const navigate = useNavigate();
   const timeoutRef = useRef();
@@ -38,8 +38,8 @@ function OrderMain(props) {
   }, []);
 
   useEffect(() => {
-    console.log("requestOrders", requestOrders);
-  }, [requestOrders]);
+    console.log("combinedOrders", combinedOrders);
+  }, [combinedOrders]);
 
   useEffect(() => {
     clearTimeout(timeoutRef.current);
@@ -52,13 +52,27 @@ function OrderMain(props) {
 
   let fetchData = async () => {
     setLoading(true);
-    const result = await fetchOrdersData();
+    let newCombined = [];
+    const result = await fetchOrdersData(20);
     if (result?.requestOrders) {
       props.overhaulReduxOrderRequestOrders(result?.requestOrders);
     }
     if (result?.deliveryOrders) {
       props.overhaulReduxOrderDeliveryOrders(result?.deliveryOrders);
     }
+    newCombined = result?.requestOrders.concat(result?.deliveryOrders);
+    newCombined.sort(function (a, b) {
+      let aTime = new Date(a?.createdAt).getTime();
+      let bTime = new Date(b?.createdAt).getTime();
+      if (aTime < bTime) {
+        return -1;
+      }
+      if (aTime > bTime) {
+        return 1;
+      }
+      return 0;
+    });
+    props.overhaulReduxOrderCombinedOrders(newCombined);
     setLoading(false);
   };
 
@@ -124,11 +138,11 @@ function OrderMain(props) {
             ? p?.doctor?.name
             : "-"}
         </td>
-        <td>{p?.procedure ? p?.procedure : "-"}</td>
+        <td>{p?.status === undefined ? "Request Belum Ditinjau" : "Delivery Order"}</td>
         <td>
         <p>
                               <Link
-                                to={`/warehouse-products/prices/${p?.objectId}`}
+                                to={`/request-order/${p?.objectId}`}
                                 className="btn btn-primary btn-sm mr-1"
                               >
                                 Tinjau
@@ -144,14 +158,33 @@ function OrderMain(props) {
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 className="h3 mb-0 text-gray-800">Order Management</h1>
       </div>
+
+      {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ? (
+ <div className="d-sm-flex flex-1 mb-4 align-items-center justify-content-end">
+ <Link
+   className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+   to={`/create-request-order`}
+ >
+   <FontAwesomeIcon
+     icon={faSquarePlus}
+     style={{ marginRight: "0.25rem", color: "white" }}
+   />
+   Buat Request Order
+ </Link>
+ </div>
+      ) : null}
+     
       
       <div className="row">
+        {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ?
         <ButtonModuleMain
-          target="/order/request-orders"
-          title="Order Baru"
-          value={requestOrders ? requestOrders?.length : "-"}
-          color="primary"
-        />
+        target="/order/request-orders"
+        title="Request Belum Ditinjau"
+        value={requestOrders ? requestOrders?.length : "-"}
+        color="danger"
+      />
+        : null}
+        
         <ButtonModuleMain
           target="/order/delivery-orders"
           title="Delivery Order Aktif"
@@ -208,7 +241,7 @@ function OrderMain(props) {
                       <th>Region</th>
                       <th>Rumah Sakit</th>
                       <th>Dokter</th>
-                      <th>Prosedur</th>
+                      <th>Status</th>
                       <th width="7%">Aksi</th>
                     </tr>
                   </thead>
@@ -219,7 +252,7 @@ function OrderMain(props) {
                       <th>Region</th>
                       <th>Rumah Sakit</th>
                       <th>Dokter</th>
-                      <th>Prosedur</th>
+                      <th>Status</th>
                       <th width="7%">Aksi</th>
                     </tr>
                   </tfoot>
@@ -229,7 +262,7 @@ function OrderMain(props) {
                     ? searchList.map((p, index) => (
                         <OrderTableRow key={index} p={p} />
                       ))
-                    : requestOrders ? requestOrders.map((p, index) => 
+                    : combinedOrders ? combinedOrders.map((p, index) => 
                         <OrderTableRow key={index} p={p} />
                       ) : null}
                 </tbody>
@@ -250,6 +283,7 @@ function OrderMain(props) {
 */
 const mapStateToProps = (store) => ({
   privileges: store.userState.privileges,
+  combinedOrders: store.orderState.combinedOrders,
   requestOrders: store.orderState.requestOrders,
   deliveryOrders: store.orderState.deliveryOrders,
 });
@@ -259,6 +293,7 @@ const mapDispatchProps = (dispatch) =>
     {
       overhaulReduxOrderRequestOrders,
       overhaulReduxOrderDeliveryOrders,
+      overhaulReduxOrderCombinedOrders,
     },
     dispatch,
   );

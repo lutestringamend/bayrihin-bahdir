@@ -6,6 +6,7 @@ import {
   faList,
   faUsers,
   faHome,
+  faDatabase,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { hasPrivilege } from "../../utils/account";
@@ -13,6 +14,7 @@ import {
   ACCOUNT_PRIVILEGE_CREATE_ORDER,
   ACCOUNT_PRIVILEGE_DOCTORS_CRUD,
   ACCOUNT_PRIVILEGE_HOSPITALS_CRUD,
+  ACCOUNT_PRIVILEGE_ORDER_APPROVAL,
   ACCOUNT_PRIVILEGE_PRICING_CRUD,
   ACCOUNT_PRIVILEGE_UPDATE_ADMIN,
   ACCOUNT_PRIVILEGE_WAREHOUSE_CRUD,
@@ -107,9 +109,9 @@ function Sidebar(props) {
               </li>
               {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_PRICING_CRUD) ? (
                 <li className="nav-item active">
-                <Link className="nav-link" to="/warehouse-products/prices">
-                  <span>Harga Produk</span>
-                </Link>
+                  <Link className="nav-link" to="/warehouse-products/prices">
+                    <span>Harga Produk</span>
+                  </Link>
                 </li>
               ) : null}
             </ul>
@@ -118,37 +120,67 @@ function Sidebar(props) {
         </>
       ) : null}
 
-      <li className="nav-item active">
-        <Link className="nav-link" to="/order">
-          <FontAwesomeIcon icon={faList} style={{ marginRight: "0.5rem" }} />
-          <span>Order Management</span>
-        </Link>
-        <ul>
-          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ? (
-            <li className="nav-item active">
-              <Link className="nav-link" to="/create-request-order">
-                <span>Buat Request Order</span>
-              </Link>
-            </li>
-          ) : null}
+      {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ? (
+        <>
+          <li className="nav-item active">
+            <Link className="nav-link" to="/order">
+              <FontAwesomeIcon
+                icon={faList}
+                style={{ marginRight: "0.5rem" }}
+              />
+              <span>Order Management</span>
+            </Link>
+            <ul>
+              <li className="nav-item active">
+                <Link className="nav-link" to="/create-request-order">
+                  <span>Buat Request Order</span>
+                </Link>
+              </li>
+              {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
+                <li className="nav-item active">
+                  <Link className="nav-link" to="/order/request-orders">
+                    <span>Tinjau Request Order</span>
+                  </Link>
+                </li>
+              ) : null}
+            </ul>
+          </li>
+          <hr className="sidebar-divider my-0" />
+        </>
+      ) : null}
 
-          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_HOSPITALS_CRUD) ? (
-            <li className="nav-item active">
-              <Link className="nav-link" to="/hospitals">
-                <span>Daftar Rumah Sakit</span>
-              </Link>
-            </li>
-          ) : null}
+      {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_HOSPITALS_CRUD) ||
+      hasPrivilege(privileges, ACCOUNT_PRIVILEGE_DOCTORS_CRUD) ? (
+        <>
+          <li className="nav-item active">
+            <Link className="nav-link" to="/order">
+              <FontAwesomeIcon
+                icon={faDatabase}
+                style={{ marginRight: "0.5rem" }}
+              />
+              <span>Master Data</span>
+            </Link>
+            <ul>
+              {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_HOSPITALS_CRUD) ? (
+                <li className="nav-item active">
+                  <Link className="nav-link" to="/hospitals">
+                    <span>Edit Rumah Sakit</span>
+                  </Link>
+                </li>
+              ) : null}
 
-          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_DOCTORS_CRUD) ? (
-            <li className="nav-item active">
-              <Link className="nav-link" to="/doctors">
-                <span>Daftar Dokter</span>
-              </Link>
-            </li>
-          ) : null}
-        </ul>
-      </li>
+              {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_DOCTORS_CRUD) ? (
+                <li className="nav-item active">
+                  <Link className="nav-link" to="/doctors">
+                    <span>Edit Dokter</span>
+                  </Link>
+                </li>
+              ) : null}
+            </ul>
+          </li>
+          <hr className="sidebar-divider my-0" />
+        </>
+      ) : null}
     </ul>
   );
 }

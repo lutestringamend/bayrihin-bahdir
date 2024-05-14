@@ -24,3 +24,4 @@ export const DAY_NAMES = [
 ]
 
 export const DATE_TIME_PICKER_FORMAT = "dddd, DD MMMM YYYY, hh:mm a"
+export const BIRTHDATE_PICKER_FORMAT = "DD MMMM YYYY"

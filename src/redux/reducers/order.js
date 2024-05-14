@@ -5,6 +5,7 @@ import {
     CLEAR_ORDER_DATA,
     NEW_ORDER_STATE_OVERHAUL,
     NEW_REQUEST_ORDER_STATE_UPDATE,
+    ORDER_COMBINED_ORDERS_STATE_OVERHAUL,
     ORDER_DELIVERY_ORDERS_STATE_OVERHAUL,
     ORDER_DOCTORS_STATE_OVERHAUL,
     ORDER_HOSPITALS_STATE_OVERHAUL,
@@ -18,6 +19,7 @@ import {
       deliveryOrderNumber: formatDeliveryOrderNumber(),
     },
     newOrder: null,
+    combinedOrders: null,
     requestOrders: null,
     deliveryOrders : null,
     doctors: null,
@@ -36,6 +38,11 @@ import {
         return {
           ...state,
           newRequestOrder: action.data,
+        };
+      case ORDER_COMBINED_ORDERS_STATE_OVERHAUL:
+        return {
+          ...state,
+          combinedOrders: action.data,
         };
       case ORDER_REQUEST_ORDERS_STATE_OVERHAUL:
         return {

@@ -220,9 +220,8 @@ function WarehouseProductPrices(props) {
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 className="h3 mb-0 text-gray-800">Price List Produk</h1>
         <div className="d-sm-flex flex-1 mb-0 align-items-center justify-content-between">
-          <a
-            href="#"
-            className="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm"
+          <button
+            className="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm mx-1"
             onClick={() => openNewPriceModal()}
           >
             <FontAwesomeIcon
@@ -230,9 +229,8 @@ function WarehouseProductPrices(props) {
               style={{ marginRight: "0.25rem", color: "white" }}
             />
             Tambah Harga Custom
-          </a>
-          <a
-          href="#"
+          </button>
+          <button
           className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
           onClick={() => submit()}
         >
@@ -241,7 +239,7 @@ function WarehouseProductPrices(props) {
             style={{ marginRight: "0.25rem", color: "white" }}
           />
           Submit
-        </a>
+        </button>
         </div>
       </div>
 

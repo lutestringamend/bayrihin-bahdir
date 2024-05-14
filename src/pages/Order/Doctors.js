@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSquarePlus } from "@fortawesome/free-regular-svg-icons";
@@ -227,18 +228,12 @@ function Doctors() {
                           </button>
                         </td>
                         <th>
-                          <a
-                            href="#"
-                            onClick={() =>
-                              setModalData({
-                                visible: true,
-                                ...p,
-                              })
-                            }
-                            className="btn btn-info btn-sm mr-1"
-                          >
+                        <Link
+                                to={`/doctor/${p?.objectId}`}
+                                className="btn btn-info btn-sm mr-1"
+                              >
                             Edit
-                          </a>
+                          </Link>
                           <button
                             onClick={() => handleDelete(p?.objectId)}
                             className="btn btn-danger btn-sm mr-1"

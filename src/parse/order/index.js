@@ -1,17 +1,14 @@
 import Parse from "parse/dist/parse.min.js";
 
-export const fetchOrdersData = async (deliveryOrderStatus) => {
+export const fetchOrdersData = async (limit, deliveryOrderStatus) => {
   let requestOrders = [];
   let deliveryOrders = [];
   try {
-    let result = await getRequestOrdersData(true);
+    let result = await getRequestOrdersData(true, limit);
     if (!(result === undefined || result?.length === undefined)) {
       requestOrders = result;
     }
-    result = await getDeliveryOrdersData(deliveryOrderStatus);
-    if (!(result === undefined || result?.length === undefined)) {
-      deliveryOrders = result;
-    }
+    deliveryOrders = await getDeliveryOrdersData(limit, deliveryOrderStatus);
   } catch (e) {
     console.error(e);
   }
@@ -21,11 +18,11 @@ export const fetchOrdersData = async (deliveryOrderStatus) => {
   }
 }
 
-export const getRequestOrdersData = async (isActive) => {
+export const getRequestOrdersData = async (isActive, limit) => {
   let result = [];
   try {
     const query = new Parse.Query("request_orders");
-    query.limit(99999);
+    query.limit(limit ? limit : 99999);
     query.ascending("createdAt");
     query.include("warehouseStorage");
     query.include("hospital");
@@ -45,11 +42,11 @@ export const getRequestOrdersData = async (isActive) => {
   return result;
 };
 
-export const getDeliveryOrdersData = async (status) => {
+export const getDeliveryOrdersData = async (limit, status) => {
   let result = [];
   try {
-    const query = new Parse.Query("request_orders");
-    query.limit(99999);
+    const query = new Parse.Query("delivery_orders");
+    query.limit(limit ? limit : 99999);
     query.ascending("createdAt");
     query.include("approverUser");
     query.include("tsPICUser");

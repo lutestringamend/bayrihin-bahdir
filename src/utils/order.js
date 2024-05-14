@@ -1,4 +1,4 @@
-import { CLEAR_ORDER_DATA, NEW_ORDER_STATE_OVERHAUL, NEW_REQUEST_ORDER_STATE_UPDATE, ORDER_DELIVERY_ORDERS_STATE_OVERHAUL, ORDER_DOCTORS_STATE_OVERHAUL, ORDER_HOSPITALS_STATE_OVERHAUL, ORDER_REQUEST_ORDERS_STATE_OVERHAUL, ORDER_WAREHOUSE_STORAGES_STATE_OVERHAUL } from "../redux/constants";
+import { CLEAR_ORDER_DATA, NEW_ORDER_STATE_OVERHAUL, NEW_REQUEST_ORDER_STATE_UPDATE, ORDER_COMBINED_ORDERS_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_STATE_OVERHAUL, ORDER_DOCTORS_STATE_OVERHAUL, ORDER_HOSPITALS_STATE_OVERHAUL, ORDER_REQUEST_ORDERS_STATE_OVERHAUL, ORDER_WAREHOUSE_STORAGES_STATE_OVERHAUL } from "../redux/constants";
 import { DELIVERY_ORDER_NUMBER_DEFAULT_FORMAT } from "../constants/order";
 import { getMonthInRomanNumeral } from ".";
 
@@ -20,6 +20,13 @@ export function clearReduxOrderData() {
     return (dispatch) => {
       //console.log("updateReduxRequestOrder");
       dispatch({ type: NEW_REQUEST_ORDER_STATE_UPDATE, data });
+    };
+  }
+
+  export function overhaulReduxOrderCombinedOrders(data) {
+    return (dispatch) => {
+      console.log("overhaulReduxOrderCombinedOrders", data?.length);
+      dispatch({ type: ORDER_COMBINED_ORDERS_STATE_OVERHAUL, data });
     };
   }
 
