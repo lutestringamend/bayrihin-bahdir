@@ -1,5 +1,18 @@
 import Parse from "parse/dist/parse.min.js";
 
+export const requestPasswordReset = async (email) => {
+  try {
+    await Parse.User.requestPasswordReset(email);
+    alert(
+      `Permintaan reset password berhasil. Mohon membuka ${email} untuk melanjutkan.`,
+    );
+    return true;
+  } catch (error) {
+    alert(`Error! ${error}`);
+    return false;
+  }
+};
+
 export const getAccountRoles = async () => {
   let result = [];
   try {
@@ -30,10 +43,15 @@ export const getAccountRoleEntry = async (objectId) => {
 };
 
 export const updateAccountRoleEntry = async (objectId, privileges) => {
-  if (objectId === undefined || objectId === null || privileges === undefined || privileges === null) {
+  if (
+    objectId === undefined ||
+    objectId === null ||
+    privileges === undefined ||
+    privileges === null
+  ) {
     return false;
-}
-try {
+  }
+  try {
     const query = new Parse.Query("account_roles");
     query.limit(99);
     query.equalTo("objectId", objectId.toString());
@@ -43,15 +61,13 @@ try {
       return false;
     }
     item.set("privileges", privileges);
-  await item.save();
+    await item.save();
 
-  alert("Role berhasil diedit");
+    alert("Role berhasil diedit");
 
-  return true;
-} catch (error) {
-  alert(`Error! ${error.message}`);
-  return false;
-}
+    return true;
+  } catch (error) {
+    alert(`Error! ${error.message}`);
+    return false;
+  }
 };
-
-

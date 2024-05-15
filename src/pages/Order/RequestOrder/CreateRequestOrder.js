@@ -246,6 +246,12 @@ function CreateRequestOrder(props) {
     setErrors(newErrors);
 
     if (isComplete) {
+      const confirm = window.confirm(
+        "Pastikan semua data sudah terisi dengan benar. Aksi ini akan membuat Request Order baru.",
+      );
+      if (!confirm) {
+        return;
+      }
       const result = await createUpdateRequestOrderEntry(
         null,
         newRequestOrder?.deliveryOrderNumber,

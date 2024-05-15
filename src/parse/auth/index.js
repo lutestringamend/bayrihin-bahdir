@@ -20,9 +20,15 @@ export const authLogin = async (username, password) => {
     if (loggedInUser) {
         const currentUser = await Parse.User.current();
         result = currentUser.toJSON();
+        if (result?.isActive) {
+            error = null;
+        } else {
+            result = null;
+            error = "Akun sudah tidak aktif. Mohon kontak superadmin untuk mengaktifkan akun kembali.";
+        }
     }
     return {
         result,
-        error
+        error,
     };
 }

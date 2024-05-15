@@ -54,6 +54,8 @@ import {
   ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_INSTRUMENT,
   ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_IMPLANT,
   ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_INSTRUMENT,
+  ACCOUNT_PRIVILEGE_VIEW_REQUEST_ORDER,
+  ACCOUNT_PRIVILEGE_VIEW_DELIVERY_ORDER,
 } from "../constants/account";
 import { hasPrivilege } from "../utils/account";
 import { getAccountRoleEntry } from "../parse/account";
@@ -232,9 +234,9 @@ const Init = (props) => {
             </>
           ) : null}
 
-          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
+          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_VIEW_REQUEST_ORDER) || hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
             <>
-              <Route path="order/request-orders" element={<RequestOrders />} />
+             <Route path="order/request-orders" element={<RequestOrders />} />
               <Route
                 path="order/request-orders/:filter"
                 element={<RequestOrders />}
@@ -243,6 +245,11 @@ const Init = (props) => {
                 path="order/request-order/:id"
                 element={<RequestOrder />}
               />
+            </>
+          ) : null}
+
+          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_VIEW_DELIVERY_ORDER) || hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
+            <>
               <Route
                 path="order/delivery-orders"
                 element={<DeliveryOrders />}

@@ -535,6 +535,12 @@ function RequestOrder(props) {
     setErrors(newErrors);
 
     if (isComplete) {
+      const confirm = window.confirm(
+        "Pastikan semua data sudah terisi dengan benar. Aksi ini akan membuat Delivery Order baru.",
+      );
+      if (!confirm) {
+        return;
+      }
       setSubmitting(true);
       try {
         const result = await createUpdateDeliveryOrderEntry(
@@ -556,7 +562,7 @@ function RequestOrder(props) {
         );
         if (result) {
           setSubmitting(false);
-          navigate("/order");
+          navigate("/order/delivery-orders");
           return;
         }
       } catch (e) {
@@ -724,7 +730,7 @@ function RequestOrder(props) {
 
           <div className="d-sm justify-content-between mb-4">
             <label>
-              <b>Tanggal Request</b>
+              <b>Tanggal Dibuat</b>
             </label>
             <br />
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="id">
@@ -732,7 +738,7 @@ function RequestOrder(props) {
                 readOnly
                 format={DATE_TIME_PICKER_FORMAT}
                 views={["year", "month", "day", "hours", "minutes"]}
-                defaultValue={dayjs()}
+                defaultValue={data?.createdAt ? dayjs(data?.createdAt) : null}
                 className="w-100"
               />
             </LocalizationProvider>
@@ -863,7 +869,7 @@ function RequestOrder(props) {
           <OrderInventoryTable
             category={1}
             list={inventory?.implants}
-            disabled={data?.approvalDate && data?.approverUser}
+            disabled={(data?.approvalDate && data?.approverUser) || !hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL)}
             warehouseStorageId={
               data?.warehouseStorage ? data?.warehouseStorage?.objectId : null
             }
@@ -895,7 +901,7 @@ function RequestOrder(props) {
           <OrderInventoryTable
             category={2}
             list={inventory?.instruments}
-            disabled={data?.approvalDate && data?.approverUser}
+            disabled={(data?.approvalDate && data?.approverUser) || !hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL)}
             warehouseStorageId={
               data?.warehouseStorage ? data?.warehouseStorage?.objectId : null
             }
@@ -927,7 +933,7 @@ function RequestOrder(props) {
           <OrderInventoryTable
             category={3}
             list={inventory?.units}
-            disabled={data?.approvalDate && data?.approverUser}
+            disabled={(data?.approvalDate && data?.approverUser) || !hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL)}
             warehouseStorageId={
               data?.warehouseStorage ? data?.warehouseStorage?.objectId : null
             }

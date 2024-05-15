@@ -12,6 +12,7 @@ import { hasPrivilege } from "../../../utils/account";
 import {
   ACCOUNT_PRIVILEGE_CREATE_ORDER,
   ACCOUNT_PRIVILEGE_ORDER_APPROVAL,
+  ACCOUNT_PRIVILEGE_VIEW_REQUEST_ORDER,
 } from "../../../constants/account";
 import {
   overhaulReduxOrderRequestOrders,
@@ -57,7 +58,7 @@ function RequestOrders(props) {
     setLoading(true);
     let requestUnapproved = 0;
     const result = await getRequestOrdersData(null, null, params?.filter ? params?.filter : "");
-    if (hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) && result) {
+    if ((hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) || hasPrivilege(privileges, ACCOUNT_PRIVILEGE_VIEW_REQUEST_ORDER)) && result) {
       for (let r of result) {
         if (!(r?.approvalDate && r?.approverUser)) {
           requestUnapproved++;

@@ -15,13 +15,13 @@ import {
   updateUserEntry,
   updateUserStatus,
 } from "../../parse/user";
-import { USER_GENDERS, USER_ROLES } from "../../constants/user";
+import { USER_GENDERS, USER_ROLES, USER_ROLE_DEVELOPER, USER_ROLE_SUPERADMIN } from "../../constants/user";
 import {
   updateReduxUserAccountRoles,
   updateReduxUserPrivileges,
   clearReduxUserData,
 } from "../../utils/user";
-import { getAccountRoles } from "../../parse/account";
+import { getAccountRoles, requestPasswordReset } from "../../parse/account";
 import { email_regex, phone_regex, username_regex } from "../../constants";
 import { generatePassword } from "../../utils/account";
 
@@ -189,6 +189,15 @@ function UserManagement(props) {
     }
   };
 
+  const resetPassword = async (email) => {
+    const confirm = window.confirm(
+      `Yakin ingin mengirim email permintaan reset password ke ${email}?`,
+    );
+    if (confirm) {
+      const result = await requestPasswordReset(email);
+    }
+  }
+
   const saveModalData = async () => {
     let newErrors = defaultModalErrors;
     let isComplete = true;
@@ -245,6 +254,12 @@ function UserManagement(props) {
     setModalErrors(newErrors);
 
     if (isComplete) {
+      const confirm = window.confirm(
+        "Pastikan semua data sudah terisi dengan benar. Aksi ini akan membuat user baru.",
+      );
+      if (!confirm) {
+        return;
+      }
       let result =
         modalData?.objectId === null
           ? await registerNewUser(
@@ -446,6 +461,19 @@ function UserManagement(props) {
                               {user?.isActive ? "Matikan" : "Aktifkan"}
                             </button>
                           </p>
+
+                          {currentUser?.accountRole ? currentUser?.accountRole?.name === USER_ROLE_SUPERADMIN || currentUser?.accountRole?.name === USER_ROLE_DEVELOPER ? (
+                            <p>
+                            <button
+                              onClick={() =>
+                                resetPassword(user?.email)
+                              }
+                              className="btn btn-danger btn-sm mr-1"
+                            >
+                              Reset Password
+                            </button>
+                          </p>
+                          ) : null : null}
                         </td>
                       </tr>
                     );

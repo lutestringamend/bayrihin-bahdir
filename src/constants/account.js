@@ -16,6 +16,8 @@ export const ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_INSTRUMENT_RETUR
 
 export const ACCOUNT_PRIVILEGE_CREATE_ORDER = "ACCOUNT_PRIVILEGE_CREATE_ORDER"
 export const ACCOUNT_PRIVILEGE_ORDER_APPROVAL = "ACCOUNT_PRIVILEGE_ORDER_APPROVAL"
+export const ACCOUNT_PRIVILEGE_VIEW_REQUEST_ORDER = "ACCOUNT_PRIVILEGE_VIEW_REQUEST_ORDER"
+export const ACCOUNT_PRIVILEGE_VIEW_DELIVERY_ORDER = "ACCOUNT_PRIVILEGE_VIEW_DELIVERY_ORDER"
 export const ACCOUNT_PRIVILEGE_ASSIGN_TS_PIC = "ACCOUNT_PRIVILEGE_ASSIGN_TS_PIC"
 export const ACCOUNT_PRIVILEGE_DELIVERY_ORDER_EDIT = "ACCOUNT_PRIVILEGE_DELIVERY_ORDER_EDIT"
 
@@ -99,16 +101,24 @@ export const ACCOUNT_PRIVILEGES = [
         section: "Order Management",
         privileges: [
             {
+                name: ACCOUNT_PRIVILEGE_VIEW_REQUEST_ORDER,
+                caption: "Melihat Daftar Request Order"
+            },
+            {
                 name: ACCOUNT_PRIVILEGE_CREATE_ORDER,
                 caption: "Membuat Order Baru"
             },
             {
                 name: ACCOUNT_PRIVILEGE_ORDER_APPROVAL,
-                caption: "Setujui / Feedback Request Order dan Produk"
+                caption: "Setujui / Feedback Request Order"
             },
             {
                 name: ACCOUNT_PRIVILEGE_ASSIGN_TS_PIC,
                 caption: "Menunjuk Technical Support PIC"
+            },
+            {
+                name: ACCOUNT_PRIVILEGE_VIEW_DELIVERY_ORDER,
+                caption: "Melihat Daftar Delivery Order"
             },
             {
                 name: ACCOUNT_PRIVILEGE_DELIVERY_ORDER_EDIT,

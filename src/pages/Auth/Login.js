@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-
-//import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+
 import { authLogin } from "../../parse/auth";
 import { overhaulReduxUserCurrent } from "../../utils/user";
+import { AuthDataModel } from "../../models/auth";
+import { requestPasswordReset } from "../../parse/account";
+import { email_regex } from "../../constants";
 
 //<div className="col-lg-6 d-none d-lg-block bg-login-image"></div>
 
@@ -21,23 +24,66 @@ import { overhaulReduxUserCurrent } from "../../utils/user";
                                          <div className="text-center">
                                         <a className="small" href="register.html">Create an Account!</a>
                                     </div>
+
+                                    <div className="form-group">
+                      <div className="custom-control custom-checkbox small">
+                        <input
+                          checked={remember}
+                          onChange={handleChange}
+                          type="checkbox"
+                          className="custom-control-input"
+                          id="customCheck"
+                        />
+                        <label className="custom-control-label">
+                          Ingat saya
+                        </label>
+                      </div>
+                    </div>
 */
 
 const Login = (props) => {
   const { currentUser } = props;
-  const [data, setData] = useState({
-    username: "",
-    password: "",
-  });
+  const navigate = useNavigate();
+
+  const [data, setData] = useState(AuthDataModel);
+  const [errors, setErrors] = useState(AuthDataModel);
   const [error, setError] = useState(null);
-  const [remember, setRemember] = useState(true);
+  /*const [remember, setRemember] = useState(true);
 
   const handleChange = () => {
     setRemember(!remember);
-  };
+  };*/
+
+  const resetPassword = async () => {
+    const email = window.prompt("Masukkan alamat email akun Anda");
+    if (email_regex.test(email)) {
+      const confirm = window.confirm(
+        `Yakin ingin mengirim email permintaan reset password ke ${email}?`,
+      );
+      if (confirm) {
+        const result = await requestPasswordReset(email);
+        if (!result) {
+          window.alert("Tidak bisa mengirimkan email permintaan reset password");
+        }
+      }
+    } else {
+      window.alert("Alamat email tidak valid");
+    }
+    
+  }
 
   const attemptLogin = async () => {
+    if (data?.username === null || data?.username === "") {
+      setErrors({...AuthDataModel, username: "Username wajib diisi"});
+      return;
+    }
+    if (data?.password === null || data?.password === "") {
+      setErrors({...AuthDataModel, password: "Password wajib diisi"});
+      return;
+    }
+
     setError(null);
+    setErrors(AuthDataModel);
     try {
       let result = await authLogin(data?.username, data?.password);
       if (result?.result === undefined || result?.result === null) {
@@ -45,12 +91,12 @@ const Login = (props) => {
       } else {
         alert(`Berhasil login sebagai ${result?.result?.username}!`);
         props.overhaulReduxUserCurrent(result?.result);
+        navigate("/");
       }
     } catch (e) {
       console.error(e);
-      setError(e.toString());
+      setError("Akun tidak ada atau password salah");
     }
-    console.log("attemptLogin", data);
   };
 
   return (
@@ -70,8 +116,9 @@ const Login = (props) => {
                     <div className="form-group">
                       <input
                         type="username"
-                        className="form-control form-control-user"
-                        id="exampleInputEmail"
+                        className={`form-control form-control-user ${
+                          errors.username ? "is-invalid" : ""
+                        } `}
                         aria-describedby="emailHelp"
                         placeholder="Masukkan username"
                         value={data?.username}
@@ -79,33 +126,23 @@ const Login = (props) => {
                           setData({ ...data, username: e.target.value })
                         }
                       />
+                      <span style={{ color: "red" }}>{errors?.username}</span>
                     </div>
                     <div className="form-group">
                       <input
                         type="password"
-                        className="form-control form-control-user"
-                        id="exampleInputPassword"
+                        className={`form-control form-control-user ${
+                          errors.password ? "is-invalid" : ""
+                        } `}
                         placeholder="Password"
                         value={data?.password}
                         onChange={(e) =>
                           setData({ ...data, password: e.target.value })
                         }
                       />
+                      <span style={{ color: "red" }}>{errors?.password}</span>
                     </div>
-                    <div className="form-group">
-                      <div className="custom-control custom-checkbox small">
-                        <input
-                          checked={remember}
-                          onChange={handleChange}
-                          type="checkbox"
-                          className="custom-control-input"
-                          id="customCheck"
-                        />
-                        <label className="custom-control-label">
-                          Ingat saya
-                        </label>
-                      </div>
-                    </div>
+                    
                   </form>
                   <button
                     className="btn btn-primary btn-user btn-block"
@@ -116,7 +153,7 @@ const Login = (props) => {
                   <span style={{ color: "red" }}>{error}</span>
                   <hr />
                   <div className="text-center">
-                    <a className="small" href="#">
+                    <a href="#" className="small" onClick={() => resetPassword()}>
                       Lupa Password?
                     </a>
                   </div>

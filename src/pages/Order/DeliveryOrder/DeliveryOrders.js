@@ -187,7 +187,13 @@ function DeliveryOrders(props) {
             {...p}
             approvalDate={isSpecified ? approvalDate : p?.approvalDate}
             approverUser={isSpecified ? approverUser : p?.approverUser}
-            type={ORDER_TYPE_DELIVERY_ORDER}
+            type={
+              params?.type === "implant"
+                ? ORDER_TYPE_DELIVERY_ORDER_IMPLANT
+                : params?.type === "instrument"
+                  ? ORDER_TYPE_DELIVERY_ORDER_INSTRUMENT
+                  : ORDER_TYPE_DELIVERY_ORDER
+            }
           />
         </td>
         <td>

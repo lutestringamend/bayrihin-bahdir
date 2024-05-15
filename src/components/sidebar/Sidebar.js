@@ -17,6 +17,8 @@ import {
   ACCOUNT_PRIVILEGE_ORDER_APPROVAL,
   ACCOUNT_PRIVILEGE_PRICING_CRUD,
   ACCOUNT_PRIVILEGE_UPDATE_ADMIN,
+  ACCOUNT_PRIVILEGE_VIEW_DELIVERY_ORDER,
+  ACCOUNT_PRIVILEGE_VIEW_REQUEST_ORDER,
   ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_IMPLANT,
   ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_INSTRUMENT,
   ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_IMPLANT,
@@ -177,19 +179,19 @@ function Sidebar(props) {
                   </Link>
                 </li>
               ) : null}
-              {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
-                <>
-                  <li className="nav-item active">
-                    <Link className="nav-link" to="/order/request-orders">
-                      <span>Daftar Request Order</span>
-                    </Link>
-                  </li>
-                  <li className="nav-item active">
-                    <Link className="nav-link" to="/order/delivery-orders">
-                      <span>Daftar Delivery Order</span>
-                    </Link>
-                  </li>
-                </>
+              {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_VIEW_REQUEST_ORDER) || hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
+                <li className="nav-item active">
+                <Link className="nav-link" to="/order/request-orders">
+                  <span>Daftar Request Order</span>
+                </Link>
+              </li>
+              ) : null}
+              {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_VIEW_DELIVERY_ORDER) || hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
+                 <li className="nav-item active">
+                 <Link className="nav-link" to="/order/delivery-orders">
+                   <span>Daftar Delivery Order</span>
+                 </Link>
+               </li>
               ) : null}
             </ul>
           </li>

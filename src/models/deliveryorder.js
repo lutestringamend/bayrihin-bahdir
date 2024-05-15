@@ -1,4 +1,4 @@
-export const RequestOrderModel = {
+export const DeliveryOrderModel = {
     objectId: "",
     deliveryOrderNumber: "",
     isActive: null,
@@ -9,7 +9,6 @@ export const RequestOrderModel = {
     createdAt: "",
     surgeryDate: "",
     deliveryDate: "",
-    inventoryJSON: "",
-    tsPICUserId: "",
+    tsPICUser: "",
     remark: "",
 }
