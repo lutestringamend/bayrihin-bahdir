@@ -79,6 +79,7 @@ const RequestOrderTable = (props) => {
                       </td>
 
                       <td>
+                        <p>
                         {warehouseStorageId === undefined || warehouseStorageId === null || warehouseStorageId === "" ? (
                           <button
                           disabled
@@ -102,15 +103,19 @@ const RequestOrderTable = (props) => {
                             Hapus
                           </button>
                         )}
+                        </p>
+                       
 
                         {p?.items?.length === undefined ||
                         p?.items?.length < 1 ? null : (
-                          <button
+                          <p>
+ <button
                             onClick={() => setExpand((expand) => !expand)}
                             className="btn btn-info btn-sm mr-1"
                           >
                             {expand ? "Ringkas" : "Lihat Detil"}
                           </button>
+                          </p>    
                         )}
                       </td>
                     </tr>

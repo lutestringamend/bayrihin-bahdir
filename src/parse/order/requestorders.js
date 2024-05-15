@@ -9,7 +9,7 @@ export const createUpdateRequestOrderEntry = async (
         procedure,
         surgeryDate,
         deliveryDate,
-        inventoryJSON
+        inventoryJSON,
     ) => {
     let item = new Parse.Object("request_orders");
     if (objectId) {

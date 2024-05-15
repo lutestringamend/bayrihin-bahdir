@@ -47,9 +47,13 @@ function OrderPackageItem(props) {
     setNotes(packageData?.notes ? packageData?.notes : "");
   }, [packageData]);
 
+  /*useEffect(() => {
+    console.log("productList", productList);
+  }, [productList]);
+
   useEffect(() => {
     console.log("availabilities", availabilities);
-  }, [availabilities]);
+  }, [availabilities]);*/
 
   let prepareData = () => {
     if (newOrder === null) {
@@ -103,6 +107,7 @@ function OrderPackageItem(props) {
       }
       newList.push({
         objectId: r?.objectId,
+        productId: r?.warehouseProduct ? r?.warehouseProduct?.objectId : null,
         name: r?.warehouseProduct
           ? r?.warehouseProduct?.name
             ? r?.warehouseProduct?.name
@@ -144,12 +149,12 @@ function OrderPackageItem(props) {
           null,
           null,
         );
-        console.log(
+        /*console.log(
           "getWarehouseProductStoragesData",
           a?.productId,
           params?.storageId,
           result,
-        );
+        );*/
         if (result === undefined) {
           availability = null;
         } else if (result?.length === undefined || result?.length < 1) {
@@ -208,13 +213,15 @@ function OrderPackageItem(props) {
   const saveData = () => {
     let items = [];
     for (let l of productList) {
-      items.push({
-        objectId: l?.objectId,
-        name: l?.name,
-        quantity: parseInt(
-          quantities.find(({ objectId }) => objectId === l?.objectId)?.quantity,
-        ),
-      });
+      if (l?.productId) {
+        items.push({
+          objectId: l?.productId,
+          name: l?.name,
+          quantity: parseInt(
+            quantities.find(({ objectId }) => objectId === l?.objectId)?.quantity,
+          ),
+        });
+      }
     }
 
     let implants = newOrder?.implants;

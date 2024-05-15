@@ -58,13 +58,23 @@ export const registerNewUser = async (
   return false;
 };
 
-export const getUserData = async () => {
+export const getUserData = async (accountRoleName) => {
   let result = [];
   try {
     const results = await Parse.Cloud.run("fetchUserData");
     if (!(results?.length === undefined || results?.length < 1)) {
       for (let r of results) {
-        result.push(r.toJSON());
+        let user = r.toJSON();
+        if (accountRoleName) {
+          if (user?.accountRole?.name === accountRoleName && user?.objectId && user?.isActive) {
+            result.push({
+              objectId: user?.objectId,
+              name: user?.fullName ? user?.fullName : user?.username,
+            });
+          }
+        } else {
+          result.push(user);
+        }
       }
     }
   } catch (e) {

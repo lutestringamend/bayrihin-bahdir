@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { WarehouseTypeCategories } from "../../constants/warehouse_types";
 
 const OrderInventoryTable = (props) => {
-  const { title, category, list, warehouseStorageId } = props;
+  const { category, list, disabled } = props;
   const [sum, setSum] = useState([]);
 
   useEffect(() => {
@@ -32,21 +32,85 @@ const OrderInventoryTable = (props) => {
     setSum(newSum);
   }, [list]);
 
-  const deleteItem = (objectId) => {
-    if (!(props?.deleteItem === undefined || props?.deleteItem === null)) {
-      props?.deleteItem(objectId);
+  const editInventoryPackage = (
+    objectId,
+    isDelete,
+    notes,
+    newItem,
+    productId,
+    quantity,
+    deleteItem,
+  ) => {
+    if (
+      !(
+        props?.editInventoryPackage === undefined ||
+        props?.editInventoryPackage === null
+      )
+    ) {
+      props?.editInventoryPackage(
+        objectId,
+        isDelete,
+        notes,
+        newItem,
+        productId,
+        quantity,
+        deleteItem,
+      );
+    }
+  };
+
+  const deletePackage = (name, objectId) => {
+    const confirm = window.confirm(
+      `Apakah yakin ingin menghapus paket ${name}?`,
+    );
+    if (confirm) {
+      editInventoryPackage(objectId, true, null, null);
+    }
+  };
+
+  const deleteItem = (name, objectId, itemId) => {
+    const confirm = window.confirm(
+      `Apakah yakin ingin menghapus item ${name}?`,
+    );
+    if (confirm) {
+      editInventoryPackage(objectId, false, null, null, itemId, 0, true);
+    }
+  };
+
+  const openModalItem = (objectId, name) => {
+    if (
+      !(props?.openModalItem === undefined || props?.openModalItem === null)
+    ) {
+      props?.openModalItem(objectId, name);
+    }
+  };
+
+  const openModalPackage = () => {
+    if (
+      !(
+        props?.openModalPackage === undefined ||
+        props?.openModalPackage === null
+      )
+    ) {
+      props?.openModalPackage();
     }
   };
 
   return (
     <div className="card shadow mb-4">
-      <div className="card-header my-3 d-sm-flex align-items-center justify-content-between">
-        <h6 className="m-0 font-weight-bold text-primary">{title}</h6>
-        <button
-                            className="btn btn-primary btn-sm mx-3"
-                          >
-                            Tambah Paket
-                          </button>
+      <div className="card-header py-3 d-sm-flex align-items-center justify-content-between">
+        <h6 className="m-0 font-weight-bold text-primary">
+          {WarehouseTypeCategories[category]}
+        </h6>
+        {disabled ? null : (
+<button
+onClick={() => openModalPackage()}
+className="btn btn-info btn-sm mx-3"
+>
+Tambah Paket
+</button>
+        )}
+       
       </div>
       <div className="card-body">
         <div className="table-responsive">
@@ -71,7 +135,7 @@ const OrderInventoryTable = (props) => {
                   <>
                     <tr key={index}>
                       <td>{index + 1}</td>
-                      <td>{p.name}</td>
+                      <td>{p?.name}</td>
                       <td>
                         {sum?.length > 0
                           ? sum.find(({ objectId }) => objectId === p?.objectId)
@@ -79,20 +143,30 @@ const OrderInventoryTable = (props) => {
                           : ""}
                       </td>
                       <td>
-                      <textarea
-                        name="notes"
-                        value={p?.notes}
-                        onChange={(e) => console.log(e.target.value)}
-                        type={"text"}
-                        rows="3"
-                        className="form-control"
-                      />
+                        <textarea
+                          name="notes"
+                          value={p?.notes}
+                          disabled={disabled}
+                          onChange={(e) =>
+                            editInventoryPackage(
+                              p?.objectId,
+                              false,
+                              e.target.value,
+                              null,
+                            )
+                          }
+                          type={"text"}
+                          rows="3"
+                          className="form-control"
+                        />
                       </td>
 
                       <td>
-                       
-                        <p>
-                        <button
+                        {disabled ? null : (
+                          <>
+                           <p>
+                          <button
+                            onClick={() => openModalItem(p?.objectId, p?.name)}
                             className="btn btn-info btn-sm mr-1"
                           >
                             Tambah Item
@@ -100,19 +174,20 @@ const OrderInventoryTable = (props) => {
                         </p>
 
                         <p>
-                        <button
-                            onClick={() => deleteItem(p?.objectId)}
+                          <button
+                            onClick={() => deletePackage(p?.name, p?.objectId)}
                             className="btn btn-danger btn-sm mr-1"
                           >
                             Hapus
                           </button>
                         </p>
-
-                        
+                          </>
+                        )}
+                       
                       </td>
                     </tr>
                     {p?.items?.length === undefined ||
-                    p?.items?.length < 1  ? null : (
+                    p?.items?.length < 1 ? null : (
                       <tr key={p?.objectId}>
                         <td colSpan={5}>
                           <table
@@ -123,16 +198,46 @@ const OrderInventoryTable = (props) => {
                           >
                             {p?.items.map((item, i) => (
                               <tr key={i}>
-                                <td width="90%">
+                                <td width="75%">
                                   {item?.name ? item?.name : item?.objectId}
                                 </td>
-                                <td>{item?.quantity}</td>
-                                <td> <button
-                            onClick={() => deleteItem(p?.objectId)}
-                            className="btn btn-danger btn-sm mr-1"
-                          >
-                            Hapus
-                          </button></td>
+                                <td width="10%">
+                                  <input
+                                    name="quantity"
+                                    value={parseInt(item?.quantity)}
+                                    disabled={disabled}
+                                    onChange={(e) =>
+                                      editInventoryPackage(
+                                        p?.objectId,
+                                        false,
+                                        p?.notes,
+                                        null,
+                                        item?.objectId,
+                                        e.target.value,
+                                        false,
+                                      )
+                                    }
+                                    type="number"
+                                    className="form-control"
+                                  />
+                                </td>
+                                <td>
+                                  {disabled ? null : (
+ <button
+ onClick={() =>
+   deleteItem(
+     item?.name,
+     p?.objectId,
+     item?.objectId,
+   )
+ }
+ className="btn btn-danger btn-sm mr-1"
+>
+ Hapus
+</button>
+                                  )}
+                                 
+                                </td>
                               </tr>
                             ))}
                           </table>

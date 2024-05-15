@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { FadeLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faSearch, faClose
 } from "@fortawesome/free-solid-svg-icons";
 
 const SearchTextInput = (props) => {
-    const { label, name, value, error, data, defaultOption, searchButton, searchPlaceholder } = props;
+    const { label, name, value, error, data, defaultOption, searchButton, searchPlaceholder, loading, disabled } = props;
     const timeoutRef = useRef();
 
     const [searchMode, setSearchMode] = useState(false);
@@ -56,7 +57,15 @@ const SearchTextInput = (props) => {
     <label>
       <b>{label}</b>
     </label>
-    {searchMode ? (
+    {loading ? (
+      <FadeLoader
+      color="#4e73df"
+      loading={true}
+      size={8}
+      aria-label="Loading Spinner"
+      data-testid="loader"
+    />
+    ) : searchMode ? (
          <div className="d-sm-flex mb-4">
          <div className="input-group">
            <input
@@ -86,6 +95,7 @@ const SearchTextInput = (props) => {
     <select
       name={name}
       value={value ? value : ""}
+      disabled={disabled}
       onChange={(e) =>
         onChange(e)
       }
@@ -100,17 +110,20 @@ const SearchTextInput = (props) => {
             </option>
           ))}
     </select>
-    <button
-                className="d-sm-flex align-items-center btn btn-sm btn-info shadow-sm mx-1"
-                onClick={() => setSearchMode(true)
-                }
-              >
-                <FontAwesomeIcon
-                  icon={faSearch}
-                  style={{ marginRight: "0.25rem", color: "white" }}
-                />
-                {searchButton ? searchButton : "Cari"}
-              </button>
+    {disabled ? null : 
+     <button
+     className="d-sm-flex align-items-center btn btn-sm btn-info shadow-sm mx-1"
+     onClick={() => setSearchMode(true)
+     }
+   >
+     <FontAwesomeIcon
+       icon={faSearch}
+       style={{ marginRight: "0.25rem", color: "white" }}
+     />
+     {searchButton ? searchButton : "Cari"}
+   </button>
+    }
+   
     </div>
     )}
     {searchMode && searchText !== "" && searchList?.length > 0 ? (

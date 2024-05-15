@@ -10,4 +10,5 @@ export const RequestOrderModel = {
     surgeryDate: "",
     deliveryDate: "",
     inventoryJSON: "",
+    tsPICUserId: "",
 }
