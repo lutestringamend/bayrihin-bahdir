@@ -6,7 +6,6 @@ import { FadeLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheckCircle,
-  faWindowRestore,
 } from "@fortawesome/free-regular-svg-icons";
 
 import {
@@ -17,6 +16,7 @@ import { updateReduxUserPrivileges } from "../../utils/user";
 import { ACCOUNT_PRIVILEGES } from "../../constants/account";
 import { USER_ROLES } from "../../constants/user";
 import RolePrivilegesTable from "../../components/tables/RolePrivilegesTable";
+import { faCancel } from "@fortawesome/free-solid-svg-icons";
 
 function AccountPrivilegeEdit(props) {
   const { currentUser } = props;
@@ -149,7 +149,7 @@ function AccountPrivilegeEdit(props) {
             onClick={() => resetPrivileges()}
           >
             <FontAwesomeIcon
-              icon={faWindowRestore}
+              icon={faCancel}
               style={{ marginRight: "0.25rem", color: "white" }}
             />
             Reset

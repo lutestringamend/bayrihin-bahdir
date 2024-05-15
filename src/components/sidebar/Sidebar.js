@@ -120,9 +120,7 @@ function Sidebar(props) {
         </>
       ) : null}
 
-      {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ? (
-        <>
-          <li className="nav-item active">
+<li className="nav-item active">
             <Link className="nav-link" to="/order">
               <FontAwesomeIcon
                 icon={faList}
@@ -131,11 +129,13 @@ function Sidebar(props) {
               <span>Order Management</span>
             </Link>
             <ul>
-              <li className="nav-item active">
-                <Link className="nav-link" to="/create-request-order">
-                  <span>Buat Request Order</span>
-                </Link>
-              </li>
+            {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ? (
+        <li className="nav-item active">
+        <Link className="nav-link" to="/create-request-order">
+          <span>Buat Request Order</span>
+        </Link>
+      </li>
+      ) : null}
               {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
                 <li className="nav-item active">
                   <Link className="nav-link" to="/order/request-orders">
@@ -146,8 +146,8 @@ function Sidebar(props) {
             </ul>
           </li>
           <hr className="sidebar-divider my-0" />
-        </>
-      ) : null}
+
+      
 
       {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_HOSPITALS_CRUD) ||
       hasPrivilege(privileges, ACCOUNT_PRIVILEGE_DOCTORS_CRUD) ? (

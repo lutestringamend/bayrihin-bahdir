@@ -65,10 +65,10 @@ function OrderMain(props) {
       let aTime = new Date(a?.createdAt).getTime();
       let bTime = new Date(b?.createdAt).getTime();
       if (aTime < bTime) {
-        return -1;
+        return 1;
       }
       if (aTime > bTime) {
-        return 1;
+        return -1;
       }
       return 0;
     });
@@ -118,6 +118,9 @@ function OrderMain(props) {
     return (
       <tr>
         <td>
+          {p?.deliveryOrderNumber}
+        </td>
+        <td>
         {p?.createdAt
                                 ? new Date(p?.createdAt).toLocaleString("id-ID")
                                 : ""}
@@ -140,14 +143,12 @@ function OrderMain(props) {
         </td>
         <td>{p?.status === undefined ? "Request Belum Ditinjau" : "Delivery Order"}</td>
         <td>
-        <p>
-                              <Link
-                                to={`/request-order/${p?.objectId}`}
-                                className="btn btn-primary btn-sm mr-1"
-                              >
-                                Tinjau
-                              </Link>
-                            </p>
+        <Link
+ to={`/request-order/${p?.objectId}`}
+ className="btn btn-primary btn-sm mr-1"
+>
+  {p?.approvalDate ? "Detil" : "Tinjau"}
+</Link>
         </td>
       </tr>
     );
@@ -237,6 +238,7 @@ function OrderMain(props) {
               >
                  <thead>
                     <tr>
+                    <th>DO No</th>
                       <th>Tanggal</th>
                       <th>Region</th>
                       <th>Rumah Sakit</th>
@@ -248,6 +250,7 @@ function OrderMain(props) {
 
                   <tfoot>
                     <tr>
+                    <th>DO No</th>
                     <th>Tanggal</th>
                       <th>Region</th>
                       <th>Rumah Sakit</th>

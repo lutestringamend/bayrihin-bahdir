@@ -25,6 +25,10 @@ import { getDoctorsData, getHospitalsData } from "../../parse/order";
 import { DATE_TIME_PICKER_FORMAT } from "../../constants/strings";
 import { getRequestOrderById } from "../../parse/order/requestorders";
 import SearchTextInput from "../../components/textinput/SearchTextInput";
+import { hasPrivilege } from "../../utils/account";
+import { ACCOUNT_PRIVILEGE_ORDER_APPROVAL } from "../../constants/account";
+import { faCancel } from "@fortawesome/free-solid-svg-icons";
+import OrderInventoryTable from "../../components/tables/OrderInventoryTable";
 
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
@@ -33,6 +37,7 @@ import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 function RequestOrder(props) {
   const {
     currentUser,
+    privileges,
     doctors,
     hospitals,
     warehouseStorages,
@@ -42,7 +47,8 @@ function RequestOrder(props) {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [data, setData] = useState(RequestOrderModel);
+  const [data, setData] = useState(null);
+  const [inventory, setInventory] = useState(null);
   const [errors, setErrors] = useState(RequestOrderModel);
 
   useEffect(() => {
@@ -94,13 +100,23 @@ function RequestOrder(props) {
   const fetchData = async () => {
     setError(null);
     setLoading(true);
+    setInventory(null);
     const result = await getRequestOrderById(params?.id);
     if (result === undefined || result === null) {
       setError("Tidak bisa mengambil data Request Order");
     } else {
       setData(result);
+      if (result?.inventoryJSON) {
+        setInventory(JSON.parse(result?.inventoryJSON));
+        console.log(JSON.parse(result?.inventoryJSON));
+      }
     }
+    setLoading(false);
   };
+
+  const deleteItem = () => {
+
+  }
 
 
 
@@ -119,16 +135,36 @@ function RequestOrder(props) {
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 className="h3 mb-0 text-gray-800">Detail Request Order</h1>
-        <button
-          className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-          onClick={() => submit()}
-        >
-          <FontAwesomeIcon
-            icon={faCheckCircle}
-            style={{ marginRight: "0.25rem", color: "white" }}
-          />
-          Submit
-        </button>
+        {
+          hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
+
+            <div className="d-sm-flex align-items-center mb-4">
+            <button
+            className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+            onClick={() => submit()}
+          >
+            <FontAwesomeIcon
+              icon={faCheckCircle}
+              style={{ marginRight: "0.25rem", color: "white" }}
+            />
+            Setujui
+          </button>
+            <button
+              className="d-none d-sm-inline-block btn btn-sm btn-danger shadow-sm mx-3"
+              onClick={() => fetchData()}
+            >
+              <FontAwesomeIcon
+                icon={faCancel}
+                style={{ marginRight: "0.25rem", color: "white" }}
+              />
+              Reset
+            </button>
+          </div>
+
+            
+          ) : null
+        }
+       
       </div>
 
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
@@ -159,7 +195,7 @@ function RequestOrder(props) {
       <SearchTextInput
         label="Nama Dokter"
         name="doctor"
-        value={data?.doctorId}
+        value={data?.doctor ? data?.doctor?.objectId : ""}
         error={errors?.doctorId}
         defaultOption="----Pilih Dokter----"
         data={doctors}
@@ -179,8 +215,8 @@ function RequestOrder(props) {
         <select
           name="warehouseStorage"
           value={
-            data?.warehouseStorageId
-              ? data?.warehouseStorageId
+            data?.warehouseStorage
+              ? data?.warehouseStorage?.objectId
               : ""
           }
           onChange={(e) => {
@@ -210,7 +246,7 @@ function RequestOrder(props) {
       <SearchTextInput
         label="Rumah Sakit"
         name="hospital"
-        value={data?.hospitalId}
+        value={data?.hospital ? data?.hospital?.objectId : ""}
         error={errors?.hospitalId}
         defaultOption="----Pilih Rumah Sakit----"
         data={hospitals}
@@ -319,13 +355,38 @@ function RequestOrder(props) {
           aria-label="Loading Spinner"
           data-testid="loader"
         />
-      ) : null}
+      ) : inventory === null ? null : (
+        <>
+        <OrderInventoryTable
+          title="Implant & Disposable"
+          category={1}
+          list={inventory?.implants}
+          deleteItem={(e) => deleteItem(1, e)}
+          warehouseStorageId={data?.warehouseStorage ? data?.warehouseStorage?.objectId : null}
+        />
+        <OrderInventoryTable
+          title="Instrument"
+          category={2}
+          list={inventory?.instruments}
+          deleteItem={(e) => deleteItem(2, e)}
+          warehouseStorageId={data?.warehouseStorage ? data?.warehouseStorage?.objectId : null}
+        />
+        <OrderInventoryTable
+          title="Unit"
+          category={3}
+          list={inventory?.units}
+          deleteItem={(e) => deleteItem(3, e)}
+          warehouseStorageId={data?.warehouseStorage ? data?.warehouseStorage?.objectId : null}
+        />
+      </>
+      )}
     </>
   );
 }
 
 const mapStateToProps = (store) => ({
   currentUser: store.userState.currentUser,
+  privileges: store.userState.privileges,
   doctors: store.orderState.doctors,
   hospitals: store.orderState.hospitals,
   warehouseStorages: store.orderState.warehouseStorages,

@@ -23,7 +23,7 @@ export const getRequestOrdersData = async (isActive, limit) => {
   try {
     const query = new Parse.Query("request_orders");
     query.limit(limit ? limit : 99999);
-    query.ascending("createdAt");
+    query.descending("createdAt");
     query.include("warehouseStorage");
     query.include("hospital");
     query.include("doctor");
@@ -47,7 +47,7 @@ export const getDeliveryOrdersData = async (limit, status) => {
   try {
     const query = new Parse.Query("delivery_orders");
     query.limit(limit ? limit : 99999);
-    query.ascending("createdAt");
+    query.descending("createdAt");
     query.include("approverUser");
     query.include("tsPICUser");
     query.include("warehouseStorage");

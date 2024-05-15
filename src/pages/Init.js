@@ -42,6 +42,7 @@ import {
   ACCOUNT_PRIVILEGE_PRICING_CRUD,
   ACCOUNT_PRIVILEGE_HOSPITALS_CRUD,
   ACCOUNT_PRIVILEGE_DOCTORS_CRUD,
+  ACCOUNT_PRIVILEGE_ORDER_APPROVAL,
 } from "../constants/account";
 import { hasPrivilege } from "../utils/account";
 import { getAccountRoleEntry } from "../parse/account";
@@ -213,12 +214,18 @@ const Init = (props) => {
                 path="order-package-item/:category/:id/:storageId"
                 element={<OrderPackageItem />}
               />
-              <Route
+              
+            </>
+          ) : null}
+
+{hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
+<>
+<Route
                 path="request-order/:id"
                 element={<RequestOrder />}
               />
-            </>
-          ) : null}
+              </>
+) : null}
 
           {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_HOSPITALS_CRUD) ? (
             <>

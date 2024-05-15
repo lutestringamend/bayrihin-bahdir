@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { FadeLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheckCircle, faArrowAltCircleLeft, faSquarePlus } from "@fortawesome/free-regular-svg-icons";
+import { faCheckCircle, faSquarePlus } from "@fortawesome/free-regular-svg-icons";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
@@ -21,6 +21,7 @@ import { createUpdateDoctorEntry, getDoctorById } from "../../parse/order/doctor
 import { DOCTOR_GENDERS } from "../../constants/doctors";
 import { createUpdateDoctorHospitalEntry, getDoctorHospitals } from "../../parse/order/doctorhospitals";
 import SearchTextInput from "../../components/textinput/SearchTextInput";
+import { faCancel } from "@fortawesome/free-solid-svg-icons";
 
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
@@ -201,7 +202,7 @@ function Doctor(props) {
             onClick={() => fetchData()}
           >
             <FontAwesomeIcon
-              icon={faArrowAltCircleLeft}
+              icon={faCancel}
               style={{ marginRight: "0.25rem", color: "white" }}
             />
             Reset
