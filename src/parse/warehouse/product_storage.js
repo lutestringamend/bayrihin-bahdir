@@ -1,5 +1,43 @@
 import Parse from "parse/dist/parse.min.js";
 
+export const getWarehouseProductStorageForDeliveryOrder = async (
+  warehouseProductId,
+  warehouseStorageId,
+) => {
+  let results = [];
+  try {
+    const query = new Parse.Query("warehouse_product_storages");
+    query.limit(999999);
+    query.include("warehouseProduct");
+    query.include("warehouseProductLot");
+    query.descending("updatedAt");
+    if (warehouseProductId) {
+      query.equalTo("warehouseProduct", {
+        __type: "Pointer",
+        className: "warehouse_products",
+        objectId: warehouseProductId,
+      });
+    }
+    if (warehouseStorageId) {
+      query.equalTo("warehouseStorage", {
+        __type: "Pointer",
+        className: "warehouse_storages",
+        objectId: warehouseStorageId,
+      });
+    }
+    
+
+    const res = await query.find();
+    for (let r of res) {
+      results.push(r.toJSON());
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  console.log("getWarehouseProductStorageForDeliveryOrder", warehouseProductId, warehouseStorageId, results?.length);
+  return results;
+};
+
 export const getWarehouseProductStoragesData = async (
   warehouseProductId,
   warehouseStorageId,

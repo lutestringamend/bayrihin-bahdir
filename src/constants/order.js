@@ -4,6 +4,7 @@ export const ORDER_TYPE_DELIVERY_ORDER_IMPLANT = "DO Implant & BHP"
 export const ORDER_TYPE_DELIVERY_ORDER_INSTRUMENT = "DO Instrument & Unit"
 
 export const DELIVERY_ORDER_NUMBER_DEFAULT_FORMAT = "%NUMBER%/ALV/DO/%MONTH%/%YEAR%"
+export const DELIVERY_ORDER_READ_PARENT = "Lihat Delivery Order Induk"
 
 export const RequestOrderFilters = [
     {

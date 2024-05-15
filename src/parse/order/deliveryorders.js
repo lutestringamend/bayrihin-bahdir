@@ -39,6 +39,69 @@ export const getDeliveryOrderById = async (objectId, withChildren) => {
   return result;
 };
 
+export const updateDeliveryOrderImplantById = async (objectId, editorUserId, inventoryJSON) => {
+  try {
+    console.log("updateDeliveryOrderImplantById", objectId, editorUserId);
+    const query = new Parse.Query(DeliveryOrderImplant);
+    query.limit(99999);
+    query.equalTo("objectId", objectId);
+    query.descending("createdAt");
+    let res = await query.first();
+    if (res) {
+      if (inventoryJSON) {
+       res.set("inventoryJSON", inventoryJSON);
+      }
+      if(editorUserId) {
+        res.set("editorUser",  {
+          __type: "Pointer",
+          className: "_User",
+          objectId: editorUserId,
+        });
+      }
+      let save = await res.save();
+      if (save) {
+        return true;
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return false;
+};
+
+export const updateDeliveryOrderInstrumentById = async (objectId, editorUserId, instrumentJSON, unitJSON) => {
+  try {
+    console.log("updateDeliveryOrderInstrumentById", objectId, editorUserId);
+    const query = new Parse.Query(DeliveryOrderInstrument);
+    query.limit(99999);
+    query.equalTo("objectId", objectId);
+    query.descending("createdAt");
+    let res = await query.first();
+    if (res) {
+      if (instrumentJSON) {
+       res.set("instrumentJSON", instrumentJSON);
+      }
+      if (unitJSON) {
+        res.set("unitJSON", unitJSON);
+       }
+      if(editorUserId) {
+        res.set("editorUser",  {
+          __type: "Pointer",
+          className: "_User",
+          objectId: editorUserId,
+        });
+      }
+      let save = await res.save();
+      if (save) {
+        return true;
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return false;
+};
+
 export const getDeliveryOrderImplantById = async (objectId, deliveryOrderId, excludeDO) => {
   let result = null;
   try {
@@ -56,7 +119,10 @@ export const getDeliveryOrderImplantById = async (objectId, deliveryOrderId, exc
     }
     if (excludeDO) {
       query.exclude("deliveryOrder");
+    } else {
+      query.include("deliveryOrder");
     }
+    query.include("editorUser");
     const res = await query.first();
     result = res.toJSON();
   } catch (e) {
@@ -82,7 +148,10 @@ export const getDeliveryOrderInstrumentById = async (objectId, deliveryOrderId, 
     }
     if (excludeDO) {
       query.exclude("deliveryOrder");
+    } else {
+      query.include("deliveryOrder");
     }
+    query.include("editorUser");
     const res = await query.first();
     result = res.toJSON();
   } catch (e) {

@@ -80,42 +80,43 @@ const RequestOrderTable = (props) => {
 
                       <td>
                         <p>
-                        {warehouseStorageId === undefined || warehouseStorageId === null || warehouseStorageId === "" ? (
-                          <button
-                          disabled
-                          className="btn btn-secondary btn-sm mr-1"
-                        >
-                          Region Belum Dipilih
-                        </button>
-                        ) : p?.items?.length === undefined ||
-                        p?.items?.length < 1 ? (
-                          <Link
-                            to={`/order-package-item/${category}/${p.objectId}/${warehouseStorageId}`}
-                            className="btn btn-primary btn-sm mr-1"
-                          >
-                            Tambah
-                          </Link>
-                        ) : (
-                          <button
-                            onClick={() => deleteItem(p?.objectId)}
-                            className="btn btn-danger btn-sm mr-1"
-                          >
-                            Hapus
-                          </button>
-                        )}
+                          {warehouseStorageId === undefined ||
+                          warehouseStorageId === null ||
+                          warehouseStorageId === "" ? (
+                            <button
+                              disabled
+                              className="btn btn-secondary btn-sm mr-1"
+                            >
+                              Region Belum Dipilih
+                            </button>
+                          ) : p?.items?.length === undefined ||
+                            p?.items?.length < 1 ? (
+                            <Link
+                              to={`/order-package-item/${category}/${p.objectId}/${warehouseStorageId}`}
+                              className="btn btn-primary btn-sm mr-1"
+                            >
+                              Tambah
+                            </Link>
+                          ) : (
+                            <button
+                              onClick={() => deleteItem(p?.objectId)}
+                              className="btn btn-danger btn-sm mr-1"
+                            >
+                              Hapus
+                            </button>
+                          )}
                         </p>
-                       
 
                         {p?.items?.length === undefined ||
                         p?.items?.length < 1 ? null : (
                           <p>
- <button
-                            onClick={() => setExpand((expand) => !expand)}
-                            className="btn btn-info btn-sm mr-1"
-                          >
-                            {expand ? "Ringkas" : "Lihat Detil"}
-                          </button>
-                          </p>    
+                            <button
+                              onClick={() => setExpand((expand) => !expand)}
+                              className="btn btn-info btn-sm mr-1"
+                            >
+                              {expand ? "Ringkas" : "Lihat Detil"}
+                            </button>
+                          </p>
                         )}
                       </td>
                     </tr>

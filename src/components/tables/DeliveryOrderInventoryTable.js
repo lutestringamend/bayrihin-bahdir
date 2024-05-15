@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { WarehouseTypeCategories } from "../../constants/warehouse_types";
 
-const OrderInventoryTable = (props) => {
+const DeliveryOrderInventoryTable = (props) => {
   const { category, list, disabled } = props;
   const [sum, setSum] = useState([]);
 
@@ -93,6 +93,17 @@ const OrderInventoryTable = (props) => {
       )
     ) {
       props?.openModalPackage();
+    }
+  };
+
+  const openModalProductStorage = (objectId, name, quantity, packageId, productStorageId) => {
+    if (
+      !(
+        props?.openModalProductStorage === undefined ||
+        props?.openModalProductStorage === null
+      )
+    ) {
+      props?.openModalProductStorage(objectId, name, quantity, packageId, productStorageId);
     }
   };
 
@@ -198,12 +209,19 @@ const OrderInventoryTable = (props) => {
                             width="100%"
                             cellSpacing="0"
                           >
+                            <thead>
+                              <td width="45%">Nama</td>
+                              <td width="7%">Qty</td>
+                              <td>Lot Dipilih</td>
+                              <td width="7%">Tersedia</td>
+                              <td width="15%">Aksi</td>
+                            </thead>
                             {p?.items.map((item, i) => (
                               <tr key={i}>
-                                <td width="75%">
+                                <td width="45%">
                                   {item?.name ? item?.name : item?.objectId}
                                 </td>
-                                <td width="10%">
+                                <td>
                                   <input
                                     name="quantity"
                                     value={parseInt(item?.quantity)}
@@ -224,19 +242,85 @@ const OrderInventoryTable = (props) => {
                                   />
                                 </td>
                                 <td>
+                                  <div
+                                    className={
+                                      item?.warehouseProductStorage
+                                        ? item?.warehouseProductStorage
+                                            ?.warehouseProductLot
+                                          ? item?.warehouseProductStorage
+                                              ?.warehouseProductLot?.objectId
+                                            ? "text-info-highlight"
+                                            : "text-danger-highlight"
+                                          : "text-danger-highlight"
+                                        : "text-danger-highlight"
+                                    }
+                                  >
+                                    {item?.warehouseProductStorage
+                                      ? item?.warehouseProductStorage
+                                          ?.warehouseProductLot
+                                        ? item?.warehouseProductStorage
+                                            ?.warehouseProductLot?.name
+                                        : "Belum ditunjuk"
+                                      : "Belum ditunjuk"}
+                                  </div>
+                                </td>
+                                <td>
+                                  <div
+                                    className={
+                                      item?.warehouseProductStorage
+                                        ? item?.warehouseProductStorage
+                                            ?.balanceStock
+                                          ? item?.warehouseProductStorage
+                                              ?.balanceStock
+                                            ? "text-yellow-highlight"
+                                            : "text-danger-highlight"
+                                          : "text-danger-highlight"
+                                        : "text-danger-highlight"
+                                    }
+                                  >
+                                    {item?.warehouseProductStorage
+                                      ? item?.warehouseProductStorage
+                                          ?.balanceStock
+                                        ? item?.warehouseProductStorage
+                                            ?.balanceStock
+                                        : "0"
+                                      : "0"}
+                                  </div>
+                                </td>
+                                <td width="15%">
                                   {disabled ? null : (
-                                    <button
-                                      onClick={() =>
-                                        deleteItem(
-                                          item?.name,
-                                          p?.objectId,
-                                          item?.objectId,
-                                        )
-                                      }
-                                      className="btn btn-danger btn-sm mr-1"
-                                    >
-                                      Hapus
-                                    </button>
+                                    <>
+                                      <p>
+                                        <button
+                                          onClick={() =>
+                                            openModalProductStorage(
+                                              item?.objectId,
+                                              item?.name,
+                                              item?.quantity,
+                                              p?.objectId,
+                                              item?.warehouseProductStorage ? item?.warehouseProductStorage?.objectId : null,
+                                            )
+                                          }
+                                          className="btn btn-primary btn-sm mr-1"
+                                        >
+                                          Tunjuk Lot Produk
+                                        </button>
+                                      </p>
+                                      <p>
+                                        <button
+                                          onClick={() =>
+                                            deleteItem(
+                                              item?.name,
+                                              p?.objectId,
+                                              item?.objectId,
+                                            )
+                                          }
+                                          className="btn btn-danger btn-sm mr-1"
+                                        >
+                                          Hapus
+                                        </button>
+                                      </p>
+                                    </>
                                   )}
                                 </td>
                               </tr>
@@ -256,4 +340,4 @@ const OrderInventoryTable = (props) => {
   );
 };
 
-export default OrderInventoryTable;
+export default DeliveryOrderInventoryTable;
