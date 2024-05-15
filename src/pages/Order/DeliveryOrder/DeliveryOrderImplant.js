@@ -92,7 +92,7 @@ const defaultPackageModalErrors = {
   objectId: "",
 };
 
-function DeliveryOrderInstrument(props) {
+function DeliveryOrderImplant(props) {
   const { currentUser, privileges, doctors, hospitals, warehouseStorages } =
     props;
   const params = useParams();
@@ -152,11 +152,11 @@ function DeliveryOrderInstrument(props) {
     console.log("data", data);
   }, [data]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     console.log("inventory", inventory);
   }, [inventory]);
 
-  /*useEffect(() => {
+  useEffect(() => {
     console.log("psmodal", productStorageModalData);
   }, [productStorageModalData]);
 
@@ -366,14 +366,14 @@ function DeliveryOrderInstrument(props) {
     packageId,
     warehouseProductStorageId,
   ) => {
-    console.log(
+    /*console.log(
       "openModalProductStorage",
       warehouseProductId,
       warehouseProductName,
       quantity,
       packageId,
       warehouseProductStorageId,
-    );
+    );*/
     setProductStorages([]);
     setProductStorageModalErrors(defaultModalProductStorageErrors);
     setProductStorageModalData({
@@ -744,7 +744,7 @@ function DeliveryOrderInstrument(props) {
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 className="h3 mb-0 text-gray-800">
-          Detail Delivery Order Implant & BHP
+          Detail DO Implant & BHP
         </h1>
         {submitting ? (
           <FadeLoader
@@ -827,7 +827,7 @@ function DeliveryOrderInstrument(props) {
                   icon={faNewspaper}
                   style={{ marginRight: "0.25rem", color: "white" }}
                 />
-                Lihat Delivery Order Induk
+                Lihat DO Induk
               </Link>
             ) : null}
           </div>
@@ -1214,4 +1214,4 @@ const mapDispatchProps = (dispatch) =>
 export default connect(
   mapStateToProps,
   mapDispatchProps,
-)(DeliveryOrderInstrument);
+)(DeliveryOrderImplant);
