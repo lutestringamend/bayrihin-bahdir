@@ -191,6 +191,34 @@ const DeliveryOrderInfoForm = (props) => {
                   </div>
                 </td>
               </tr>
+              <tr>
+                <td>
+                  <b>Disetujui Oleh</b>
+                </td>
+                <td>
+                  <div>
+                    {data?.approverUser
+                      ? data?.approverUser?.fullName
+                        ? data?.approverUser?.fullName
+                        : data?.approverUser?.username
+                          ? data?.approverUser?.username
+                          : ""
+                      : ""}
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <b>Disetujui Pada</b>
+                </td>
+                <td>
+                  <div>
+                    {data?.approvalDate
+                      ? convertDateISOStringtoDisplayDateTime(data?.approvalDate, true, true)
+                      : ""}
+                  </div>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

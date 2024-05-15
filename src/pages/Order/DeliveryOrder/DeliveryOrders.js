@@ -155,6 +155,7 @@ function DeliveryOrders(props) {
     isSpecified,
     approvalDate,
     approverUser,
+    editorUser,
     objectId,
   }) => {
     return (
@@ -187,6 +188,7 @@ function DeliveryOrders(props) {
             {...p}
             approvalDate={isSpecified ? approvalDate : p?.approvalDate}
             approverUser={isSpecified ? approverUser : p?.approverUser}
+            editorUser={isSpecified ? editorUser : p?.editorUser}
             type={
               params?.type === "implant"
                 ? ORDER_TYPE_DELIVERY_ORDER_IMPLANT
@@ -401,6 +403,7 @@ function DeliveryOrders(props) {
                           p={p}
                           approvalDate={p?.approvalDate}
                           approverUser={p?.approverUser}
+                          editorUser={p?.editorUser}
                           objectId={p?.objectId}
                           isSpecified={
                             params?.type === "implant" ||
@@ -416,6 +419,7 @@ function DeliveryOrders(props) {
                               p={p?.deliveryOrder}
                               approvalDate={p?.approvalDate}
                               approverUser={p?.approverUser}
+                              editorUser={p?.editorUser}
                               objectId={p?.objectId}
                               isSpecified
                             />
@@ -429,6 +433,7 @@ function DeliveryOrders(props) {
                                 p={p?.deliveryOrder}
                                 approvalDate={p?.approvalDate}
                                 approverUser={p?.approverUser}
+                                editorUser={p?.editorUser}
                                 objectId={p?.objectId}
                                 isSpecified
                               />

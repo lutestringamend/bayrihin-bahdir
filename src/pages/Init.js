@@ -40,6 +40,12 @@ import Hospitals from "./Order/Hospitals";
 import Doctors from "./Order/Doctors";
 import Doctor from "./Order/Doctor";
 
+import TrackingOrderDeliveries from "./Tracking/Delivery/TrackingOrderDeliveries";
+import TrackingOrderDelivery from "./Tracking/Delivery/TrackingOrderDelivery";
+import TrackingOrderPickups from "./Tracking/Pickup/TrackingOrderPickups";
+import TrackingOrderPickup from "./Tracking/Pickup/TrackingOrderPickup";
+import TrackingEvents from "./Tracking/TrackingEvents";
+
 import {
   ACCOUNT_PRIVILEGE_UPDATE_ADMIN,
   ACCOUNT_PRIVILEGE_CUSTOMIZE_PRIVILEGE,
@@ -56,10 +62,12 @@ import {
   ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_INSTRUMENT,
   ACCOUNT_PRIVILEGE_VIEW_REQUEST_ORDER,
   ACCOUNT_PRIVILEGE_VIEW_DELIVERY_ORDER,
+  ACCOUNT_PRIVILEGE_INPUT_DELIVERY_TRACKING_STATUS,
 } from "../constants/account";
 import { hasPrivilege } from "../utils/account";
 import { getAccountRoleEntry } from "../parse/account";
 import { updateReduxUserPrivileges } from "../utils/user";
+import { USER_ROLE_DEVELOPER, USER_ROLE_SUPERADMIN } from "../constants/user";
 
 const Init = (props) => {
   const { currentUser, privileges } = props;
@@ -311,6 +319,20 @@ const Init = (props) => {
               <Route path="doctor/:id" element={<Doctor />} />
             </>
           ) : null}
+
+          {currentUser?.accountRole ? currentUser?.accountRole?.name === USER_ROLE_SUPERADMIN || currentUser?.accountRole?.name === USER_ROLE_DEVELOPER ? (
+            <Route path="tracking/events" element={<TrackingEvents />} />
+          ) : null : null}
+
+          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_INPUT_DELIVERY_TRACKING_STATUS) ? (
+            <>
+              <Route path="tracking/order-deliveries" element={<TrackingOrderDeliveries />} />
+              <Route path="tracking/order-delivery/:id" element={<TrackingOrderDelivery />} />
+              <Route path="tracking/order-pickups" element={<TrackingOrderPickups />} />
+              <Route path="tracking/order-pickup/:id" element={<TrackingOrderPickup />} />
+            </>
+          ) : null}
+
         </Route>
       </Routes>
     </BrowserRouter>

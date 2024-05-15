@@ -39,7 +39,7 @@ export const getDeliveryOrderById = async (objectId, withChildren) => {
   return result;
 };
 
-export const updateDeliveryOrderImplantById = async (objectId, editorUserId, inventoryJSON) => {
+export const updateDeliveryOrderImplantById = async (objectId, editorUserId, inventoryJSON, approvalDate, approverUserId) => {
   try {
     console.log("updateDeliveryOrderImplantById", objectId, editorUserId);
     const query = new Parse.Query(DeliveryOrderImplant);
@@ -51,7 +51,14 @@ export const updateDeliveryOrderImplantById = async (objectId, editorUserId, inv
       if (inventoryJSON) {
        res.set("inventoryJSON", inventoryJSON);
       }
-      if(editorUserId) {
+      if (approvalDate && approverUserId) {
+        res.set("approvalDate", new Date().toISOString());
+        res.set("approverUser", {
+          __type: "Pointer",
+          className: "_User",
+          objectId: approverUserId,
+        });
+      } else if (editorUserId) {
         res.set("editorUser",  {
           __type: "Pointer",
           className: "_User",
@@ -69,7 +76,7 @@ export const updateDeliveryOrderImplantById = async (objectId, editorUserId, inv
   return false;
 };
 
-export const updateDeliveryOrderInstrumentById = async (objectId, editorUserId, instrumentJSON, unitJSON) => {
+export const updateDeliveryOrderInstrumentById = async (objectId, editorUserId, instrumentJSON, unitJSON, approvalDate, approverUserId) => {
   try {
     console.log("updateDeliveryOrderInstrumentById", objectId, editorUserId);
     const query = new Parse.Query(DeliveryOrderInstrument);
@@ -84,7 +91,15 @@ export const updateDeliveryOrderInstrumentById = async (objectId, editorUserId, 
       if (unitJSON) {
         res.set("unitJSON", unitJSON);
        }
-      if(editorUserId) {
+      
+      if (approvalDate && approverUserId) {
+        res.set("approvalDate", new Date().toISOString());
+        res.set("approverUser", {
+          __type: "Pointer",
+          className: "_User",
+          objectId: approverUserId,
+        });
+      } else if (editorUserId) {
         res.set("editorUser",  {
           __type: "Pointer",
           className: "_User",
@@ -158,6 +173,92 @@ export const getDeliveryOrderInstrumentById = async (objectId, deliveryOrderId, 
     console.error(e);
   }
   return result;
+};
+
+export const createUpdateDeliveryOrderPickup = async (
+  objectId,
+    deliveryOrderId,
+    deliveryOrderImplantId,
+    deliveryOrderInstrumentId,
+    creatorUserId,
+    implantJSON,
+    instrumentJSON,
+    unitJSON,
+    approvalDate,
+    approverUserId,
+    driverUserId,
+    remark,
+) => {
+const params = {
+  objectId,
+    deliveryOrderId,
+    deliveryOrderImplantId,
+    deliveryOrderInstrumentId,
+    creatorUserId,
+    implantJSON,
+    instrumentJSON,
+    unitJSON,
+    approvalDate,
+    approverUserId,
+    driverUserId,
+    remark,
+};
+
+console.log("createUpdateDeliveryOrderPickup", params);
+try {
+  let result = await Parse.Cloud.run("createUpdateDeliveryOrderPickup", params);
+  if (result) {
+      alert(objectId ? "Order Pickup berhasil diedit" : "Order Pickup baru berhasil dibuat");
+      return true;
+  }
+} catch (e) {
+  console.error(e);
+  alert(`Error! ${e.toString()}`);
+}
+return false;
+};
+
+export const createUpdateDeliveryOrderDelivery = async (
+  objectId,
+    deliveryOrderId,
+    deliveryOrderImplantId,
+    deliveryOrderInstrumentId,
+    creatorUserId,
+    implantJSON,
+    instrumentJSON,
+    unitJSON,
+    approvalDate,
+    approverUserId,
+    driverUserId,
+    remark,
+) => {
+const params = {
+  objectId,
+    deliveryOrderId,
+    deliveryOrderImplantId,
+    deliveryOrderInstrumentId,
+    creatorUserId,
+    implantJSON,
+    instrumentJSON,
+    unitJSON,
+    approvalDate,
+    approverUserId,
+    driverUserId,
+    remark,
+};
+
+console.log("createUpdateDeliveryOrderDelivery", params);
+try {
+  let result = await Parse.Cloud.run("createUpdateDeliveryOrderDelivery", params);
+  if (result) {
+      //alert(objectId ? "Order Delivery berhasil diedit" : "Order Delivery baru berhasil dibuat");
+      return true;
+  }
+} catch (e) {
+  console.error(e);
+  alert(`Error! ${e.toString()}`);
+}
+return false;
 };
 
 export const createUpdateDeliveryOrderEntry = async (

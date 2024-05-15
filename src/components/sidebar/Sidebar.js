@@ -7,6 +7,7 @@ import {
   faUsers,
   faHome,
   faDatabase,
+  faMotorcycle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { hasPrivilege } from "../../utils/account";
@@ -14,6 +15,7 @@ import {
   ACCOUNT_PRIVILEGE_CREATE_ORDER,
   ACCOUNT_PRIVILEGE_DOCTORS_CRUD,
   ACCOUNT_PRIVILEGE_HOSPITALS_CRUD,
+  ACCOUNT_PRIVILEGE_INPUT_DELIVERY_TRACKING_STATUS,
   ACCOUNT_PRIVILEGE_ORDER_APPROVAL,
   ACCOUNT_PRIVILEGE_PRICING_CRUD,
   ACCOUNT_PRIVILEGE_UPDATE_ADMIN,
@@ -25,6 +27,7 @@ import {
   ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_INSTRUMENT,
   ACCOUNT_PRIVILEGE_WAREHOUSE_CRUD,
 } from "../../constants/account";
+import { USER_ROLE_DEVELOPER, USER_ROLE_SUPERADMIN } from "../../constants/user";
 
 /*
 
@@ -45,7 +48,7 @@ import {
 */
 
 function Sidebar(props) {
-  const { privileges } = props;
+  const { currentUser, privileges } = props;
 
   return (
     <ul
@@ -131,7 +134,7 @@ function Sidebar(props) {
                 <li className="nav-item active">
                   <Link
                     className="nav-link"
-                    to="/order/delivery-orders/implant"
+                    to="/order/delivery-orders/implant/pending"
                   >
                     <span>Tinjau DO Implant</span>
                   </Link>
@@ -148,7 +151,7 @@ function Sidebar(props) {
                 <li className="nav-item active">
                   <Link
                     className="nav-link"
-                    to="/order/delivery-orders/instrument"
+                    to="/order/delivery-orders/instrument/pending"
                   >
                     <span>Tinjau DO Instrument</span>
                   </Link>
@@ -199,6 +202,40 @@ function Sidebar(props) {
         </>
       ) : null}
 
+      {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_INPUT_DELIVERY_TRACKING_STATUS) ? (
+ <>
+ <li className="nav-item active">
+   <Link className="nav-link" to="/order">
+     <FontAwesomeIcon
+       icon={faMotorcycle}
+       style={{ marginRight: "0.5rem" }}
+     />
+     <span>Pengantaran</span>
+   </Link>
+   <ul>
+     {currentUser?.accountRole ? currentUser?.accountRole?.name === USER_ROLE_SUPERADMIN || currentUser?.accountRole?.name === USER_ROLE_DEVELOPER  ? (
+       <li className="nav-item active">
+         <Link className="nav-link" to="/tracking/events">
+           <span>Edit Tracking Event</span>
+         </Link>
+       </li>
+     ) : null : null}
+<li className="nav-item active">
+         <Link className="nav-link" to="/tracking/order-deliveries">
+           <span>Daftar Order Delivery</span>
+         </Link>
+       </li>
+       <li className="nav-item active">
+         <Link className="nav-link" to="/tracking/order-pickups">
+           <span>Daftar Order Pickup</span>
+         </Link>
+       </li>
+   </ul>
+ </li>
+ <hr className="sidebar-divider my-0" />
+</>
+      ) : null}
+
       {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_HOSPITALS_CRUD) ||
       hasPrivilege(privileges, ACCOUNT_PRIVILEGE_DOCTORS_CRUD) ? (
         <>
@@ -236,6 +273,7 @@ function Sidebar(props) {
 }
 
 const mapStateToProps = (store) => ({
+  currentUser: store.userState.currentUser,
   privileges: store.userState.privileges,
 });
 

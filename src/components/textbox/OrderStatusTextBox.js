@@ -6,7 +6,7 @@ import {
 } from "../../constants/order";
 
 const OrderStatusTextBox = (props) => {
-  const { type, approvalDate, approverUser } = props;
+  const { type, approvalDate, approverUser, editorUser } = props;
   return (
     <div
       className={
@@ -14,7 +14,8 @@ const OrderStatusTextBox = (props) => {
         type === ORDER_TYPE_DELIVERY_ORDER_IMPLANT ||
         type === ORDER_TYPE_DELIVERY_ORDER_INSTRUMENT
           ? approvalDate && approverUser
-            ? "text-success-highlight"
+            ? "text-success-highlight" : (type === ORDER_TYPE_DELIVERY_ORDER_IMPLANT ||
+              type === ORDER_TYPE_DELIVERY_ORDER_INSTRUMENT) && editorUser ? "text-yellow-highlight"
             : "text-danger-highlight"
           : "text-info-highlight"
       }
@@ -22,8 +23,8 @@ const OrderStatusTextBox = (props) => {
       {type === ORDER_TYPE_REQUEST_ORDER ||
       type === ORDER_TYPE_DELIVERY_ORDER_IMPLANT ||
       type === ORDER_TYPE_DELIVERY_ORDER_INSTRUMENT
-        ? approvalDate && approverUser
-          ? "Disetujui"
+        ? approvalDate && approverUser ? "Disetujui" : (type === ORDER_TYPE_DELIVERY_ORDER_IMPLANT ||
+          type === ORDER_TYPE_DELIVERY_ORDER_INSTRUMENT) && editorUser ? "Sudah Diedit"
           : "Belum Ditinjau"
         : "Aktif"}
     </div>

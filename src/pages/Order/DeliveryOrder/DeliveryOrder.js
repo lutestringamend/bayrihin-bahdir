@@ -219,6 +219,7 @@ function DeliveryOrder(props) {
     type,
     approvalDate,
     approverUser,
+    editorUser,
     objectId,
   }) => {
     return (
@@ -242,6 +243,7 @@ function DeliveryOrder(props) {
             {...props}
             approvalDate={approvalDate}
             approverUser={approverUser}
+            editorUser={editorUser}
             type={type}
           />
         </td>

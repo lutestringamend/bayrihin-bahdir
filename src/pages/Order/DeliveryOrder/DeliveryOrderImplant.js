@@ -21,6 +21,7 @@ import {
 import { getDoctorsData, getHospitalsData } from "../../../parse/order";
 import { hasPrivilege } from "../../../utils/account";
 import {
+  ACCOUNT_PRIVILEGE_INPUT_DELIVERY_TRACKING_STATUS,
   ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_IMPLANT,
   ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_IMPLANT,
 } from "../../../constants/account";
@@ -28,8 +29,11 @@ import {
   faCancel,
   faCheckCircle,
   faEdit,
+  faMotorcycle,
+  faNewspaper,
 } from "@fortawesome/free-solid-svg-icons";
 import {
+  createUpdateDeliveryOrderDelivery,
   getDeliveryOrderImplantById,
   updateDeliveryOrderImplantById,
 } from "../../../parse/order/deliveryorders";
@@ -40,8 +44,8 @@ import SearchTextInput from "../../../components/textinput/SearchTextInput";
 import DeliveryOrderInfoForm from "../../../components/form/DeliveryOrderInfoForm";
 import {
   getWarehouseProductStorageForDeliveryOrder,
-  getWarehouseProductStoragesData,
 } from "../../../parse/warehouse/product_storage";
+import { getDeliveryOrderDeliveryData } from "../../../parse/order/orderdelivery";
 
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
@@ -653,7 +657,12 @@ function DeliveryOrderInstrument(props) {
     try {
       for (let i of inventory) {
         for (let n of i?.items) {
-          if (n?.warehouseProductStorage === undefined || n?.warehouseProductStorage?.objectId === undefined || n?.warehouseProductStorage?.objectId === null || n?.warehouseProductStorage?.objectId === "") {
+          if (
+            n?.warehouseProductStorage === undefined ||
+            n?.warehouseProductStorage?.objectId === undefined ||
+            n?.warehouseProductStorage?.objectId === null ||
+            n?.warehouseProductStorage?.objectId === ""
+          ) {
             isComplete = false;
           }
         }
@@ -677,9 +686,26 @@ function DeliveryOrderInstrument(props) {
           data?.objectId,
           currentUser?.objectId,
           JSON.stringify(inventory),
+          new Date().toISOString(),
+          currentUser?.objectId,
         );
         if (update) {
-          console.log("now create delivery");
+          const result = await createUpdateDeliveryOrderDelivery(
+            null,
+            data?.deliveryOrder?.objectId,
+            data?.objectId,
+            null,
+            currentUser?.objectId,
+            JSON.stringify(inventory),
+          );
+          if (result) {
+            window.alert(
+              "Order Delivery baru telah disiapkan untuk Delivery Order ini",
+            );
+            navigate("/tracking/order-deliveries");
+          } else {
+            window.alert("Gagal membuat Order Delivery baru");
+          }
         } else {
           window.alert("Gagal mengupdate DO Implant");
         }
@@ -690,7 +716,27 @@ function DeliveryOrderInstrument(props) {
       setSubmitting(false);
     } else {
       window.alert("Masih ada lot produk yang belum lengkap");
-      setError("Lengkapi produk lot untuk semua item di dalam semua paket terlebih dahulu");
+      setError(
+        "Lengkapi produk lot untuk semua item di dalam semua paket terlebih dahulu",
+      );
+    }
+  };
+
+  const openOrderDelivery = async () => {
+    const result = await getDeliveryOrderDeliveryData(
+      null,
+      data?.deliveryOrder?.objectId,
+      null,
+    );
+    if (
+      !(
+        result === undefined ||
+        result?.length === undefined ||
+        result?.length < 1 ||
+        result[0]?.objectId === undefined
+      )
+    ) {
+      navigate(`/tracking/order-delivery/${result[0]?.objectId}`);
     }
   };
 
@@ -710,10 +756,10 @@ function DeliveryOrderInstrument(props) {
           />
         ) : (
           <div className="d-sm-flex align-items-center mb-4">
-            {hasPrivilege(
-              privileges,
-              ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_IMPLANT,
-            ) ? (
+            {data?.approvalDate && data?.approverUser ? null : hasPrivilege(
+                privileges,
+                ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_IMPLANT,
+              ) ? (
               <>
                 <button
                   onClick={() => submitEdit()}
@@ -739,11 +785,27 @@ function DeliveryOrderInstrument(props) {
               </>
             ) : null}
 
-            {data?.editorUser &&
+            {data?.approvalDate &&
+            data?.approverUser &&
             hasPrivilege(
               privileges,
-              ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_IMPLANT,
+              ACCOUNT_PRIVILEGE_INPUT_DELIVERY_TRACKING_STATUS,
             ) ? (
+              <button
+                onClick={() => openOrderDelivery()}
+                className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+              >
+                <FontAwesomeIcon
+                  icon={faMotorcycle}
+                  style={{ marginRight: "0.25rem", color: "white" }}
+                />
+                Buka Order Delivery
+              </button>
+            ) : data?.editorUser &&
+              hasPrivilege(
+                privileges,
+                ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_IMPLANT,
+              ) ? (
               <button
                 onClick={() => submit()}
                 className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
@@ -761,6 +823,10 @@ function DeliveryOrderInstrument(props) {
                 className="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm mx-3"
                 to={`/order/delivery-order/${data?.deliveryOrder?.objectId}`}
               >
+                <FontAwesomeIcon
+                  icon={faNewspaper}
+                  style={{ marginRight: "0.25rem", color: "white" }}
+                />
                 Lihat Delivery Order Induk
               </Link>
             ) : null}
