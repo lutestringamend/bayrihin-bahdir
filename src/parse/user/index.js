@@ -80,7 +80,7 @@ export const getUserData = async (accountRoleName) => {
   } catch (e) {
     console.error(e);
   }
-  console.log("getUserData", result);
+  ////console.log("getUserData", result);
   return result;
 };
 

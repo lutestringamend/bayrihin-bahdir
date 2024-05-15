@@ -39,7 +39,7 @@ function AccountPrivilegeEdit(props) {
     setLoading(true);
     setError(null);
     try {
-      console.log("getAccountRoleEntry", params?.id);
+      //console.log("getAccountRoleEntry", params?.id);
       const result = await getAccountRoleEntry(params?.id);
       if (result === undefined || result === null) {
         setError("Tidak bisa mengambil data Role.");

@@ -4,7 +4,7 @@ export const fetchOrdersData = async (limit, deliveryOrderStatus) => {
   let requestOrders = [];
   let deliveryOrders = [];
   try {
-    let result = await getRequestOrdersData(true, limit);
+    let result = await getRequestOrdersData(null, limit, "");
     if (!(result === undefined || result?.length === undefined)) {
       requestOrders = result;
     }
@@ -18,7 +18,7 @@ export const fetchOrdersData = async (limit, deliveryOrderStatus) => {
   }
 }
 
-export const getRequestOrdersData = async (isActive, limit) => {
+export const getRequestOrdersData = async (isActive, limit, filter) => {
   let result = [];
   try {
     const query = new Parse.Query("request_orders");
@@ -27,20 +27,49 @@ export const getRequestOrdersData = async (isActive, limit) => {
     query.include("warehouseStorage");
     query.include("hospital");
     query.include("doctor");
-    if (isActive === undefined || isActive === null) {
+    /*if (isActive === undefined || isActive === null) {
       query.equalTo("isActive", true);
     } else {
       query.equalTo("isActive", isActive);
-    }
+    }*/
     const res = await query.find();
     for (let r of res) {
-      result.push(r.toJSON());
+      let item = r.toJSON();
+      if (filter === "pending" && (item?.approvalDate === undefined || item?.approvalDate === null || item?.approvalDate === "" || item?.approverUser === undefined || item?.approverUser === "")) {
+        result.push(item);
+      } else if (filter === "approved" && !(item?.approvalDate === undefined || item?.approvalDate === null || item?.approvalDate === "" || item?.approverUser === undefined || item?.approverUser === "")) {
+        result.push(item);
+      } else if (filter === "") {
+        result.push(item);
+      }
     }
   } catch (e) {
     console.error(e);
   }
+  //console.log("getRequestOrdersData", filter, result);
   return result;
 };
+
+export const fetchDeliveryOrders = async (filter, status) => {
+  let deliveryOrders = [];
+  let deliveryOrdersImplant = [];
+  let deliveryOrdersInstrument = [];
+
+  try {
+    deliveryOrders = await getDeliveryOrdersData(null, status);
+    deliveryOrdersImplant = await getDeliveryOrdersImplantData(null, "pending");
+    deliveryOrdersInstrument = await getDeliveryOrdersInstrumentData(null, "pending");
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+
+  return {
+    deliveryOrders,
+    deliveryOrdersImplant,
+    deliveryOrdersInstrument,
+  }
+}
 
 export const getDeliveryOrdersData = async (limit, status) => {
   let result = [];
@@ -59,6 +88,54 @@ export const getDeliveryOrdersData = async (limit, status) => {
     const res = await query.find();
     for (let r of res) {
       result.push(r.toJSON());
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+};
+
+export const getDeliveryOrdersImplantData = async (limit, filter) => {
+  let result = [];
+  try {
+    const query = new Parse.Query("delivery_orders_implant");
+    query.limit(limit ? limit : 99999);
+    query.descending("createdAt");
+    query.include("deliveryOrder");
+    const res = await query.find();
+    for (let r of res) {
+      let item = r.toJSON();
+      if (filter === "pending" && (item?.approvalDate === undefined || item?.approvalDate === null || item?.approvalDate === "" || item?.approverUser === undefined || item?.approverUser === "")) {
+        result.push(item);
+      } else if (filter === "approved" && !(item?.approvalDate === undefined || item?.approvalDate === null || item?.approvalDate === "" || item?.approverUser === undefined || item?.approverUser === "")) {
+        result.push(item);
+      } else if (filter === "") {
+        result.push(item);
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+};
+
+export const getDeliveryOrdersInstrumentData = async (limit, filter) => {
+  let result = [];
+  try {
+    const query = new Parse.Query("delivery_orders_instrument");
+    query.limit(limit ? limit : 99999);
+    query.descending("createdAt");
+    query.include("deliveryOrder");
+    const res = await query.find();
+    for (let r of res) {
+      let item = r.toJSON();
+      if (filter === "pending" && (item?.approvalDate === undefined || item?.approvalDate === null || item?.approvalDate === "" || item?.approverUser === undefined || item?.approverUser === "")) {
+        result.push(item);
+      } else if (filter === "approved" && !(item?.approvalDate === undefined || item?.approvalDate === null || item?.approvalDate === "" || item?.approverUser === undefined || item?.approverUser === "")) {
+        result.push(item);
+      } else if (filter === "") {
+        result.push(item);
+      }
     }
   } catch (e) {
     console.error(e);

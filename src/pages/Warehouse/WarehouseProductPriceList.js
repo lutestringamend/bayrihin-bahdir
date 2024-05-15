@@ -44,7 +44,7 @@ function WarehouseProductPriceList() {
       "updatedAt",
       params?.category,
     );
-    console.log("getWarehouseProductData result", result);
+    //console.log("getWarehouseProductData result", result);
 
     setProductList(result);
     setLoading(false);

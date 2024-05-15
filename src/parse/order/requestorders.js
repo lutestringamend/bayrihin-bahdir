@@ -40,7 +40,7 @@ export const createUpdateRequestOrderEntry = async (
 
     try {
       await item.save();
-      alert(objectId ? "Request Order berhasil diedit" : "Request Order baru berhasil ditambahkan");
+      alert(objectId ? "Request Order berhasil diedit" : "Request Order baru berhasil dibuat");
       return true;
     } catch (error) {
       alert(`Error! ${error.message}`);

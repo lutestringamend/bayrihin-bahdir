@@ -7,31 +7,25 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { faSearch, faSquarePlus } from "@fortawesome/free-solid-svg-icons";
-import ButtonModuleMain from "../../components/buttons/ButtonModuleMain";
-import { getWarehouseProductByName } from "../../parse/warehouse/product";
-import { hasPrivilege } from "../../utils/account";
+import ButtonModuleMain from "../../../components/buttons/ButtonModuleMain";
+import { hasPrivilege } from "../../../utils/account";
 import {
   ACCOUNT_PRIVILEGE_CREATE_ORDER,
   ACCOUNT_PRIVILEGE_ORDER_APPROVAL,
-} from "../../constants/account";
+} from "../../../constants/account";
 import {
   overhaulReduxOrderRequestOrders,
-  overhaulReduxOrderDeliveryOrders,
-  overhaulReduxOrderCombinedOrders,
-} from "../../utils/order";
-import { fetchOrdersData } from "../../parse/order";
-import {
-  ORDER_TYPE_DELIVERY_ORDER,
-  ORDER_TYPE_REQUEST_ORDER,
-} from "../../constants/order";
-import OrderStatusTextBox from "../../components/textbox/OrderStatusTextBox";
-import { OrderMainStats } from "../../models/orders";
-import OrderActionButton from "../../components/buttons/OrderActionButton";
+} from "../../../utils/order";
+import { getRequestOrdersData } from "../../../parse/order";
+import { ORDER_TYPE_REQUEST_ORDER, RequestOrderFilters } from "../../../constants/order";
+import OrderStatusTextBox from "../../../components/textbox/OrderStatusTextBox";
+import { OrderMainStats } from "../../../models/orders";
+import OrderActionButton from "../../../components/buttons/OrderActionButton";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
-function OrderMain(props) {
-  const { privileges, requestOrders, deliveryOrders, combinedOrders } = props;
+function RequestOrders(props) {
+  const { privileges, requestOrders } = props;
   const params = useParams();
   const navigate = useNavigate();
   const timeoutRef = useRef();
@@ -44,11 +38,11 @@ function OrderMain(props) {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [params?.filter]);
 
   /*useEffect(() => {
-    console.log("combinedOrders", combinedOrders);
-  }, [combinedOrders]);*/
+    console.log("Redux request orders", requestOrders);
+  }, [requestOrders]);*/
 
   useEffect(() => {
     clearTimeout(timeoutRef.current);
@@ -56,89 +50,33 @@ function OrderMain(props) {
       setSearchList([]);
       return;
     }
-    timeoutRef.current = setTimeout(searchProductByName, 500);
+    //timeoutRef.current = setTimeout(searchProductByName, 500);
   }, [searchText]);
 
   let fetchData = async () => {
     setLoading(true);
-    let newCombined = [];
     let requestUnapproved = 0;
-    let deliveryActive = 0;
-    const result = await fetchOrdersData(20);
-    if (hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL)) {
-      if (result?.requestOrders) {
-        for (let r of result?.requestOrders) {
-          if (!(r?.approvalDate && r?.approverUser)) {
-            requestUnapproved++;
-          }
-          newCombined.push({
-            ...r,
-            type: ORDER_TYPE_REQUEST_ORDER,
-          });
+    const result = await getRequestOrdersData(null, null, params?.filter ? params?.filter : "");
+    if (hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) && result) {
+      for (let r of result) {
+        if (!(r?.approvalDate && r?.approverUser)) {
+          requestUnapproved++;
         }
-        props.overhaulReduxOrderRequestOrders(result?.requestOrders);
       }
+      props.overhaulReduxOrderRequestOrders(result);
     } else {
       props.overhaulReduxOrderRequestOrders(null);
     }
 
-    if (result?.deliveryOrders) {
-      for (let r of result?.deliveryOrders) {
-        if (r?.approverUser) {
-          deliveryActive++;
-        }
-        newCombined.push({
-          ...r,
-          type: ORDER_TYPE_DELIVERY_ORDER,
-        });
-      }
-      props.overhaulReduxOrderDeliveryOrders(result?.deliveryOrders);
-    }
-
-    newCombined.sort(function (a, b) {
-      let aTime = new Date(a?.createdAt).getTime();
-      let bTime = new Date(b?.createdAt).getTime();
-      if (aTime < bTime) {
-        return 1;
-      }
-      if (aTime > bTime) {
-        return -1;
-      }
-      return 0;
-    });
-    props.overhaulReduxOrderCombinedOrders(newCombined);
     setStats({
       requestUnapproved,
-      deliveryActive,
     });
-    setLoading(false);
-  };
-
-  let searchProductByName = async () => {
-    clearTimeout(timeoutRef.current);
-    setLoading(true);
-    const result = await getWarehouseProductByName(
-      searchText,
-      params?.category,
-    );
-    setSearchList(result);
     setLoading(false);
   };
 
   const OrderTableRow = ({ p }) => {
     return (
       <tr>
-        <td>
-          <div
-            className={
-              p?.type === ORDER_TYPE_DELIVERY_ORDER
-                ? "text-primary-highlight"
-                : "text-yellow-highlight"
-            }
-          >
-            {p?.type}
-          </div>
-        </td>
         <td>{p?.deliveryOrderNumber}</td>
         <td>
           {p?.createdAt ? new Date(p?.createdAt).toLocaleString("id-ID") : ""}
@@ -148,10 +86,10 @@ function OrderMain(props) {
         <td>{p?.hospital ? p?.hospital?.name : "-"}</td>
         <td>{p?.doctor ? p?.doctor?.name : "-"}</td>
         <td>
-          <OrderStatusTextBox {...p} />
+          <OrderStatusTextBox {...p} type={ORDER_TYPE_REQUEST_ORDER} />
         </td>
         <td>
-          <OrderActionButton {...p} />
+          <OrderActionButton {...p} type={ORDER_TYPE_REQUEST_ORDER} />
         </td>
       </tr>
     );
@@ -184,7 +122,7 @@ function OrderMain(props) {
   return (
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 className="h3 mb-0 text-gray-800">Order Management</h1>
+        <h1 className="h3 mb-0 text-gray-800">Daftar Request Order</h1>
       </div>
 
       {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ? (
@@ -202,22 +140,37 @@ function OrderMain(props) {
         </div>
       ) : null}
 
-      <div className="row">
-        {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
-          <ButtonModuleMain
+{hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) && params?.filter !== "approved" ? (
+   <div className="row">
+        <ButtonModuleMain
             target="/order/request-orders/pending"
             title="Request Belum Ditinjau"
             value={stats?.requestUnapproved}
             color="danger"
           />
+   </div>
+         
         ) : null}
 
-        <ButtonModuleMain
-          target="/order/delivery-orders/active"
-          title="Delivery Order Aktif"
-          value={stats?.deliveryActive}
-          color="primary"
-        />
+     
+
+      <div className="d-sm-flex align-items-center justify-content-between mb-4">
+        <select
+          name="category"
+          value={params?.filter}
+          onChange={(e) =>
+            navigate(
+              e.target.value ? `/order/request-orders/${e.target.value}` : "/order/request-orders",
+            )
+          }
+          className="form-control"
+        >
+          {RequestOrderFilters.map((item, index) => (
+            <option key={index} value={item?.name}>
+              {item?.caption}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="card shadow mb-4">
@@ -225,7 +178,7 @@ function OrderMain(props) {
           <h6 className="m-0 font-weight-bold text-primary">
             {searchText
               ? `Hasil pencarian "${searchText}"`
-              : "Daftar order, diurutkan berdasarkan tanggal dibuat"}
+              : "Request Order, diurutkan berdasarkan tanggal dibuat"}
           </h6>
         </div>
         <div className="card-body">
@@ -247,7 +200,6 @@ function OrderMain(props) {
               >
                 <thead>
                   <tr>
-                    <th>Jenis</th>
                     <th>DO No</th>
                     <th>Tanggal</th>
                     <th>Region</th>
@@ -260,7 +212,6 @@ function OrderMain(props) {
 
                 <tfoot>
                   <tr>
-                    <th>Jenis</th>
                     <th>DO No</th>
                     <th>Tanggal</th>
                     <th>Region</th>
@@ -276,8 +227,8 @@ function OrderMain(props) {
                     ? searchList.map((p, index) => (
                         <OrderTableRow key={index} p={p} />
                       ))
-                    : combinedOrders
-                      ? combinedOrders.map((p, index) => (
+                    : requestOrders
+                      ? requestOrders.map((p, index) => (
                           <OrderTableRow key={index} p={p} />
                         ))
                       : null}
@@ -291,27 +242,17 @@ function OrderMain(props) {
   );
 }
 
-/*
-<a href="#" className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                    <FontAwesomeIcon icon={faDownload} style={{ marginRight: "0.25rem", color: "white" }} />
-                    Generate Report
-                </a>
-*/
 const mapStateToProps = (store) => ({
   privileges: store.userState.privileges,
-  combinedOrders: store.orderState.combinedOrders,
   requestOrders: store.orderState.requestOrders,
-  deliveryOrders: store.orderState.deliveryOrders,
 });
 
 const mapDispatchProps = (dispatch) =>
   bindActionCreators(
     {
       overhaulReduxOrderRequestOrders,
-      overhaulReduxOrderDeliveryOrders,
-      overhaulReduxOrderCombinedOrders,
     },
     dispatch,
   );
 
-export default connect(mapStateToProps, mapDispatchProps)(OrderMain);
+export default connect(mapStateToProps, mapDispatchProps)(RequestOrders);

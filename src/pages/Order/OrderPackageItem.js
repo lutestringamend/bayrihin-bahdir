@@ -250,7 +250,7 @@ function OrderPackageItem(props) {
       instruments,
       units,
     });
-    navigate("/create-request-order");
+    navigate("/order/create-request-order");
   };
 
   return (

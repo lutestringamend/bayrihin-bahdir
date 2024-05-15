@@ -14,7 +14,7 @@ import Modal from "react-bootstrap/Modal";
 import {
   getWarehousePackageData,
   getWarehouseStorageData,
-} from "../../parse/warehouse";
+} from "../../../parse/warehouse";
 import {
   deleteItemsFromRequestOrderPackage,
   overhaulReduxNewOrder,
@@ -24,13 +24,13 @@ import {
   overhaulReduxOrderWarehouseStorages,
   processRequestOrderInventory,
   formatDeliveryOrderNumber,
-} from "../../utils/order";
-import RequestOrderTable from "../../components/tables/RequestOrderTable";
-import { RequestOrderModel } from "../../models/requestorder";
-import { getDoctorsData, getHospitalsData } from "../../parse/order";
-import { DATE_TIME_PICKER_FORMAT } from "../../constants/strings";
-import { createUpdateRequestOrderEntry } from "../../parse/order/requestorders";
-import SearchTextInput from "../../components/textinput/SearchTextInput";
+} from "../../../utils/order";
+import RequestOrderTable from "../../../components/tables/RequestOrderTable";
+import { RequestOrderModel } from "../../../models/requestorder";
+import { getDoctorsData, getHospitalsData } from "../../../parse/order";
+import { DATE_TIME_PICKER_FORMAT } from "../../../constants/strings";
+import { createUpdateRequestOrderEntry } from "../../../parse/order/requestorders";
+import SearchTextInput from "../../../components/textinput/SearchTextInput";
 
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
@@ -263,7 +263,7 @@ function CreateRequestOrder(props) {
           deliveryOrderNumber: formatDeliveryOrderNumber(),
         });
         props.overhaulReduxNewOrder(null);
-        navigate("/order");
+        navigate("/order/request-orders/pending");
       }
     }
   };

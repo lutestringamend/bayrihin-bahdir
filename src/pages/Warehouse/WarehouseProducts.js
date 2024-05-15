@@ -84,7 +84,7 @@ function WarehouseProducts(props) {
       params?.category,
       "name",
     );
-    console.log("getWarehouseProductData result", result);
+    //console.log("getWarehouseProductData result", result);
     const packages = await getWarehousePackageData();
     setModalPackages(packages);
     /*const typeRes = await getWarehouseTypeData(

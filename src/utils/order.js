@@ -1,6 +1,8 @@
-import { CLEAR_ORDER_DATA, NEW_ORDER_STATE_OVERHAUL, NEW_REQUEST_ORDER_STATE_UPDATE, ORDER_COMBINED_ORDERS_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_STATE_OVERHAUL, ORDER_DOCTORS_STATE_OVERHAUL, ORDER_HOSPITALS_STATE_OVERHAUL, ORDER_REQUEST_ORDERS_STATE_OVERHAUL, ORDER_WAREHOUSE_STORAGES_STATE_OVERHAUL } from "../redux/constants";
-import { DELIVERY_ORDER_NUMBER_DEFAULT_FORMAT } from "../constants/order";
+import { CLEAR_ORDER_DATA, NEW_ORDER_STATE_OVERHAUL, NEW_REQUEST_ORDER_STATE_UPDATE, ORDER_COMBINED_ORDERS_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_IMPLANT_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_INSTRUMENT_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_STATE_OVERHAUL, ORDER_DOCTORS_STATE_OVERHAUL, ORDER_HOSPITALS_STATE_OVERHAUL, ORDER_REQUEST_ORDERS_STATE_OVERHAUL, ORDER_WAREHOUSE_STORAGES_STATE_OVERHAUL } from "../redux/constants";
+import { DELIVERY_ORDER_NUMBER_DEFAULT_FORMAT, DeliveryOrderType } from "../constants/order";
 import { getMonthInRomanNumeral } from ".";
+import { hasPrivilege } from "./account";
+import { ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_IMPLANT, ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_INSTRUMENT, ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_IMPLANT, ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_INSTRUMENT } from "../constants/account";
 
 export function clearReduxOrderData() {
     return (dispatch) => {
@@ -44,6 +46,20 @@ export function clearReduxOrderData() {
     };
   }
 
+  export function overhaulReduxOrderDeliveryOrdersImplant(data) {
+    return (dispatch) => {
+      console.log("overhaulReduxOrderDeliveryOrdersImplant", data?.length);
+      dispatch({ type: ORDER_DELIVERY_ORDERS_IMPLANT_STATE_OVERHAUL, data });
+    };
+  }
+
+  export function overhaulReduxOrderDeliveryOrdersInstrument(data) {
+    return (dispatch) => {
+      console.log("overhaulReduxOrderDeliveryOrdersInstrument", data?.length);
+      dispatch({ type: ORDER_DELIVERY_ORDERS_INSTRUMENT_STATE_OVERHAUL, data });
+    };
+  }
+
   export function overhaulReduxOrderDoctors(data) {
     return (dispatch) => {
       console.log("overhaulReduxOrderDoctors", data?.length);
@@ -63,6 +79,23 @@ export function clearReduxOrderData() {
       console.log("overhaulReduxOrderWarehouseStorages", data?.length);
       dispatch({ type: ORDER_WAREHOUSE_STORAGES_STATE_OVERHAUL, data });
     };
+  }
+
+  export const getAvailableDeliveryOrderTypes = (privileges) => {
+    let result = [];
+    try {
+      result.push(DeliveryOrderType[0]);
+      result.push(DeliveryOrderType[1]);
+      if (hasPrivilege(privileges, ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_IMPLANT) || hasPrivilege(privileges, ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_IMPLANT)) {
+        result.push(DeliveryOrderType[2]);
+      }
+      if (hasPrivilege(privileges, ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_INSTRUMENT) || hasPrivilege(privileges, ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_INSTRUMENT)) {
+        result.push(DeliveryOrderType[3]);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return result;
   }
 
   export const processRequestOrderInventory = (newOrder) => {

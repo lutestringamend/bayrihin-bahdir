@@ -203,7 +203,7 @@ export const getWarehousePackageProductData = async (
   } catch (e) {
     console.error(e);
   }
-  console.log("getWarehousePackageProductData", result);
+  //console.log("getWarehousePackageProductData", result);
   return result;
 };
 

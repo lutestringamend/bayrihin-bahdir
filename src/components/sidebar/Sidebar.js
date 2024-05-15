@@ -17,6 +17,10 @@ import {
   ACCOUNT_PRIVILEGE_ORDER_APPROVAL,
   ACCOUNT_PRIVILEGE_PRICING_CRUD,
   ACCOUNT_PRIVILEGE_UPDATE_ADMIN,
+  ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_IMPLANT,
+  ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_INSTRUMENT,
+  ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_IMPLANT,
+  ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_INSTRUMENT,
   ACCOUNT_PRIVILEGE_WAREHOUSE_CRUD,
 } from "../../constants/account";
 
@@ -48,7 +52,7 @@ function Sidebar(props) {
     >
       <a
         className="sidebar-brand d-flex align-items-center justify-content-center"
-        href="index.html"
+        href="/"
       >
         <div className="sidebar-brand-icon">
           <img src={require("../../assets/logo_small.png")} />
@@ -114,13 +118,50 @@ function Sidebar(props) {
                   </Link>
                 </li>
               ) : null}
+              {hasPrivilege(
+                privileges,
+                ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_IMPLANT,
+              ) ||
+              hasPrivilege(
+                privileges,
+                ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_IMPLANT,
+              ) ? (
+                <li className="nav-item active">
+                  <Link
+                    className="nav-link"
+                    to="/order/delivery-orders/implant"
+                  >
+                    <span>Tinjau DO Implant</span>
+                  </Link>
+                </li>
+              ) : null}
+              {hasPrivilege(
+                privileges,
+                ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_INSTRUMENT,
+              ) ||
+              hasPrivilege(
+                privileges,
+                ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_INSTRUMENT,
+              ) ? (
+                <li className="nav-item active">
+                  <Link
+                    className="nav-link"
+                    to="/order/delivery-orders/instrument"
+                  >
+                    <span>Tinjau DO Instrument</span>
+                  </Link>
+                </li>
+              ) : null}
             </ul>
           </li>
           <hr className="sidebar-divider my-0" />
         </>
       ) : null}
 
-<li className="nav-item active">
+      {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ||
+      hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
+        <>
+          <li className="nav-item active">
             <Link className="nav-link" to="/order">
               <FontAwesomeIcon
                 icon={faList}
@@ -129,25 +170,32 @@ function Sidebar(props) {
               <span>Order Management</span>
             </Link>
             <ul>
-            {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ? (
-        <li className="nav-item active">
-        <Link className="nav-link" to="/create-request-order">
-          <span>Buat Request Order</span>
-        </Link>
-      </li>
-      ) : null}
-              {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
+              {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ? (
                 <li className="nav-item active">
-                  <Link className="nav-link" to="/order/request-orders">
-                    <span>Tinjau Request Order</span>
+                  <Link className="nav-link" to="/order/create-request-order">
+                    <span>Buat Request Order</span>
                   </Link>
                 </li>
+              ) : null}
+              {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
+                <>
+                  <li className="nav-item active">
+                    <Link className="nav-link" to="/order/request-orders">
+                      <span>Daftar Request Order</span>
+                    </Link>
+                  </li>
+                  <li className="nav-item active">
+                    <Link className="nav-link" to="/order/delivery-orders">
+                      <span>Daftar Delivery Order</span>
+                    </Link>
+                  </li>
+                </>
               ) : null}
             </ul>
           </li>
           <hr className="sidebar-divider my-0" />
-
-      
+        </>
+      ) : null}
 
       {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_HOSPITALS_CRUD) ||
       hasPrivilege(privileges, ACCOUNT_PRIVILEGE_DOCTORS_CRUD) ? (

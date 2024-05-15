@@ -200,7 +200,7 @@ function WarehouseProductMutations() {
     setProductData(productData);
     const storageRes = await getWarehouseStorageData();
     setStorageList(storageRes);
-    //console.log("getWarehouseProductMutationsData", params.id, params.lotId);
+    ////console.log("getWarehouseProductMutationsData", params.id, params.lotId);
     const result = await getWarehouseProductMutationsData(
       params.id,
       params.lotId,

@@ -16,25 +16,28 @@ import {
   getWarehousePackageProductData,
   getWarehouseProductData,
   getWarehouseStorageData,
-} from "../../parse/warehouse";
+} from "../../../parse/warehouse";
 import {
   overhaulReduxOrderDoctors,
   overhaulReduxOrderHospitals,
   overhaulReduxOrderWarehouseStorages,
-} from "../../utils/order";
-import { RequestOrderModel } from "../../models/requestorder";
-import { getDoctorsData, getHospitalsData } from "../../parse/order";
-import { DATE_TIME_PICKER_FORMAT } from "../../constants/strings";
-import { getRequestOrderById } from "../../parse/order/requestorders";
-import SearchTextInput from "../../components/textinput/SearchTextInput";
-import { hasPrivilege } from "../../utils/account";
-import { ACCOUNT_PRIVILEGE_ORDER_APPROVAL } from "../../constants/account";
+} from "../../../utils/order";
+import { RequestOrderModel } from "../../../models/requestorder";
+import { getDoctorsData, getHospitalsData } from "../../../parse/order";
+import { DATE_TIME_PICKER_FORMAT } from "../../../constants/strings";
+import { getRequestOrderById } from "../../../parse/order/requestorders";
+import SearchTextInput from "../../../components/textinput/SearchTextInput";
+import { hasPrivilege } from "../../../utils/account";
+import {
+  ACCOUNT_PRIVILEGE_ASSIGN_TS_PIC,
+  ACCOUNT_PRIVILEGE_ORDER_APPROVAL,
+} from "../../../constants/account";
 import { faCancel } from "@fortawesome/free-solid-svg-icons";
-import OrderInventoryTable from "../../components/tables/OrderInventoryTable";
-import { WarehouseTypeCategories } from "../../constants/warehouse_types";
-import { getUserData } from "../../parse/user";
-import { USER_ROLE_TECHNICAL_SUPPORT } from "../../constants/user";
-import { createUpdateDeliveryOrderEntry } from "../../parse/order/deliveryorders";
+import OrderInventoryTable from "../../../components/tables/OrderInventoryTable";
+import { WarehouseTypeCategories } from "../../../constants/warehouse_types";
+import { getUserData } from "../../../parse/user";
+import { USER_ROLE_TECHNICAL_SUPPORT } from "../../../constants/user";
+import { createUpdateDeliveryOrderEntry } from "../../../parse/order/deliveryorders";
 
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
@@ -150,11 +153,13 @@ function RequestOrder(props) {
       setError("Tidak bisa mengambil data Request Order");
     } else {
       fetchHospitals();
-      fetchTSData();
+      if (!(result?.approvalDate && result?.approverUser)) {
+        fetchTSData();
+      }
       setData(result);
       if (result?.inventoryJSON) {
         setInventory(JSON.parse(result?.inventoryJSON));
-        console.log(JSON.parse(result?.inventoryJSON));
+        //console.log(JSON.parse(result?.inventoryJSON));
       }
     }
     setLoading(false);
@@ -579,16 +584,19 @@ function RequestOrder(props) {
             ACCOUNT_PRIVILEGE_ORDER_APPROVAL,
           ) ? (
           <div className="d-sm-flex align-items-center mb-4">
-            <button
-              className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
-              onClick={() => submit()}
-            >
-              <FontAwesomeIcon
-                icon={faCheckCircle}
-                style={{ marginRight: "0.25rem", color: "white" }}
-              />
-              Setujui
-            </button>
+            {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ASSIGN_TS_PIC) ? (
+              <button
+                className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+                onClick={() => submit()}
+              >
+                <FontAwesomeIcon
+                  icon={faCheckCircle}
+                  style={{ marginRight: "0.25rem", color: "white" }}
+                />
+                Setujui
+              </button>
+            ) : null}
+
             <button
               className="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm mx-3"
               onClick={() => fetchData()}
@@ -777,39 +785,76 @@ function RequestOrder(props) {
             <p />
           </div>
 
-          {data?.approvalDate && data?.approverUser ? null : (
+          {data?.approvalDate && data?.approverUser ? (
             <>
-              <SearchTextInput
-                label="Technical Support PIC"
-                name="tsPICUserId"
-                disabled={data?.approvalDate && data?.approverUser}
-                value={data?.tsPICUserId ? data?.tsPICUserId : ""}
-                error={errors?.tsPICUserId}
-                defaultOption="----Pilih Technical Support----"
-                data={users}
-                searchPlaceholder="Cari nama Technical Support"
-                onChange={(e) =>
-                  setData({ ...data, tsPICUserId: e.target.value })
-                }
-              />
-
               <div className="d-sm justify-content-between mb-4">
                 <label>
-                  <b>Catatan</b>
+                  <b>Disetujui Oleh</b>
                 </label>
-                <textarea
-                  name="remark"
-                  disabled={data?.approvalDate && data?.approverUser}
-                  value={data?.remark ? data?.remark : ""}
-                  onChange={(e) => setData({ ...data, remark: e.target.value })}
+                <input
+                  name="approverUser"
+                  value={
+                    data?.approverUser
+                      ? data?.approverUser?.fullName
+                        ? data?.approverUser?.fullName
+                        : data?.approverUser?.username
+                      : ""
+                  }
+                  disabled
                   type="text"
-                  rows="3"
                   className="form-control"
                 />
-                <span style={{ color: "red" }}>{errors?.remark}</span>
+              </div>
+              <div className="d-sm justify-content-between mb-4">
+                <label>
+                  <b>Disetujui Tanggal</b>
+                </label>
+                <LocalizationProvider
+                  dateAdapter={AdapterDayjs}
+                  adapterLocale="id"
+                >
+                  <DateTimePicker
+                    readOnly
+                    format={DATE_TIME_PICKER_FORMAT}
+                    views={["year", "month", "day", "hours", "minutes"]}
+                    value={
+                      data?.approvalDate ? dayjs(data?.approvalDate) : null
+                    }
+                    className="w-100"
+                  />
+                </LocalizationProvider>
               </div>
             </>
-          )}
+          ) : hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ASSIGN_TS_PIC) ? (
+            <SearchTextInput
+              label="Technical Support PIC"
+              name="tsPICUserId"
+              disabled={data?.approvalDate && data?.approverUser}
+              value={data?.tsPICUserId ? data?.tsPICUserId : ""}
+              error={errors?.tsPICUserId}
+              defaultOption="----Pilih Technical Support----"
+              data={users}
+              searchPlaceholder="Cari nama Technical Support"
+              onChange={(e) =>
+                setData({ ...data, tsPICUserId: e.target.value })
+              }
+            />
+          ) : null}
+          <div className="d-sm justify-content-between mb-4">
+            <label>
+              <b>Catatan</b>
+            </label>
+            <textarea
+              name="remark"
+              disabled={data?.approvalDate && data?.approverUser}
+              value={data?.remark ? data?.remark : ""}
+              onChange={(e) => setData({ ...data, remark: e.target.value })}
+              type="text"
+              rows="3"
+              className="form-control"
+            />
+            <span style={{ color: "red" }}>{errors?.remark}</span>
+          </div>
         </>
       )}
 

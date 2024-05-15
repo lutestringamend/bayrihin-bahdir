@@ -6,11 +6,13 @@ import { bindActionCreators } from "redux";
 import "../App.css";
 import "../sb-admin-2.min.css";
 
-import { updateReduxUserPrivileges } from "../utils/user";
-
-//import Dashboard from '.../src/pages/Dashboard/Dashboard';
 import Login from "../pages/Auth/Login";
 import Portal from "../pages/Portal/Portal";
+import Home from "./Home/Home";
+import Error from "./Error/Error";
+
+import UserManagement from "./User/UserManagement";
+import AccountPrivilegeEdit from "./User/AccountPrivilegeEdit";
 
 import WarehouseMain from "../pages/Warehouse/WarehouseMain";
 import WarehouseProducts from "../pages/Warehouse/WarehouseProducts";
@@ -20,19 +22,24 @@ import WarehouseTypes from "../pages/Warehouse/WarehouseTypes";
 import WarehouseProductMutations from "../pages/Warehouse/WarehouseProductMutations";
 import WarehouseProductLots from "../pages/Warehouse/WarehouseProductLots";
 import WarehousePackageProducts from "./Warehouse/WarehousePackageProducts";
-
-import OrderMain from "./Order/OrderMain";
-import CreateRequestOrder from "./Order/CreateRequestOrder";
-import RequestOrder from "./Order/RequestOrder";
-import OrderPackageItem from "./Order/OrderPackageItem";
-import Hospitals from "./Order/Hospitals";
-import Doctors from "./Order/Doctors";
-import Doctor from "./Order/Doctor";
 import WarehouseProductPriceList from "./Warehouse/WarehouseProductPriceList";
 import WarehouseProductPrices from "./Warehouse/WarehouseProductPrices";
 
-import UserManagement from "./User/UserManagement";
-import AccountPrivilegeEdit from "./User/AccountPrivilegeEdit";
+import RequestOrders from "./Order/RequestOrder/RequestOrders";
+import CreateRequestOrder from "./Order/RequestOrder/CreateRequestOrder";
+import RequestOrder from "./Order/RequestOrder/RequestOrder";
+import OrderPackageItem from "./Order/OrderPackageItem";
+
+import DeliveryOrders from "./Order/DeliveryOrder/DeliveryOrders";
+import DeliveryOrder from "./Order/DeliveryOrder/DeliveryOrder";
+import DeliveryOrderImplant from "./Order/DeliveryOrder/DeliveryOrderImplant";
+import DeliveryOrderInstrument from "./Order/DeliveryOrder/DeliveryOrderInstrument";
+
+import OrderMain from "./Order/OrderMain";
+import Hospitals from "./Order/Hospitals";
+import Doctors from "./Order/Doctors";
+import Doctor from "./Order/Doctor";
+
 import {
   ACCOUNT_PRIVILEGE_UPDATE_ADMIN,
   ACCOUNT_PRIVILEGE_CUSTOMIZE_PRIVILEGE,
@@ -43,10 +50,14 @@ import {
   ACCOUNT_PRIVILEGE_HOSPITALS_CRUD,
   ACCOUNT_PRIVILEGE_DOCTORS_CRUD,
   ACCOUNT_PRIVILEGE_ORDER_APPROVAL,
+  ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_IMPLANT,
+  ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_INSTRUMENT,
+  ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_IMPLANT,
+  ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_INSTRUMENT,
 } from "../constants/account";
 import { hasPrivilege } from "../utils/account";
 import { getAccountRoleEntry } from "../parse/account";
-
+import { updateReduxUserPrivileges } from "../utils/user";
 
 const Init = (props) => {
   const { currentUser, privileges } = props;
@@ -56,20 +67,28 @@ const Init = (props) => {
       return;
     }
     fetchPrivileges();
-    console.log("redux currentUser", currentUser);
+    //console.log("redux currentUser", currentUser);
   }, [currentUser]);
 
   useEffect(() => {
     if (privileges?.length === undefined || privileges?.length < 1) {
       return;
     }
-    console.log("redux privileges", privileges);
+    //console.log("redux privileges", privileges);
   }, [privileges]);
 
   const fetchPrivileges = async () => {
     try {
-      const result = await getAccountRoleEntry(currentUser?.accountRole?.objectId);
-      if (!(result === undefined || result?.privileges === undefined || result?.privileges?.length === undefined)) {
+      const result = await getAccountRoleEntry(
+        currentUser?.accountRole?.objectId,
+      );
+      if (
+        !(
+          result === undefined ||
+          result?.privileges === undefined ||
+          result?.privileges?.length === undefined
+        )
+      ) {
         props.updateReduxUserPrivileges(result?.privileges);
         return;
       }
@@ -86,7 +105,7 @@ const Init = (props) => {
     } else {
       props.updateReduxUserPrivileges(currentUser?.accountRole?.privileges);
     }
-  }
+  };
 
   if (currentUser === null) {
     return (
@@ -98,17 +117,12 @@ const Init = (props) => {
     );
   }
 
-  /*
-<Route
-            path="warehouse-products/:category/:type"
-            element={<WarehouseProducts />}
-          />
-  */
-
   return (
     <BrowserRouter>
       <Routes>
         <Route path="*" element={<Portal />}>
+          <Route path="" element={<Home />} />
+          <Route path="*" element={<Error />} />
           {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_UPDATE_ADMIN) ? (
             <Route path="user-management" element={<UserManagement />} />
           ) : null}
@@ -185,47 +199,96 @@ const Init = (props) => {
 
           {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_PRICING_CRUD) ? (
             <>
-            <Route
-              path="warehouse-products/prices"
-              element={<WarehouseProductPriceList />}
-            />
-            <Route
+              <Route
+                path="warehouse-products/prices"
+                element={<WarehouseProductPriceList />}
+              />
+              <Route
                 path="warehouse-products/prices/category/:category"
                 element={<WarehouseProductPriceList />}
               />
-            <Route
-              path="warehouse-products/prices/:id"
-              element={<WarehouseProductPrices />}
-            />
+              <Route
+                path="warehouse-products/prices/:id"
+                element={<WarehouseProductPrices />}
+              />
             </>
           ) : null}
 
-              <Route
-                path="order"
-                element={<OrderMain />}
-              />
+          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ||
+          hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
+            <Route path="order" element={<OrderMain />} />
+          ) : null}
+
           {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_CREATE_ORDER) ? (
             <>
               <Route
-                path="create-request-order"
+                path="order/create-request-order"
                 element={<CreateRequestOrder />}
               />
               <Route
                 path="order-package-item/:category/:id/:storageId"
                 element={<OrderPackageItem />}
               />
-              
             </>
           ) : null}
 
-{hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
-<>
-<Route
-                path="request-order/:id"
+          {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ORDER_APPROVAL) ? (
+            <>
+              <Route path="order/request-orders" element={<RequestOrders />} />
+              <Route
+                path="order/request-orders/:filter"
+                element={<RequestOrders />}
+              />
+              <Route
+                path="order/request-order/:id"
                 element={<RequestOrder />}
               />
-              </>
-) : null}
+              <Route
+                path="order/delivery-orders"
+                element={<DeliveryOrders />}
+              />
+              <Route
+                path="order/delivery-orders/:type"
+                element={<DeliveryOrders />}
+              />
+              <Route
+                path="order/delivery-orders/:type/:filter"
+                element={<DeliveryOrders />}
+              />
+              <Route
+                path="order/delivery-order/:id"
+                element={<DeliveryOrder />}
+              />
+            </>
+          ) : null}
+
+          {hasPrivilege(
+            privileges,
+            ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_IMPLANT,
+          ) ||
+          hasPrivilege(
+            privileges,
+            ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_IMPLANT,
+          ) ? (
+            <Route
+              path="order/delivery-order-implant/:id"
+              element={<DeliveryOrderImplant />}
+            />
+          ) : null}
+
+          {hasPrivilege(
+            privileges,
+            ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_INSTRUMENT,
+          ) ||
+          hasPrivilege(
+            privileges,
+            ACCOUNT_PRIVILEGE_WAREHOUSE_APPROVE_DELIVERY_ORDER_INSTRUMENT,
+          ) ? (
+            <Route
+              path="order/delivery-order-instrument/:id"
+              element={<DeliveryOrderInstrument />}
+            />
+          ) : null}
 
           {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_HOSPITALS_CRUD) ? (
             <>
