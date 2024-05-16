@@ -8,7 +8,6 @@ export const RequestOrderModel = {
     procedure: "",
     createdAt: "",
     surgeryDate: "",
-    deliveryDate: "",
     inventoryJSON: "",
     tsPICUserId: "",
     remark: "",

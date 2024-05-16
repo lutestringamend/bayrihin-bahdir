@@ -539,9 +539,17 @@ function WarehouseProductMutations() {
                     <th>Mutasi</th>
                     <th>Stock</th>
                     <th>On-Delivery</th>
-                    <th>Pending</th>
-                    <th>Service</th>
-                    <th>Marketing</th>
+                    {productData?.category !== 1 ? null : (
+                      <th>Pending</th>
+                    )}
+                    
+                    {productData?.category === 1 ? null : (
+                      <th>Service</th>
+                    )}
+                    {productData?.category !== 1 ? null : (
+                      <th>Marketing</th>
+                    )}
+                    
                     <th>Aksi</th>
                   </tr>
                 </thead>
@@ -554,9 +562,16 @@ function WarehouseProductMutations() {
                     <th>Mutasi</th>
                     <th>Stock</th>
                     <th>On-Delivery</th>
-                    <th>Pending</th>
-                    <th>Service</th>
-                    <th>Marketing</th>
+                    {productData?.category !== 1 ? null : (
+                      <th>Pending</th>
+                    )}
+                    
+                    {productData?.category === 1 ? null : (
+                      <th>Service</th>
+                    )}
+                    {productData?.category !== 1 ? null : (
+                      <th>Marketing</th>
+                    )}
                     <th>Aksi</th>
                   </tr>
                 </tfoot>
@@ -619,13 +634,14 @@ function WarehouseProductMutations() {
                             {p?.numOutDelivery ? (
                               <p>{p?.numOutDelivery}</p>
                             ) : null}
-                            {p?.numOutService ? (
+                            {productData?.category === 1 ? null : p?.numOutService ? (
                               <p>{p?.numOutService}</p>
                             ) : null}
+                          
                             {p?.numOutNextOrder ? (
                               <p>{p?.numOutNextOrder}</p>
                             ) : null}
-                            {p?.numOutMarketing ? (
+                            { p?.numOutMarketing ? (
                               <p>{p?.numOutMarketing}</p>
                             ) : null}
                             {p?.numOutBroken ? <p>{p?.numOutBroken}</p> : null}
@@ -633,58 +649,31 @@ function WarehouseProductMutations() {
                         </td>
                         <td>{p.balanceStock}</td>
                         <td>{p.balanceOnDelivery}</td>
-                        <td>{p.balancePending}</td>
-                        <td>{p.balanceService}</td>
-                        <td>{p.balanceMarketing}</td>
+                        {productData?.category !== 1 ? null : (
+                          <td>{p.balancePending}</td>
+                        )}
+
+                        {productData?.category === 1 ? null : (
+                          <td>{p.balanceService}</td>
+                        )
+                        }
+                        
+                        
+                        {productData?.category !== 1 ? null : (
+                         <td>{p.balanceMarketing}</td>
+                        )}
+                        
                         <td>
-                          {p?.deliveryOrder ? (
-                            p?.deliveryOrder?.objectId ? (
-                              <p>
+                        <p>
                                 <Link
-                                  to={`/order/delivery-order/${p?.deliveryOrder?.objectId}`}
+                                  to={p?.type === "Out Delivery" ? p?.deliveryOrderDelivery ? 
+                                    p?.deliveryOrderDelivery?.objectId ? `/tracking/order-delivery/${p?.deliveryOrderDelivery?.objectId}` : "" : "" : ""}
                                   className="btn btn-primary btn-sm"
                                 >
-                                  Lihat DO
+                                  Tinjau Dokumen
                                 </Link>
                               </p>
-                            ) : null
-                          ) : null}
-                          {p?.deliveryOrderImplant ? (
-                            p?.deliveryOrderImplant?.objectId ? (
-                              <p>
-                                <Link
-                                  to={`/order/delivery-order-implant/${p?.deliveryOrderImplant?.objectId}`}
-                                  className="btn btn-secondary btn-sm"
-                                >
-                                  DO Implant
-                                </Link>
-                              </p>
-                            ) : null
-                          ) : null}
-                          {p?.deliveryOrderInstrument ? (
-                            p?.deliveryOrderInstrument?.objectId ? (
-                              <p>
-                                <Link
-                                  to={`/order/delivery-order-instrument/${p?.deliveryOrderInstrument?.objectId}`}
-                                  className="btn btn-secondary btn-sm"
-                                >
-                                  DO Instrument
-                                </Link>
-                              </p>
-                            ) : null
-                          ) : null}
-                          {p?.deliveryOrderDelivery ? (
-                            p?.deliveryOrderDelivery?.objectId ? (
-                              <p>
-                                <Link
-                                  to={`/tracking/order-delivery/${p?.deliveryOrderDelivery?.objectId}`}
-                                  className="btn btn-info btn-sm"
-                                >
-                                  Delivery
-                                </Link>
-                              </p>
-                            ) : null
-                          ) : null}
+                          
                         </td>
                       </tr>
                     );
@@ -1078,5 +1067,59 @@ function WarehouseProductMutations() {
     </>
   );
 }
+
+/*
+ {p?.deliveryOrderImplant ? (
+                            p?.deliveryOrderImplant?.objectId ? (
+                              <p>
+                                <Link
+                                  to={`/order/delivery-order-implant/${p?.deliveryOrderImplant?.objectId}`}
+                                  className="btn btn-secondary btn-sm"
+                                >
+                                  DO Implant
+                                </Link>
+                              </p>
+                            ) : null
+                          ) : null}
+                          {p?.deliveryOrderInstrument ? (
+                            p?.deliveryOrderInstrument?.objectId ? (
+                              <p>
+                                <Link
+                                  to={`/order/delivery-order-instrument/${p?.deliveryOrderInstrument?.objectId}`}
+                                  className="btn btn-secondary btn-sm"
+                                >
+                                  DO Instrument
+                                </Link>
+                              </p>
+                            ) : null
+                          ) : null}
+
+                          {p?.deliveryOrder ? (
+                            p?.deliveryOrder?.objectId ? (
+                              <p>
+                                <Link
+                                  to={`/order/delivery-order/${p?.deliveryOrder?.objectId}`}
+                                  className="btn btn-primary btn-sm"
+                                >
+                                  Lihat DO
+                                </Link>
+                              </p>
+                            ) : null
+                          ) : null }
+                         
+                          {p?.deliveryOrderDelivery ? (
+                            p?.deliveryOrderDelivery?.objectId ? (
+                              <p>
+                                <Link
+                                  to={`/tracking/order-delivery/${p?.deliveryOrderDelivery?.objectId}`}
+                                  className="btn btn-info btn-sm"
+                                >
+                                  Delivery
+                                </Link>
+                              </p>
+                            ) : null
+                          ) : null}
+
+*/
 
 export default WarehouseProductMutations;

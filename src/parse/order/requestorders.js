@@ -8,18 +8,18 @@ export const createUpdateRequestOrderEntry = async (
         warehouseStorageId,
         procedure,
         surgeryDate,
-        deliveryDate,
         inventoryJSON,
     ) => {
     let item = new Parse.Object("request_orders");
     if (objectId) {
         item.set("objectId", objectId);
+    } else {
+      
     }
     item.set("isActive", true);
     item.set("deliveryOrderNumber", deliveryOrderNumber);
     item.set("procedure", procedure);
     item.set("surgeryDate", surgeryDate);
-    item.set("deliveryDate", deliveryDate);
     item.set("inventoryJSON", inventoryJSON);
 
     item.set("doctor", {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { FadeLoader } from "react-spinners";
@@ -8,8 +8,6 @@ import { faCheckCircle } from "@fortawesome/free-regular-svg-icons";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
 
 import {
   getWarehousePackageData,
@@ -31,15 +29,6 @@ import { getDoctorsData, getHospitalsData } from "../../../parse/order";
 import { DATE_TIME_PICKER_FORMAT } from "../../../constants/strings";
 import { createUpdateRequestOrderEntry } from "../../../parse/order/requestorders";
 import SearchTextInput from "../../../components/textinput/SearchTextInput";
-
-/*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
-
-const DefaultPackages = {
-  implants: [],
-  instruments: [],
-  units: [],
-};
 
 function CreateRequestOrder(props) {
   const {
@@ -233,16 +222,6 @@ function CreateRequestOrder(props) {
       newErrors = { ...newErrors, surgeryDate: "Tanggal Prosedur harus diisi" };
       isComplete = false;
     }
-    if (
-      newRequestOrder?.deliveryDate === null ||
-      newRequestOrder?.deliveryDate === ""
-    ) {
-      newErrors = {
-        ...newErrors,
-        deliveryDate: "Tanggal Delivery harus diisi",
-      };
-      isComplete = false;
-    }
     setErrors(newErrors);
 
     if (isComplete) {
@@ -260,7 +239,6 @@ function CreateRequestOrder(props) {
         newRequestOrder?.warehouseStorageId,
         newRequestOrder?.procedure,
         newRequestOrder?.surgeryDate,
-        newRequestOrder?.deliveryDate,
         processedJSON?.inventoryJSON,
       );
       if (result) {
@@ -294,26 +272,7 @@ function CreateRequestOrder(props) {
         <span style={{ color: "red" }}>{errors?.inventoryJSON}</span>
       </div>
 
-      <div className="d-sm justify-content-between mb-4">
-        <label>
-          <b>Delivery Order No</b>
-        </label>
-        <input
-          name="deliveryOrderNumber"
-          value={newRequestOrder?.deliveryOrderNumber}
-          onChange={(e) =>
-            props.updateReduxNewRequestOrder({
-              ...newRequestOrder,
-              deliveryOrderNumber: e.target.value,
-            })
-          }
-          type={"text"}
-          className={`form-control ${
-            errors?.deliveryOrderNumber ? "is-invalid" : ""
-          } `}
-        />
-        <span style={{ color: "red" }}>{errors?.deliveryOrderNumber}</span>
-      </div>
+     
 
       <SearchTextInput
         label="Nama Dokter"
@@ -443,32 +402,7 @@ function CreateRequestOrder(props) {
         <span style={{ color: "red" }}>{errors?.surgeryDate}</span>
         <p />
       </div>
-      <div className="d-sm justify-content-between mb-4">
-        <label>
-          <b>Tanggal Delivery</b>
-        </label>
-        <br />
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="id">
-          <DateTimePicker
-            format={DATE_TIME_PICKER_FORMAT}
-            views={["year", "month", "day", "hours", "minutes"]}
-            onChange={(e) =>
-              props.updateReduxNewRequestOrder({
-                ...newRequestOrder,
-                deliveryDate: e.toISOString(),
-              })
-            }
-            value={
-              newRequestOrder?.deliveryDate
-                ? dayjs(newRequestOrder?.deliveryDate)
-                : null
-            }
-            className={`w-100 ${errors?.deliveryDate ? "is-invalid" : ""} `}
-          />
-        </LocalizationProvider>
-        <span style={{ color: "red" }}>{errors?.deliveryDate}</span>
-        <p />
-      </div>
+   
 
       {loading || newOrder === null ? (
         <FadeLoader

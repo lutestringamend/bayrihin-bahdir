@@ -26,6 +26,7 @@ import {
   ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_IMPLANT,
   ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_INSTRUMENT,
   ACCOUNT_PRIVILEGE_WAREHOUSE_CRUD,
+  ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD,
 } from "../../constants/account";
 import { USER_ROLE_DEVELOPER, USER_ROLE_SUPERADMIN } from "../../constants/user";
 
@@ -106,7 +107,13 @@ function Sidebar(props) {
                   <span>Produk</span>
                 </Link>
               </li>
-              <li className="nav-item active">
+             
+              {hasPrivilege(
+                privileges,
+                ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD,
+              ) ? (
+                <>
+                 <li className="nav-item active">
                 <Link className="nav-link" to="/warehouse-storages">
                   <span>Region</span>
                 </Link>
@@ -116,6 +123,15 @@ function Sidebar(props) {
                   <span>Paket</span>
                 </Link>
               </li>
+              <li className="nav-item active">
+                <Link className="nav-link" to="/warehouse-instrument-trays">
+                  <span>Instrument Tray</span>
+                </Link>
+              </li>
+                </>
+
+              ) : null }
+             
               {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_PRICING_CRUD) ? (
                 <li className="nav-item active">
                   <Link className="nav-link" to="/warehouse-products/prices">
@@ -213,13 +229,12 @@ function Sidebar(props) {
      <span>Pengantaran</span>
    </Link>
    <ul>
-     {currentUser?.accountRole ? currentUser?.accountRole?.name === USER_ROLE_SUPERADMIN || currentUser?.accountRole?.name === USER_ROLE_DEVELOPER  ? (
-       <li className="nav-item active">
+   <li className="nav-item active">
          <Link className="nav-link" to="/tracking/events">
            <span>Edit Tracking Event</span>
          </Link>
        </li>
-     ) : null : null}
+
 <li className="nav-item active">
          <Link className="nav-link" to="/tracking/order-deliveries">
            <span>Daftar Order Delivery</span>
@@ -233,7 +248,10 @@ function Sidebar(props) {
       ) : null}
 
       {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_HOSPITALS_CRUD) ||
-      hasPrivilege(privileges, ACCOUNT_PRIVILEGE_DOCTORS_CRUD) ? (
+      hasPrivilege(privileges, ACCOUNT_PRIVILEGE_DOCTORS_CRUD) || hasPrivilege(
+        privileges,
+        ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD,
+      ) ? (
         <>
           <li className="nav-item active">
             <Link className="nav-link" to="/order">
@@ -247,7 +265,7 @@ function Sidebar(props) {
               {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_HOSPITALS_CRUD) ? (
                 <li className="nav-item active">
                   <Link className="nav-link" to="/hospitals">
-                    <span>Edit Rumah Sakit</span>
+                    <span>Daftar Rumah Sakit</span>
                   </Link>
                 </li>
               ) : null}
@@ -255,7 +273,15 @@ function Sidebar(props) {
               {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_DOCTORS_CRUD) ? (
                 <li className="nav-item active">
                   <Link className="nav-link" to="/doctors">
-                    <span>Edit Dokter</span>
+                    <span>Daftar Dokter</span>
+                  </Link>
+                </li>
+              ) : null}
+
+{hasPrivilege(privileges, ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD) ? (
+                <li className="nav-item active">
+                  <Link className="nav-link" to="/documents">
+                    <span>Daftar Dokumen</span>
                   </Link>
                 </li>
               ) : null}

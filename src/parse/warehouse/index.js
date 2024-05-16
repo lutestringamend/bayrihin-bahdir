@@ -129,7 +129,8 @@ export const getWarehouseProductLotsData = async (warehouseProductId) => {
   try {
     const query = new Parse.Query("warehouse_product_lots");
     query.limit(999999);
-    query.ascending("name");
+    query.ascending("createdAt");
+    query.include("warehouseInstrumentTray");
     if (warehouseProductId) {
       query.equalTo("warehouseProduct", {
         __type: "Pointer",
@@ -152,7 +153,7 @@ export const getWarehousePackageData = async (category, objectId) => {
   try {
     const queryType = new Parse.Query("warehouse_packages");
     queryType.limit(99);
-    queryType.ascending("name");
+    queryType.ascending("createdAt");
     if (parseInt(category) > 0) {
       queryType.equalTo("category", parseInt(category));
     }
@@ -185,6 +186,7 @@ export const getWarehousePackageProductData = async (
     const queryType = new Parse.Query("warehouse_package_products");
     queryType.limit(99999);
     queryType.include("warehouseProduct");
+    queryType.ascending("createdAt");
     if (warehousePackageId) {
       queryType.equalTo("warehousePackage", {
         __type: "Pointer",

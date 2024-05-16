@@ -1,12 +1,18 @@
 import Parse from "parse/dist/parse.min.js";
 
-export const updateWarehouseProductLotEntry = async (objectId, name, remark, tray) => {
+export const updateWarehouseProductLotEntry = async (objectId, name, remark, warehouseInstrumentTrayId) => {
   let item = new Parse.Object("warehouse_product_lots");
   item.set("objectId", objectId);
   item.set("name", name);
   item.set("remark", remark);
-  if (tray) {
-    item.set("tray", tray);
+  if (warehouseInstrumentTrayId) {
+    item.set("warehouseInstrumentTray", {
+      __type: "Pointer",
+      className: "warehouse_instrument_trays",
+      objectId: warehouseInstrumentTrayId,
+    });
+  } else {
+    item.set("warehouseInstrumentTray", null);
   }
   try {
     await item.save();
@@ -31,7 +37,7 @@ export const deleteWarehouseProductLotEntry = async (objectId) => {
   }
 };
 
-export const createWarehouseProductLotEntry = async (warehouseProductId, name, remark, tray) => {
+export const createWarehouseProductLotEntry = async (warehouseProductId, name, remark, warehouseInstrumentTrayId) => {
   const query = new Parse.Query("warehouse_product_lots");
     query.limit(999999);
     query.equalTo("warehouseProduct", {
@@ -54,8 +60,14 @@ export const createWarehouseProductLotEntry = async (warehouseProductId, name, r
       });
     item.set("name", name);
     item.set("remark", remark);
-    if (tray) {
-      item.set("tray", tray);
+    if (warehouseInstrumentTrayId) {
+      item.set("warehouseInstrumentTray", {
+        __type: "Pointer",
+        className: "warehouse_instrument_trays",
+        objectId: warehouseInstrumentTrayId,
+      });
+    } else {
+      item.set("warehouseInstrumentTray", null);
     }
     try {
       await item.save();

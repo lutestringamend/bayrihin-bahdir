@@ -13,6 +13,7 @@ import Error from "./Error/Error";
 
 import UserManagement from "./User/UserManagement";
 import AccountPrivilegeEdit from "./User/AccountPrivilegeEdit";
+import Documents from "./Document/Documents";
 
 import WarehouseMain from "../pages/Warehouse/WarehouseMain";
 import WarehouseProducts from "../pages/Warehouse/WarehouseProducts";
@@ -24,6 +25,7 @@ import WarehouseProductLots from "../pages/Warehouse/WarehouseProductLots";
 import WarehousePackageProducts from "./Warehouse/WarehousePackageProducts";
 import WarehouseProductPriceList from "./Warehouse/WarehouseProductPriceList";
 import WarehouseProductPrices from "./Warehouse/WarehouseProductPrices";
+import WarehouseInstrumentTrays from "./Warehouse/WarehouseInstrumentTrays";
 
 import RequestOrders from "./Order/RequestOrder/RequestOrders";
 import CreateRequestOrder from "./Order/RequestOrder/CreateRequestOrder";
@@ -150,11 +152,7 @@ const Init = (props) => {
               <Route path="warehouse" element={<WarehouseMain />} />
               <Route path="warehouse/:category" element={<WarehouseMain />} />
 
-              <Route
-                path="warehouse-storages"
-                element={<WarehouseStorages />}
-              />
-
+              
               <Route
                 path="warehouse-products"
                 element={<WarehouseProducts />}
@@ -164,6 +162,21 @@ const Init = (props) => {
                 element={<WarehouseProducts />}
               />
 
+              
+              <Route
+                path="warehouse-product-lots/:id"
+                element={<WarehouseProductLots />}
+              />
+
+              {hasPrivilege(
+                privileges,
+                ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD,
+              ) ? (
+                <>
+                <Route
+                path="warehouse-storages"
+                element={<WarehouseStorages />}
+              />
               <Route
                 path="warehouse-packages"
                 element={<WarehousePackages />}
@@ -184,16 +197,7 @@ const Init = (props) => {
                 element={<WarehouseTypes />}
               />
 
-              <Route
-                path="warehouse-product-lots/:id"
-                element={<WarehouseProductLots />}
-              />
 
-              {hasPrivilege(
-                privileges,
-                ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD,
-              ) ? (
-                <>
                   <Route
                     path="warehouse-product-mutations/:id"
                     element={<WarehouseProductMutations />}
@@ -201,6 +205,14 @@ const Init = (props) => {
                   <Route
                     path="warehouse-product-mutations/:id/:lotId"
                     element={<WarehouseProductMutations />}
+                  />
+                  <Route
+                    path="warehouse-instrument-trays"
+                    element={<WarehouseInstrumentTrays />}
+                  />
+                  <Route
+                    path="documents"
+                    element={<Documents />}
                   />
                 </>
               ) : null}
@@ -320,9 +332,7 @@ const Init = (props) => {
             </>
           ) : null}
 
-          {currentUser?.accountRole ? currentUser?.accountRole?.name === USER_ROLE_SUPERADMIN || currentUser?.accountRole?.name === USER_ROLE_DEVELOPER ? (
-            <Route path="tracking/events" element={<TrackingEvents />} />
-          ) : null : null}
+<Route path="tracking/events" element={<TrackingEvents />} />
 
           {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_INPUT_DELIVERY_TRACKING_STATUS) ? (
             <>

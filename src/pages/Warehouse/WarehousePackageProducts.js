@@ -157,6 +157,7 @@ function WarehousePackageProducts() {
   const setPackageModal = (p) => {
     setModalData({
       visible: true,
+      objectId: p?.objectId,
       quantity: p?.quantity ? p?.quantity.toString() : "",
       searchList: [],
       warehouseProductId: p?.warehouseProduct
@@ -276,10 +277,10 @@ function WarehousePackageProducts() {
                             p?.warehouseProduct?.objectId ? (
                               <p>
                                 <Link
-                                  to={`/warehouse-product-mutations/${p?.warehouseProduct?.objectId}`}
+                                  to={`/warehouse-product-lots/${p?.warehouseProduct?.objectId}`}
                                   className="btn btn-secondary btn-sm"
                                 >
-                                  Mutasi
+                                  Lot
                                 </Link>
                               </p>
                             ) : null
@@ -297,7 +298,7 @@ function WarehousePackageProducts() {
       <Modal show={modalData?.visible} onHide={() => closeModal()}>
         <Modal.Header closeButton>
           <Modal.Title>
-            {modalData?.objectId ? "Edit Tipe" : "Tambah Tipe"}
+            {modalData?.objectId ? "Edit Setting Produk dalam Paket" : "Tambah Produk ke Paket"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>

@@ -17,6 +17,7 @@ import { getWarehouseProductById } from "../../parse/warehouse/product";
 import { WarehouseTypeCategories } from "../../constants/warehouse_types";
 import { hasPrivilege } from "../../utils/account";
 import { ACCOUNT_PRIVILEGE_WAREHOUSE_MUTATION_CRUD } from "../../constants/account";
+import { getWarehouseInstrumentTrays } from "../../parse/warehouse/instrument_trays";
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
 
@@ -26,11 +27,11 @@ const defaultModalData = {
   objectId: null,
   name: "",
   remark: "",
-  tray: "",
+  warehouseInstrumentTrayId: null,
 };
 const defaultModalErrors = {
   name: "",
-  tray: "",
+  warehouseInstrumentTrayId: "",
 };
 
 function WarehouseProductLots(props) {
@@ -42,10 +43,18 @@ function WarehouseProductLots(props) {
   const [productData, setProductData] = useState(null);
   const [modalData, setModalData] = useState(defaultModalData);
   const [modalErrors, setModalErrors] = useState(defaultModalErrors);
+  const [trays, setTrays] = useState(null);
 
   useEffect(() => {
     fetchData();
   }, [params.id]);
+
+  useEffect(() => {
+    if (productData === null || productData?.category === undefined || productData?.category === null || productData?.category !== 2) {
+      return;
+    }
+    fetchTrays();
+  }, [productData]);
 
   let fetchData = async () => {
     setLoading(true);
@@ -56,6 +65,13 @@ function WarehouseProductLots(props) {
     setProductList(result);
     setLoading(false);
   };
+
+  let fetchTrays = async () => {
+    const result = await getWarehouseInstrumentTrays();
+    if (!(result === undefined || result === null)) {
+      setTrays(result);
+    }
+  }
 
   const handleDelete = async (id) => {
     try {
@@ -90,14 +106,14 @@ function WarehouseProductLots(props) {
           modalData?.objectId,
           modalData?.name,
           modalData?.remark,
-          modalData?.tray,
+          modalData?.warehouseInstrumentTrayId,
         );
       } else {
         result = await createWarehouseProductLotEntry(
           params.id,
           modalData?.name,
           modalData?.remark,
-          modalData?.tray,
+          modalData?.warehouseInstrumentTrayId,
         );
       }
       if (result) {
@@ -188,7 +204,7 @@ function WarehouseProductLots(props) {
                         <td>{index + 1}</td>
                         <td>{p?.name}</td>
                         {productData?.category === 2 ? (
-                          <td>{p?.tray}</td>
+                          <td>{p?.warehouseInstrumentTray ? p?.warehouseInstrumentTray?.name : ""}</td>
                         ) : null}
                         <td>{p?.remark}</td>
                         <td>
@@ -265,18 +281,31 @@ function WarehouseProductLots(props) {
             <div className="row">
               <div className="col-lg-10">
                 <label>Tray</label>
-                <input
-                  name="tray"
-                  value={modalData?.tray}
-                  onChange={(e) =>
-                    setModalData({ ...modalData, tray: e.target.value })
+                <select
+                  name="warehouseInstrumentTrayId"
+                  value={
+                    modalData?.warehouseInstrumentTrayId
+                      ? modalData?.warehouseInstrumentTrayId
+                      : ""
                   }
-                  type={"text"}
+                  onChange={(e) =>
+                    setModalData({
+                      ...modalData,
+                      warehouseInstrumentTrayId: e.target.value,
+                    })
+                  }
                   className={`form-control ${
-                    modalErrors?.tray ? "is-invalid" : ""
+                    modalErrors.warehouseInstrumentTrayId ? "is-invalid" : ""
                   } `}
-                />
-                <span style={{ color: "red" }}>{modalErrors?.tray}</span>
+                >
+                  <option value="">----Pilih Tray----</option>
+                  {trays ? trays.map((item, index) => (
+                    <option key={index} value={item?.objectId}>
+                      {item?.name}
+                    </option>
+                  )) : null}
+                </select>
+                <span style={{ color: "red" }}>{modalErrors?.warehouseInstrumentTrayId}</span>
               </div>
             </div>
           ) : null}
