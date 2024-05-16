@@ -7,6 +7,26 @@ const DeliveryOrderInstrument = Parse.Object.extend(
   "delivery_orders_instrument",
 );
 
+
+export const createWarehouseProductMutationsForDeliveryOrderDelivery = async (
+params
+) => {
+
+
+console.log("createWarehouseProductMutationsForDeliveryOrderDelivery", params);
+try {
+  let result = await Parse.Cloud.run("createWarehouseProductMutationsForDeliveryOrderDelivery", params);
+  if (result) {
+      alert("Semua mutasi produk berhasil diupdate");
+      return true;
+  }
+} catch (e) {
+  console.error(e);
+  alert(`Error! ${e.toString()}`);
+}
+return false;
+};
+
 export const getDeliveryOrderById = async (objectId, withChildren) => {
   let result = null;
   try {

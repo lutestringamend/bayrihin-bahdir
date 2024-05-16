@@ -177,7 +177,7 @@ function DeliveryOrders(props) {
         ) : null}
         <td>{p?.deliveryOrderNumber}</td>
         <td>
-          {p?.createdAt ? new Date(p?.createdAt).toLocaleString("id-ID") : ""}
+          {p?.surgeryDate ? new Date(p?.surgeryDate).toLocaleString("id-ID") : ""}
         </td>
         <td>{p?.warehouseStorage ? p?.warehouseStorage?.name : "-"}</td>
 

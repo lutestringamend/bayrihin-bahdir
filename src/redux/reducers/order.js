@@ -6,8 +6,10 @@ import {
     NEW_ORDER_STATE_OVERHAUL,
     NEW_REQUEST_ORDER_STATE_UPDATE,
     ORDER_COMBINED_ORDERS_STATE_OVERHAUL,
+    ORDER_DELIVERY_ORDERS_DELIVERY_STATE_OVERHAUL,
     ORDER_DELIVERY_ORDERS_IMPLANT_STATE_OVERHAUL,
     ORDER_DELIVERY_ORDERS_INSTRUMENT_STATE_OVERHAUL,
+    ORDER_DELIVERY_ORDERS_PICKUP_STATE_OVERHAUL,
     ORDER_DELIVERY_ORDERS_STATE_OVERHAUL,
     ORDER_DOCTORS_STATE_OVERHAUL,
     ORDER_HOSPITALS_STATE_OVERHAUL,
@@ -26,6 +28,8 @@ import {
     deliveryOrders : null,
     deliveryOrdersImplant: null,
     deliveryOrdersInstrument: null,
+    deliveryOrderDelivery: null,
+    deliveryOrderPickup: null,
     doctors: null,
     hospitals: null,
     warehouseStorages: null,
@@ -67,6 +71,16 @@ import {
         return {
           ...state,
           deliveryOrdersInstrument: action.data,
+        };
+      case ORDER_DELIVERY_ORDERS_DELIVERY_STATE_OVERHAUL:
+        return {
+          ...state,
+          deliveryOrderDelivery: action.data,
+        };
+      case ORDER_DELIVERY_ORDERS_PICKUP_STATE_OVERHAUL:
+        return {
+          ...state,
+          deliveryOrderPickup: action.data,
         };
       case ORDER_DOCTORS_STATE_OVERHAUL:
         return {

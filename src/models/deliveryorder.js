@@ -12,3 +12,8 @@ export const DeliveryOrderModel = {
     tsPICUser: "",
     remark: "",
 }
+
+export const DeliveryOrderDeliveryModel = {
+    objectId: "",
+    driverUserId: "",
+}

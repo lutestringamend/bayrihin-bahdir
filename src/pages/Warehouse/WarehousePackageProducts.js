@@ -256,18 +256,34 @@ function WarehousePackageProducts() {
                         </td>
                         <td>{p?.quantity}</td>
                         <th>
-                          <button
-                            onClick={() => setPackageModal(p)}
-                            className="btn btn-info btn-sm mr-1"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(p.objectId)}
-                            className="btn btn-danger btn-sm mr-1"
-                          >
-                            Hapus
-                          </button>
+                          <p>
+                            <button
+                              onClick={() => setPackageModal(p)}
+                              className="btn btn-info btn-sm"
+                            >
+                              Edit
+                            </button>
+                          </p>
+                          <p>
+                            <button
+                              onClick={() => handleDelete(p?.objectId)}
+                              className="btn btn-danger btn-sm"
+                            >
+                              Hapus
+                            </button>
+                          </p>
+                          {p?.warehouseProduct ? (
+                            p?.warehouseProduct?.objectId ? (
+                              <p>
+                                <Link
+                                  to={`/warehouse-product-mutations/${p?.warehouseProduct?.objectId}`}
+                                  className="btn btn-secondary btn-sm"
+                                >
+                                  Mutasi
+                                </Link>
+                              </p>
+                            ) : null
+                          ) : null}
                         </th>
                       </tr>
                     );

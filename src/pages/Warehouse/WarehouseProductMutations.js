@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -376,7 +376,7 @@ function WarehouseProductMutations() {
         params.id,
         transferModalData?.warehouseProductLot,
         parseInt(transferModalData?.value),
-        parseInt(productData?.category)
+        parseInt(productData?.category),
       );
       if (result) {
         fetchData();
@@ -542,6 +542,7 @@ function WarehouseProductMutations() {
                     <th>Pending</th>
                     <th>Service</th>
                     <th>Marketing</th>
+                    <th>Aksi</th>
                   </tr>
                 </thead>
                 <tfoot>
@@ -556,6 +557,7 @@ function WarehouseProductMutations() {
                     <th>Pending</th>
                     <th>Service</th>
                     <th>Marketing</th>
+                    <th>Aksi</th>
                   </tr>
                 </tfoot>
                 <tbody>
@@ -582,11 +584,11 @@ function WarehouseProductMutations() {
                               p?.numOutMarketing > 0 ||
                               p?.numOutBroken > 0
                                 ? p?.type === "Transfer Out"
-                                  ? "text-dark-yellow"
-                                  : "text-danger"
+                                  ? "text-yellow-highlight"
+                                  : "text-danger-highlight"
                                 : p?.type === "Transfer In"
-                                  ? "text-success"
-                                  : "text-primary"
+                                  ? "text-info-highlight"
+                                  : "text-primary-highlight"
                             }
                           >
                             {p.type}
@@ -601,11 +603,11 @@ function WarehouseProductMutations() {
                               p?.numOutMarketing > 0 ||
                               p?.numOutBroken > 0
                                 ? p?.type === "Transfer Out"
-                                  ? "text-dark-yellow"
-                                  : "text-danger"
+                                  ? "text-yellow-highlight"
+                                  : "text-danger-highlight"
                                 : p?.type === "Transfer In"
-                                  ? "text-success"
-                                  : "text-primary"
+                                  ? "text-info-highlight"
+                                  : "text-primary-highlight"
                             }
                           >
                             {p?.numInSupplier ? <p>{p.numInSupplier}</p> : null}
@@ -634,6 +636,18 @@ function WarehouseProductMutations() {
                         <td>{p.balancePending}</td>
                         <td>{p.balanceService}</td>
                         <td>{p.balanceMarketing}</td>
+                        <td>
+                          {p?.deliveryOrder ? (
+                            p?.deliveryOrder?.objectId ? (
+                              <Link
+                                to={`/order/delivery-order/${p?.deliveryOrder?.objectId}`}
+                                className="btn btn-info btn-sm"
+                              >
+                                DO
+                              </Link>
+                            ) : null
+                          ) : null}
+                        </td>
                       </tr>
                     );
                   })}

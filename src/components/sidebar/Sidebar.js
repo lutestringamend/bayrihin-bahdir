@@ -225,11 +225,7 @@ function Sidebar(props) {
            <span>Daftar Order Delivery</span>
          </Link>
        </li>
-       <li className="nav-item active">
-         <Link className="nav-link" to="/tracking/order-pickups">
-           <span>Daftar Order Pickup</span>
-         </Link>
-       </li>
+       
    </ul>
  </li>
  <hr className="sidebar-divider my-0" />
@@ -271,6 +267,14 @@ function Sidebar(props) {
     </ul>
   );
 }
+
+/*
+<li className="nav-item active">
+         <Link className="nav-link" to="/tracking/order-pickups">
+           <span>Daftar Order Pickup</span>
+         </Link>
+       </li>
+*/
 
 const mapStateToProps = (store) => ({
   currentUser: store.userState.currentUser,

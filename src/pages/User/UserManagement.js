@@ -190,6 +190,10 @@ function UserManagement(props) {
   };
 
   const resetPassword = async (email) => {
+    if (email === undefined || email === null || !email_regex.test(email)) {
+      window.alert("Isikan alamat email yang valid di akun ini sebelum bisa reset password");
+      return;
+    }
     const confirm = window.confirm(
       `Yakin ingin mengirim email permintaan reset password ke ${email}?`,
     );

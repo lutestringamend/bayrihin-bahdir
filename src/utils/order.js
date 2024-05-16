@@ -1,4 +1,4 @@
-import { CLEAR_ORDER_DATA, NEW_ORDER_STATE_OVERHAUL, NEW_REQUEST_ORDER_STATE_UPDATE, ORDER_COMBINED_ORDERS_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_IMPLANT_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_INSTRUMENT_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_STATE_OVERHAUL, ORDER_DOCTORS_STATE_OVERHAUL, ORDER_HOSPITALS_STATE_OVERHAUL, ORDER_REQUEST_ORDERS_STATE_OVERHAUL, ORDER_WAREHOUSE_STORAGES_STATE_OVERHAUL } from "../redux/constants";
+import { CLEAR_ORDER_DATA, NEW_ORDER_STATE_OVERHAUL, NEW_REQUEST_ORDER_STATE_UPDATE, ORDER_COMBINED_ORDERS_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_DELIVERY_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_IMPLANT_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_INSTRUMENT_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_PICKUP_STATE_OVERHAUL, ORDER_DELIVERY_ORDERS_STATE_OVERHAUL, ORDER_DOCTORS_STATE_OVERHAUL, ORDER_HOSPITALS_STATE_OVERHAUL, ORDER_REQUEST_ORDERS_STATE_OVERHAUL, ORDER_WAREHOUSE_STORAGES_STATE_OVERHAUL } from "../redux/constants";
 import { DELIVERY_ORDER_NUMBER_DEFAULT_FORMAT, DeliveryOrderType } from "../constants/order";
 import { getMonthInRomanNumeral } from ".";
 import { hasPrivilege } from "./account";
@@ -59,6 +59,21 @@ export function clearReduxOrderData() {
       dispatch({ type: ORDER_DELIVERY_ORDERS_INSTRUMENT_STATE_OVERHAUL, data });
     };
   }
+
+  export function overhaulReduxOrderDeliveryOrderDelivery(data) {
+    return (dispatch) => {
+      console.log("overhaulReduxOrderDeliveryOrderDelivery", data?.length);
+      dispatch({ type: ORDER_DELIVERY_ORDERS_DELIVERY_STATE_OVERHAUL, data });
+    };
+  }
+
+  export function overhaulReduxOrderDeliveryOrderPickup(data) {
+    return (dispatch) => {
+      console.log("overhaulReduxOrderDeliveryOrderPickup", data?.length);
+      dispatch({ type: ORDER_DELIVERY_ORDERS_PICKUP_STATE_OVERHAUL, data });
+    };
+  }
+
 
   export function overhaulReduxOrderDoctors(data) {
     return (dispatch) => {
