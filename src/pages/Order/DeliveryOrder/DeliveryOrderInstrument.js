@@ -1143,12 +1143,12 @@ function DeliveryOrderInstrument(props) {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            {`Tunjuk Lot Produk untuk ${productStorageModalData?.warehouseProductName}`}
+            {`Pilih Lot untuk ${productStorageModalData?.warehouseProductName}`}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>
-            Tunjuk Lot Produk dan pastikan bahwa jumlah ketersediaan sesuai
+            Pilih Lot dan pastikan bahwa jumlah ketersediaan sesuai
             dengan mutasi terakhir
           </p>
           <div className="row">

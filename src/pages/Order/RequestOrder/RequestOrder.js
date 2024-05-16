@@ -514,13 +514,6 @@ function RequestOrder(props) {
       newErrors = { ...newErrors, surgeryDate: "Tanggal Prosedur wajib diisi" };
       isComplete = false;
     }
-    if (data?.deliveryDate === null || data?.deliveryDate === "") {
-      newErrors = {
-        ...newErrors,
-        deliveryDate: "Tanggal Delivery wajib diisi",
-      };
-      isComplete = false;
-    }
     if (
       data?.tsPICUserId === undefined ||
       data?.tsPICUserId === null ||
@@ -542,18 +535,18 @@ function RequestOrder(props) {
         return;
       }
       setSubmitting(true);
+      let deliveryOrderNumber = data?.deliveryOrderNumber.replace("REQUEST ORDER", "DO REQUEST");
       try {
         const result = await createUpdateDeliveryOrderEntry(
           null,
           currentUser?.objectId,
           data?.objectId,
-          data?.deliveryOrderNumber,
+          deliveryOrderNumber,
           data?.doctor?.objectId,
           data?.hospital?.objectId,
           data?.warehouseStorage?.objectId,
           data?.procedure,
           data?.surgeryDate,
-          data?.deliveryDate,
           data?.remark,
           JSON.stringify(inventory["implants"]),
           JSON.stringify(inventory["instruments"]),
@@ -635,24 +628,15 @@ function RequestOrder(props) {
         <>
           <div className="d-sm justify-content-between mb-4">
             <label>
-              <b>Delivery Order No</b>
+              <b>Request Order No</b>
             </label>
             <input
               name="deliveryOrderNumber"
               value={data?.deliveryOrderNumber}
-              disabled={data?.approvalDate && data?.approverUser}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  deliveryOrderNumber: e.target.value,
-                })
-              }
-              type={"text"}
-              className={`form-control ${
-                errors?.deliveryOrderNumber ? "is-invalid" : ""
-              } `}
+              disabled
+              type="text"
+              className="form-control"
             />
-            <span style={{ color: "red" }}>{errors?.deliveryOrderNumber}</span>
           </div>
 
           <SearchTextInput
@@ -767,29 +751,7 @@ function RequestOrder(props) {
             <span style={{ color: "red" }}>{errors?.surgeryDate}</span>
             <p />
           </div>
-          <div className="d-sm justify-content-between mb-4">
-            <label>
-              <b>Tanggal Delivery</b>
-            </label>
-            <br />
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="id">
-              <DateTimePicker
-                readOnly={data?.approvalDate && data?.approverUser}
-                format={DATE_TIME_PICKER_FORMAT}
-                views={["year", "month", "day", "hours", "minutes"]}
-                onChange={(e) =>
-                  setData({
-                    ...data,
-                    deliveryDate: e.toISOString(),
-                  })
-                }
-                value={data?.deliveryDate ? dayjs(data?.deliveryDate) : null}
-                className={`w-100 ${errors?.deliveryDate ? "is-invalid" : ""} `}
-              />
-            </LocalizationProvider>
-            <span style={{ color: "red" }}>{errors?.deliveryDate}</span>
-            <p />
-          </div>
+         
 
           {data?.approvalDate && data?.approverUser ? (
             <>

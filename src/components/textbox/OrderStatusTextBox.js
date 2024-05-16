@@ -1,12 +1,13 @@
 import React from "react";
 import {
+  DeliveryOrderStatusOrder,
   ORDER_TYPE_DELIVERY_ORDER_IMPLANT,
   ORDER_TYPE_DELIVERY_ORDER_INSTRUMENT,
   ORDER_TYPE_REQUEST_ORDER,
 } from "../../constants/order";
 
 const OrderStatusTextBox = (props) => {
-  const { type, approvalDate, approverUser, editorUser } = props;
+  const { type, approvalDate, approverUser, editorUser, status } = props;
   return (
     <div
       className={
@@ -26,7 +27,7 @@ const OrderStatusTextBox = (props) => {
         ? approvalDate && approverUser ? "Disetujui" : (type === ORDER_TYPE_DELIVERY_ORDER_IMPLANT ||
           type === ORDER_TYPE_DELIVERY_ORDER_INSTRUMENT) && editorUser ? "Sudah Diedit"
           : "Belum Ditinjau"
-        : "Aktif"}
+        : status ? DeliveryOrderStatusOrder.find(({ name }) => name === status) ?  DeliveryOrderStatusOrder.find(({ name }) => name === status)?.caption : "Aktif" : "Aktif"}
     </div>
   );
 };

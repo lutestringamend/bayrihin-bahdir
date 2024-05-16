@@ -19,8 +19,20 @@ export const DeliveryOrderStatusOrder = [
     },
     {
         name: DELIVERY_ORDER_STATUS_ALL_APPROVED,
-        caption: ""
-    }
+        caption: "Inventaris Disetujui"
+    },
+    {
+        name: DELIVERY_ORDER_STATUS_RECEIVED_AT_HOSPITAL,
+        caption: "Tiba di Rumah Sakit"
+    },
+    {
+        name: DELIVERY_ORDER_STATUS_SURGERY_ONGOING,
+        caption: "Operasi Berlangsung"
+    },
+    {
+        name: DELIVERY_ORDER_STATUS_SURGERY_FINISHED,
+        caption: "Operasi Selesai"
+    },
 ]
 
 export const RequestOrderFilters = [

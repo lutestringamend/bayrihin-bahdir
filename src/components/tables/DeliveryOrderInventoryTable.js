@@ -303,7 +303,7 @@ const DeliveryOrderInventoryTable = (props) => {
                                           }
                                           className="btn btn-primary btn-sm mr-1"
                                         >
-                                          Tunjuk Lot Produk
+                                          Pilih Lot
                                         </button>
                                       </p>
                                       <p>

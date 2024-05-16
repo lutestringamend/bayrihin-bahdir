@@ -126,8 +126,8 @@ const DeliveryOrderInfoForm = (props) => {
                         ? convertDateISOStringtoDisplayDateTime(
                             data?.deliveryOrder?.deliveryDate, true, true
                           )
-                        : DELIVERY_ORDER_READ_PARENT
-                      : DELIVERY_ORDER_READ_PARENT}
+                        : "-"
+                      : "-"}
                   </div>
                 </td>
               </tr>

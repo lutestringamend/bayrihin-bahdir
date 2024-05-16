@@ -59,9 +59,9 @@ export const getDeliveryOrderById = async (objectId, withChildren) => {
   return result;
 };
 
-export const updateDeliveryOrderImplantById = async (objectId, editorUserId, inventoryJSON, approvalDate, approverUserId) => {
+export const updateDeliveryOrderImplantById = async (objectId, editorUserId, inventoryJSON, approvalDate, approverUserId, deliveryOrderId) => {
   try {
-    console.log("updateDeliveryOrderImplantById", objectId, editorUserId);
+    console.log("updateDeliveryOrderImplantById", deliveryOrderId);
     const query = new Parse.Query(DeliveryOrderImplant);
     query.limit(99999);
     query.equalTo("objectId", objectId);
@@ -87,6 +87,9 @@ export const updateDeliveryOrderImplantById = async (objectId, editorUserId, inv
       }
       let save = await res.save();
       if (save) {
+        if (deliveryOrderId) {
+          await Parse.Cloud.run("createProperDeliveryOrderNumber", { deliveryOrderId });
+        }
         return true;
       }
     }
@@ -291,7 +294,6 @@ export const createUpdateDeliveryOrderEntry = async (
     warehouseStorageId,
     procedure,
     surgeryDate,
-    deliveryDate,
     remark,
     implantInventoryJSON,
     instrumentInventoryJSON,
@@ -310,7 +312,6 @@ export const createUpdateDeliveryOrderEntry = async (
     warehouseStorageId,
     procedure,
     surgeryDate,
-    deliveryDate,
     remark,
     implantInventoryJSON,
     instrumentInventoryJSON,

@@ -13,11 +13,21 @@ export const createUpdateRequestOrderEntry = async (
     let item = new Parse.Object("request_orders");
     if (objectId) {
         item.set("objectId", objectId);
+        item.set("deliveryOrderNumber", deliveryOrderNumber);
     } else {
-      
+      const query = new Parse.Query("request_orders");
+      query.limit(99999);
+      query.descending("createdAt");
+      const last = await query.first();
+      if (!last || last.get("number") === undefined || last.get("number") === null || last.get("number") < 1) {
+        item.set("number", 1);
+        item.set("deliveryOrderNumber", "REQUEST ORDER #1");
+      } else {
+        item.set("number", last.get("number") + 1);
+        item.set("deliveryOrderNumber", `REQUEST ORDER #${last.get("number") + 1}`);
+      }
     }
     item.set("isActive", true);
-    item.set("deliveryOrderNumber", deliveryOrderNumber);
     item.set("procedure", procedure);
     item.set("surgeryDate", surgeryDate);
     item.set("inventoryJSON", inventoryJSON);
