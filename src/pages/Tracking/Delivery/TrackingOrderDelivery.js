@@ -121,11 +121,14 @@ function TrackingOrderDelivery(props) {
       if (hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ASSIGN_DRIVER)) {
         fetchDriverData();
       }
+      if (!(result?.implantJSON && result?.instrumentJSON && result?.unitJSON)) {
+        setError("DO masih belum disetujui. Mohon klik Lihat DO dan cek kembali DO Implant dan DO Instrument");
+      }
       setData({
         ...result,
-        implantJSON: JSON.parse(result?.implantJSON),
-        instrumentJSON: JSON.parse(result?.instrumentJSON),
-        unitJSON: JSON.parse(result?.unitJSON),
+        implantJSON: result?.implantJSON ? JSON.parse(result?.implantJSON) : null,
+        instrumentJSON: result?.instrumentJSON ? JSON.parse(result?.instrumentJSON) : null,
+        unitJSON: result?.unitJSON ? JSON.parse(result?.unitJSON) : null,
       });
     }
     setLoading(false);
@@ -220,9 +223,9 @@ function TrackingOrderDelivery(props) {
             aria-label="Loading Spinner"
             data-testid="loader"
           />
-        ) : hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ASSIGN_DRIVER) ? (
+        ) : (
           <div className="d-sm-flex align-items-center mb-4">
-            {data?.approvalDate && data?.approverUser ? null : (
+            {(data?.approvalDate && data?.approverUser) || !(hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ASSIGN_DRIVER) && data?.implantJSON && data?.instrumentJSON && data?.unitJSON) ? null : (
               <>
                 <button
                   className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
@@ -262,7 +265,7 @@ function TrackingOrderDelivery(props) {
               ) : null
             ) : null}
           </div>
-        ) : null}
+        )}
       </div>
 
       {error ? (

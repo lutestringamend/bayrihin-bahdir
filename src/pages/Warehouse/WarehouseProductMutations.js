@@ -639,12 +639,50 @@ function WarehouseProductMutations() {
                         <td>
                           {p?.deliveryOrder ? (
                             p?.deliveryOrder?.objectId ? (
-                              <Link
-                                to={`/order/delivery-order/${p?.deliveryOrder?.objectId}`}
-                                className="btn btn-info btn-sm"
-                              >
-                                DO
-                              </Link>
+                              <p>
+                                <Link
+                                  to={`/order/delivery-order/${p?.deliveryOrder?.objectId}`}
+                                  className="btn btn-primary btn-sm"
+                                >
+                                  Lihat DO
+                                </Link>
+                              </p>
+                            ) : null
+                          ) : null}
+                          {p?.deliveryOrderImplant ? (
+                            p?.deliveryOrderImplant?.objectId ? (
+                              <p>
+                                <Link
+                                  to={`/order/delivery-order-implant/${p?.deliveryOrderImplant?.objectId}`}
+                                  className="btn btn-secondary btn-sm"
+                                >
+                                  DO Implant
+                                </Link>
+                              </p>
+                            ) : null
+                          ) : null}
+                          {p?.deliveryOrderInstrument ? (
+                            p?.deliveryOrderInstrument?.objectId ? (
+                              <p>
+                                <Link
+                                  to={`/order/delivery-order-instrument/${p?.deliveryOrderInstrument?.objectId}`}
+                                  className="btn btn-secondary btn-sm"
+                                >
+                                  DO Instrument
+                                </Link>
+                              </p>
+                            ) : null
+                          ) : null}
+                          {p?.deliveryOrderDelivery ? (
+                            p?.deliveryOrderDelivery?.objectId ? (
+                              <p>
+                                <Link
+                                  to={`/tracking/order-delivery/${p?.deliveryOrderDelivery?.objectId}`}
+                                  className="btn btn-info btn-sm"
+                                >
+                                  Delivery
+                                </Link>
+                              </p>
                             ) : null
                           ) : null}
                         </td>
