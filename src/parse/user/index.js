@@ -58,6 +58,23 @@ export const registerNewUser = async (
   return false;
 };
 
+
+export const getUserById = async (objectId) => {
+  let result = null;
+  try {
+    result = await Parse.Cloud.run("getUserById", {
+      objectId,
+      isActive: true,
+    });
+    if (result) {
+      return result.toJSON();
+    }
+  } catch (e) {
+    console.error(e);
+  }
+  return result;
+};
+
 export const getUserData = async (accountRoleName) => {
   let result = [];
   try {

@@ -273,7 +273,7 @@ function DeliveryOrder(props) {
             data-testid="loader"
           />
         ) : hasPrivilege(privileges, ACCOUNT_PRIVILEGE_DELIVERY_ORDER_EDIT) ? (
-          <div className="d-sm-flex align-items-center mb-4">
+          <div className="d-sm-flex align-items-center">
             {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_ASSIGN_TS_PIC) ? (
               <button
                 className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"

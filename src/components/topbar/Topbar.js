@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import { useNavigate } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
 import {
   faBell,
@@ -12,6 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { clearReduxUserData } from "../../utils/user";
 import { authLogout } from "../../parse/auth";
+
 
 /*
  <form
@@ -165,6 +167,7 @@ import { authLogout } from "../../parse/auth";
 
 function Topbar(props) {
   const { currentUser } = props;
+  const navigate = useNavigate();
 
   let handleLogout = async () => {
     try {
@@ -205,6 +208,13 @@ function Topbar(props) {
         </Dropdown.Toggle>
 
         <Dropdown.Menu className="dropdown-menu dropdown-menu-right shadow animated--grow-in">
+        <Dropdown.Item
+            className="dropdown-item"
+            onClick={() => navigate("/account-details")}
+          >
+            <i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+            Edit Profil
+          </Dropdown.Item>
           <Dropdown.Item
             className="dropdown-item"
             onClick={() => handleLogout()}

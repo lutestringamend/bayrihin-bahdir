@@ -1,3 +1,18 @@
+export const UserDataModel = {
+  objectId: null,
+  username: "",
+  email: "",
+  phoneNumber: "",
+  gender: "",
+  birthdate: "",
+  fullName: "",
+  isActive: null,
+  accountRole: {
+    objectId: null,
+    name: "",
+  }
+}
+
 export const TEMP_DEV_USER_DATA = {
   username: "developer",
   createdAt: "2024-02-27T06:15:34.115Z",

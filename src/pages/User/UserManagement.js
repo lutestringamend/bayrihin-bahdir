@@ -386,7 +386,7 @@ function UserManagement(props) {
                           <p>
                             <button
                               onClick={() => setUserModal(user)}
-                              className="btn btn-primary btn-sm mr-1"
+                              className="btn btn-secondary btn-sm mr-1"
                             >
                               Edit User
                             </button>
@@ -395,7 +395,7 @@ function UserManagement(props) {
                             <p>
                               <Link
                                 to={`/account-privilege/${user?.accountRole?.objectId}`}
-                                className="btn btn-secondary btn-sm mr-1"
+                                className="btn btn-info btn-sm mr-1"
                               >
                                 Edit Role
                               </Link>
@@ -437,7 +437,7 @@ function UserManagement(props) {
                           <p>
                             <button
                               onClick={() => setUserModal(user)}
-                              className="btn btn-primary btn-sm mr-1"
+                              className="btn btn-secondary btn-sm mr-1"
                             >
                               Edit User
                             </button>
@@ -446,7 +446,7 @@ function UserManagement(props) {
                             <p>
                               <Link
                                 to={`/account-privilege/${user?.accountRole?.objectId}`}
-                                className="btn btn-secondary btn-sm mr-1"
+                                className="btn btn-info btn-sm mr-1"
                               >
                                 Edit Role
                               </Link>

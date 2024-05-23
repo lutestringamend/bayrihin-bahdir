@@ -11,9 +11,9 @@ import Portal from "../pages/Portal/Portal";
 import Home from "./Home/Home";
 import Error from "./Error/Error";
 
+import AccountDetails from "./Account/AccountDetails";
 import UserManagement from "./User/UserManagement";
 import AccountPrivilegeEdit from "./User/AccountPrivilegeEdit";
-import Documents from "./Document/Documents";
 
 import WarehouseMain from "../pages/Warehouse/WarehouseMain";
 import WarehouseProducts from "../pages/Warehouse/WarehouseProducts";
@@ -41,6 +41,7 @@ import OrderMain from "./Order/OrderMain";
 import Hospitals from "./Order/Hospitals";
 import Doctors from "./Order/Doctors";
 import Doctor from "./Order/Doctor";
+import Documents from "./Document/Documents";
 
 import TrackingOrderDeliveries from "./Tracking/Delivery/TrackingOrderDeliveries";
 import TrackingOrderDelivery from "./Tracking/Delivery/TrackingOrderDelivery";
@@ -79,7 +80,7 @@ const Init = (props) => {
       return;
     }
     fetchPrivileges();
-    //console.log("redux currentUser", currentUser);
+    console.log("redux currentUser", currentUser);
   }, [currentUser]);
 
   useEffect(() => {
@@ -135,6 +136,7 @@ const Init = (props) => {
         <Route path="*" element={<Portal />}>
           <Route path="" element={<Home />} />
           <Route path="*" element={<Error />} />
+          <Route path="account-details" element={<AccountDetails />} />
           {hasPrivilege(privileges, ACCOUNT_PRIVILEGE_UPDATE_ADMIN) ? (
             <Route path="user-management" element={<UserManagement />} />
           ) : null}
