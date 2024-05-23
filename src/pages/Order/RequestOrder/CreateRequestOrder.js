@@ -44,6 +44,7 @@ function CreateRequestOrder(props) {
 
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState(RequestOrderModel);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     prepareData();
@@ -231,6 +232,7 @@ function CreateRequestOrder(props) {
       if (!confirm) {
         return;
       }
+      setSubmitting(true);
       const result = await createUpdateRequestOrderEntry(
         null,
         newRequestOrder?.deliveryOrderNumber,
@@ -249,6 +251,7 @@ function CreateRequestOrder(props) {
         props.overhaulReduxNewOrder(null);
         navigate("/order/request-orders/pending");
       }
+      setSubmitting(false);
     }
   };
 
@@ -256,7 +259,16 @@ function CreateRequestOrder(props) {
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 className="h3 mb-0 text-gray-800">Buat Request Order Baru</h1>
-        <button
+        {submitting ? (
+           <FadeLoader
+           color="#4e73df"
+           loading
+           size={150}
+           aria-label="Loading Spinner"
+           data-testid="loader"
+         />
+        ) : (
+          <button
           className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
           onClick={() => submit()}
         >
@@ -266,6 +278,8 @@ function CreateRequestOrder(props) {
           />
           Submit
         </button>
+        )}
+       
       </div>
 
       <div className="d-sm-flex align-items-center justify-content-between mb-4">

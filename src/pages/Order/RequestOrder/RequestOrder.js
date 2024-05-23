@@ -38,6 +38,7 @@ import { WarehouseTypeCategories } from "../../../constants/warehouse_types";
 import { getUserData } from "../../../parse/user";
 import { USER_ROLE_TECHNICAL_SUPPORT } from "../../../constants/user";
 import { createUpdateDeliveryOrderEntry } from "../../../parse/order/deliveryorders";
+import { ORDER_PACKAGE_ALACARTE_ID, ORDER_PACKAGE_ALACARTE_NAME } from "../../../constants/order";
 
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
@@ -185,6 +186,19 @@ function RequestOrder(props) {
             : category === 3
               ? inventory["units"]
               : null;
+      if (objectId === ORDER_PACKAGE_ALACARTE_ID) {
+        const alacarteFound = theCategory.find(({ objectId }) => objectId === ORDER_PACKAGE_ALACARTE_ID);
+        if (alacarteFound === undefined || alacarteFound === null) {
+          let newPackage = {
+            items: [],
+            objectId: ORDER_PACKAGE_ALACARTE_ID,
+            name: ORDER_PACKAGE_ALACARTE_NAME,
+            notes: "",
+          };
+          theCategory.push(newPackage);
+        }
+      }
+
       let newCategory = [];
       for (let p of theCategory) {
         if (p?.objectId === objectId) {
@@ -932,7 +946,7 @@ function RequestOrder(props) {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            {`Tambah Paket ${WarehouseTypeCategories[modalData?.category]}`}
+            {`Tambah Paket ${WarehouseTypeCategories[packageModalData?.category]}`}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>

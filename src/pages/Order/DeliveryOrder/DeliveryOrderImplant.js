@@ -46,6 +46,7 @@ import {
   getWarehouseProductStorageForDeliveryOrder,
 } from "../../../parse/warehouse/product_storage";
 import { getDeliveryOrderDeliveryData } from "../../../parse/order/orderdelivery";
+import { ORDER_PACKAGE_ALACARTE_ID, ORDER_PACKAGE_ALACARTE_NAME } from "../../../constants/order";
 
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
@@ -295,6 +296,19 @@ function DeliveryOrderImplant(props) {
   ) => {
     try {
       let theCategory = inventory;
+      if (objectId === ORDER_PACKAGE_ALACARTE_ID) {
+        const alacarteFound = theCategory.find(({ objectId }) => objectId === ORDER_PACKAGE_ALACARTE_ID);
+        if (alacarteFound === undefined || alacarteFound === null) {
+          let newPackage = {
+            items: [],
+            objectId: ORDER_PACKAGE_ALACARTE_ID,
+            name: ORDER_PACKAGE_ALACARTE_NAME,
+            notes: "",
+          };
+          theCategory.push(newPackage);
+        }
+      }
+
       let newCategory = [];
       for (let p of theCategory) {
         if (p?.objectId === objectId) {

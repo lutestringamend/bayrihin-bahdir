@@ -8,7 +8,7 @@ import {
   
   export const initialState = {
     currentUser: TEMP_DEV_USER_DATA,
-    privileges: [],
+    privileges: null,
     accountRoles: null,
   };
   

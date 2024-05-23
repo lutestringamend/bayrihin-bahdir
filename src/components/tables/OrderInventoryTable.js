@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { WarehouseTypeCategories } from "../../constants/warehouse_types";
+import { ORDER_PACKAGE_ALACARTE_ID, ORDER_PACKAGE_ALACARTE_NAME } from "../../constants/order";
 
 const OrderInventoryTable = (props) => {
   const { category, list, disabled } = props;
@@ -96,6 +97,10 @@ const OrderInventoryTable = (props) => {
     }
   };
 
+  const openModalAlacarte = () => {
+   openModalItem(ORDER_PACKAGE_ALACARTE_ID, ORDER_PACKAGE_ALACARTE_NAME);
+  };
+
   return (
     <div className="card shadow mb-4">
       <div className="card-header py-3 d-sm-flex align-items-center justify-content-between">
@@ -103,12 +108,25 @@ const OrderInventoryTable = (props) => {
           {WarehouseTypeCategories[category]}
         </h6>
         {disabled ? null : (
+
+          <div>
           <button
             onClick={() => openModalPackage()}
             className="btn btn-info btn-sm mx-3"
           >
             Tambah Paket
           </button>
+
+          <button
+            onClick={() =>
+              openModalAlacarte()
+            }
+            className="btn btn-secondary btn-sm"
+          >
+            Tambah Item A La Carte
+          </button>
+          </div>
+         
         )}
       </div>
       <div className="card-body">
@@ -166,22 +184,11 @@ const OrderInventoryTable = (props) => {
                             <p>
                               <button
                                 onClick={() =>
-                                  openModalItem(p?.objectId, p?.name)
-                                }
-                                className="btn btn-info btn-sm mr-1"
-                              >
-                                Tambah Item
-                              </button>
-                            </p>
-
-                            <p>
-                              <button
-                                onClick={() =>
                                   deletePackage(p?.name, p?.objectId)
                                 }
                                 className="btn btn-danger btn-sm mr-1"
                               >
-                                Hapus
+                                Hapus Paket
                               </button>
                             </p>
                           </>
