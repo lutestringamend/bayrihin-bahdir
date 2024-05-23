@@ -42,11 +42,12 @@ import DeliveryOrderInventoryTable from "../../../components/tables/DeliveryOrde
 import { WarehouseTypeCategories } from "../../../constants/warehouse_types";
 import SearchTextInput from "../../../components/textinput/SearchTextInput";
 import DeliveryOrderInfoForm from "../../../components/form/DeliveryOrderInfoForm";
-import {
-  getWarehouseProductStorageForDeliveryOrder,
-} from "../../../parse/warehouse/product_storage";
+import { getWarehouseProductStorageForDeliveryOrder } from "../../../parse/warehouse/product_storage";
 import { getDeliveryOrderDeliveryData } from "../../../parse/order/orderdelivery";
-import { ORDER_PACKAGE_ALACARTE_ID, ORDER_PACKAGE_ALACARTE_NAME } from "../../../constants/order";
+import {
+  ORDER_PACKAGE_ALACARTE_ID,
+  ORDER_PACKAGE_ALACARTE_NAME,
+} from "../../../constants/order";
 
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
@@ -297,7 +298,9 @@ function DeliveryOrderImplant(props) {
     try {
       let theCategory = inventory;
       if (objectId === ORDER_PACKAGE_ALACARTE_ID) {
-        const alacarteFound = theCategory.find(({ objectId }) => objectId === ORDER_PACKAGE_ALACARTE_ID);
+        const alacarteFound = theCategory.find(
+          ({ objectId }) => objectId === ORDER_PACKAGE_ALACARTE_ID,
+        );
         if (alacarteFound === undefined || alacarteFound === null) {
           let newPackage = {
             items: [],
@@ -758,9 +761,7 @@ function DeliveryOrderImplant(props) {
   return (
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 className="h3 mb-0 text-gray-800">
-          Detail DO Implant & BHP
-        </h1>
+        <h1 className="h3 mb-0 text-gray-800">Detail DO Implant & BHP</h1>
         {submitting ? (
           <FadeLoader
             color="#4e73df"
@@ -1065,8 +1066,8 @@ function DeliveryOrderImplant(props) {
         </Modal.Header>
         <Modal.Body>
           <p>
-            Pilih Lot dan pastikan bahwa jumlah ketersediaan sesuai
-            dengan mutasi terakhir
+            Pilih Lot dan pastikan bahwa jumlah ketersediaan sesuai dengan
+            mutasi terakhir
           </p>
           <div className="row">
             <div className="col-lg-10">
@@ -1226,7 +1227,4 @@ const mapDispatchProps = (dispatch) =>
     dispatch,
   );
 
-export default connect(
-  mapStateToProps,
-  mapDispatchProps,
-)(DeliveryOrderImplant);
+export default connect(mapStateToProps, mapDispatchProps)(DeliveryOrderImplant);

@@ -3,6 +3,7 @@ import Parse from "parse/dist/parse.min.js";
 export const getWarehouseProductStorageForDeliveryOrder = async (
   warehouseProductId,
   warehouseStorageId,
+  warehouseProductLotId,
 ) => {
   let results = [];
   try {
@@ -25,8 +26,14 @@ export const getWarehouseProductStorageForDeliveryOrder = async (
         objectId: warehouseStorageId,
       });
     }
+    if (warehouseProductLotId) {
+      query.equalTo("warehouseProductLot", {
+        __type: "Pointer",
+        className: "warehouse_product_lots",
+        objectId: warehouseProductLotId,
+      });
+    }
     
-
     const res = await query.find();
     for (let r of res) {
       results.push(r.toJSON());

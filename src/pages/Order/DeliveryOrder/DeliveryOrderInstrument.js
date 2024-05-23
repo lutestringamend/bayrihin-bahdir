@@ -11,6 +11,7 @@ import {
   getWarehousePackageData,
   getWarehousePackageProductData,
   getWarehouseProductData,
+  getWarehouseProductLotsData,
   getWarehouseStorageData,
 } from "../../../parse/warehouse";
 import {
@@ -42,11 +43,13 @@ import DeliveryOrderInventoryTable from "../../../components/tables/DeliveryOrde
 import { WarehouseTypeCategories } from "../../../constants/warehouse_types";
 import SearchTextInput from "../../../components/textinput/SearchTextInput";
 import DeliveryOrderInfoForm from "../../../components/form/DeliveryOrderInfoForm";
-import {
-  getWarehouseProductStorageForDeliveryOrder,
-} from "../../../parse/warehouse/product_storage";
+import { getWarehouseProductStorageForDeliveryOrder } from "../../../parse/warehouse/product_storage";
 import { getDeliveryOrderDeliveryData } from "../../../parse/order/orderdelivery";
-import { ORDER_PACKAGE_ALACARTE_ID, ORDER_PACKAGE_ALACARTE_NAME } from "../../../constants/order";
+import {
+  ORDER_PACKAGE_ALACARTE_ID,
+  ORDER_PACKAGE_ALACARTE_NAME,
+} from "../../../constants/order";
+import { getWarehouseInstrumentTrays } from "../../../parse/warehouse/instrument_trays";
 
 /*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
@@ -94,6 +97,17 @@ const defaultPackageModalErrors = {
   objectId: "",
 };
 
+const defaultTrayModalData = {
+  visible: false,
+  loading: false,
+  packageId: null,
+  packageName: null,
+  warehouseInstrumentTrayId: null,
+};
+const defaultTrayModalErrors = {
+  warehouseInstrumentTrayId: "",
+};
+
 function DeliveryOrderInstrument(props) {
   const { currentUser, privileges, doctors, hospitals, warehouseStorages } =
     props;
@@ -125,6 +139,12 @@ function DeliveryOrderInstrument(props) {
   );
   const [productStorageModalErrors, setProductStorageModalErrors] = useState(
     defaultModalProductStorageErrors,
+  );
+
+  const [trays, setTrays] = useState([]);
+  const [trayModalData, setTrayModalData] = useState(defaultTrayModalData);
+  const [trayModalErrors, setTrayModalErrors] = useState(
+    defaultTrayModalErrors,
   );
 
   const [submitting, setSubmitting] = useState(false);
@@ -306,7 +326,9 @@ function DeliveryOrderInstrument(props) {
     try {
       let theCategory = category === 2 ? instruments : units;
       if (objectId === ORDER_PACKAGE_ALACARTE_ID) {
-        const alacarteFound = theCategory.find(({ objectId }) => objectId === ORDER_PACKAGE_ALACARTE_ID);
+        const alacarteFound = theCategory.find(
+          ({ objectId }) => objectId === ORDER_PACKAGE_ALACARTE_ID,
+        );
         if (alacarteFound === undefined || alacarteFound === null) {
           let newPackage = {
             items: [],
@@ -317,7 +339,7 @@ function DeliveryOrderInstrument(props) {
           theCategory.push(newPackage);
         }
       }
-      
+
       let newCategory = [];
       for (let p of theCategory) {
         if (p?.objectId === objectId) {
@@ -657,6 +679,127 @@ function DeliveryOrderInstrument(props) {
     }
   };
 
+  const closeModalTray = () => {
+    setTrayModalData(defaultTrayModalData);
+    setTrayModalErrors(defaultTrayModalErrors);
+  };
+
+  const openModalTray = async (packageId, packageName) => {
+    setTrayModalErrors(defaultModalErrors);
+    setTrayModalData({
+      ...defaultTrayModalData,
+      packageId,
+      packageName,
+      visible: true,
+    });
+    const result = await getWarehouseInstrumentTrays();
+    if (!(result?.length === undefined || result?.length < 1)) {
+      setTrays(result);
+    }
+  };
+
+  const saveModalTray = async () => {
+    let newErrors = defaultTrayModalErrors;
+    let isComplete = true;
+
+    if (
+      trayModalData?.warehouseInstrumentTrayId === null ||
+      trayModalData?.warehouseInstrumentTrayId === ""
+    ) {
+      newErrors = {
+        ...newErrors,
+        warehouseInstrumentTrayId: "Tray wajib diisi",
+      };
+      isComplete = false;
+    }
+    setTrayModalErrors(newErrors);
+    if (!isComplete) {
+      return;
+    }
+
+    try {
+      setTrayModalData({ ...trayModalData, loading: true });
+      let newInstruments = [...instruments];
+      let results = [];
+      for (let n of newInstruments) {
+        if (n?.objectId === trayModalData?.packageId) {
+          let items = instruments.find(
+            ({ objectId }) => objectId === trayModalData?.packageId,
+          )?.items;
+          let newItems = [];
+
+          for (let i of items) {
+            let warehouseProductStorage = null;
+            let productLots = await getWarehouseProductLotsData(
+              i?.objectId,
+              trayModalData?.warehouseInstrumentTrayId,
+            );
+            let warehouseProductLotId = productLots
+              ? productLots[0]
+                ? productLots[0]?.objectId
+                : null
+              : null;
+            if (warehouseProductLotId) {
+              let warehouseProductStorages =
+                await getWarehouseProductStorageForDeliveryOrder(
+                  i?.objectId,
+                  null,
+                  warehouseProductLotId,
+                );
+              warehouseProductStorage = warehouseProductStorages
+                ? warehouseProductStorages[0]
+                  ? warehouseProductStorages[0]
+                  : null
+                : null;
+            }
+            if (warehouseProductStorage) {
+              //console.log(i, warehouseProductStorage);
+              newItems.push({
+                ...i,
+                warehouseProductStorage: {
+                  objectId: warehouseProductStorage?.objectId,
+                  balanceStock: warehouseProductStorage?.balanceStock
+                    ? warehouseProductStorage?.balanceStock
+                    : 0,
+                  balanceOnDelivery: warehouseProductStorage?.balanceOnDelivery
+                    ? warehouseProductStorage?.balanceOnDelivery
+                    : 0,
+                  balanceTotal: warehouseProductStorage?.balanceTotal
+                    ? warehouseProductStorage?.balanceTotal
+                    : 0,
+                  warehouseProductLot: {
+                    objectId: warehouseProductLotId,
+                    name: productLots[0]?.name,
+                  }
+                },
+              });
+            } else {
+              newItems.push(i);
+            }
+          }
+
+          results.push({
+            ...n,
+            items: newItems,
+          });
+        } else {
+          results.push(n);
+        }
+      }
+
+      setInstruments(results);
+      setTrayModalData(defaultTrayModalData);
+      return;
+    } catch (e) {
+      console.error(e);
+      setTrayModalErrors({
+        ...newErrors,
+        warehouseInstrumentTrayId: e?.toString(),
+      });
+    }
+    setTrayModalData({ ...trayModalData, loading: false });
+  };
+
   const submitEdit = async () => {
     if (submitting) {
       return;
@@ -739,7 +882,7 @@ function DeliveryOrderInstrument(props) {
         if (update) {
           const result = await createUpdateDeliveryOrderDelivery(
             null,
-            data?.deliveryOrder?.objectId, 
+            data?.deliveryOrder?.objectId,
             null,
             data?.objectId,
             currentUser?.objectId,
@@ -792,9 +935,7 @@ function DeliveryOrderInstrument(props) {
   return (
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 className="h3 mb-0 text-gray-800">
-          Detail DO Instrument & Unit
-        </h1>
+        <h1 className="h3 mb-0 text-gray-800">Detail DO Instrument & Unit</h1>
         {submitting ? (
           <FadeLoader
             color="#4e73df"
@@ -959,71 +1100,72 @@ function DeliveryOrderInstrument(props) {
                   warehouseProductStorageId,
                 )
               }
+              openModalTray={(objectId, name) => openModalTray(objectId, name)}
             />
           )}
         </>
       )}
 
-{units === null ? null : (
-            <DeliveryOrderInventoryTable
-              category={3}
-              list={units}
-              disabled={
-                (data?.approvalDate && data?.approverUser) ||
-                !hasPrivilege(
-                  privileges,
-                  ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_INSTRUMENT,
-                )
-              }
-              warehouseStorageId={
-                data?.deliveryOrder
-                  ? data?.deliveryOrder?.warehouseStorage
-                    ? data?.deliveryOrder?.warehouseStorage?.objectId
-                    : null
-                  : null
-              }
-              editInventoryPackage={(
-                objectId,
-                isDelete,
-                notes,
-                newItem,
-                productId,
-                quantity,
-                deleteItem,
-              ) =>
-                editInventoryPackage(
-                  3,
-                  objectId,
-                  isDelete,
-                  notes,
-                  newItem,
-                  productId,
-                  quantity,
-                  deleteItem,
-                )
-              }
-              openModalPackage={() => openModalPackage(3)}
-              openModalItem={(packageId, packageName) =>
-                openModalItem(3, packageId, packageName)
-              }
-              openModalProductStorage={(
-                objectId,
-                name,
-                quantity,
-                packageId,
-                warehouseProductStorageId,
-              ) =>
-                openModalProductStorage(
-                  3,
-                  objectId,
-                  name,
-                  quantity,
-                  packageId,
-                  warehouseProductStorageId,
-                )
-              }
-            />
-          )}
+      {units === null ? null : (
+        <DeliveryOrderInventoryTable
+          category={3}
+          list={units}
+          disabled={
+            (data?.approvalDate && data?.approverUser) ||
+            !hasPrivilege(
+              privileges,
+              ACCOUNT_PRIVILEGE_WAREHOUSE_CREATE_DELIVERY_ORDER_INSTRUMENT,
+            )
+          }
+          warehouseStorageId={
+            data?.deliveryOrder
+              ? data?.deliveryOrder?.warehouseStorage
+                ? data?.deliveryOrder?.warehouseStorage?.objectId
+                : null
+              : null
+          }
+          editInventoryPackage={(
+            objectId,
+            isDelete,
+            notes,
+            newItem,
+            productId,
+            quantity,
+            deleteItem,
+          ) =>
+            editInventoryPackage(
+              3,
+              objectId,
+              isDelete,
+              notes,
+              newItem,
+              productId,
+              quantity,
+              deleteItem,
+            )
+          }
+          openModalPackage={() => openModalPackage(3)}
+          openModalItem={(packageId, packageName) =>
+            openModalItem(3, packageId, packageName)
+          }
+          openModalProductStorage={(
+            objectId,
+            name,
+            quantity,
+            packageId,
+            warehouseProductStorageId,
+          ) =>
+            openModalProductStorage(
+              3,
+              objectId,
+              name,
+              quantity,
+              packageId,
+              warehouseProductStorageId,
+            )
+          }
+        />
+      )}
 
       <Modal
         show={packageModalData?.visible}
@@ -1031,7 +1173,9 @@ function DeliveryOrderInstrument(props) {
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            {`Tambah Paket ${WarehouseTypeCategories[packageModalData?.category]}`}
+            {`Tambah Paket ${
+              WarehouseTypeCategories[packageModalData?.category]
+            }`}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -1162,8 +1306,8 @@ function DeliveryOrderInstrument(props) {
         </Modal.Header>
         <Modal.Body>
           <p>
-            Pilih Lot dan pastikan bahwa jumlah ketersediaan sesuai
-            dengan mutasi terakhir
+            Pilih Lot dan pastikan bahwa jumlah ketersediaan sesuai dengan
+            mutasi terakhir
           </p>
           <div className="row">
             <div className="col-lg-10">
@@ -1296,6 +1440,85 @@ function DeliveryOrderInstrument(props) {
               Tutup
             </Button>
             <Button variant="primary" onClick={() => saveModalProductStorage()}>
+              Simpan
+            </Button>
+          </Modal.Footer>
+        )}
+      </Modal>
+      <Modal show={trayModalData?.visible} onHide={() => closeModalTray()}>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {`Pilih Tray untuk keseluruhan Paket ${trayModalData?.packageName}`}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Pilih Tray untuk seluruh produk di dalam paket ini dan cek
+            ketersediaan mutasi nanti.
+          </p>
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Lot Tersedia</b>
+              </label>
+              {trays?.length === undefined || trays?.length < 1 ? (
+                <FadeLoader
+                  color="#4e73df"
+                  loading
+                  size={12}
+                  aria-label="Loading Spinner"
+                  data-testid="loader"
+                />
+              ) : (
+                <select
+                  name="warehouseInstrumentTrayId"
+                  value={trayModalData?.warehouseInstrumentTrayId}
+                  onChange={(e) =>
+                    setTrayModalData({
+                      ...trayModalData,
+                      warehouseInstrumentTrayId: e.target.value,
+                    })
+                  }
+                  className={`form-control ${
+                    trayModalErrors?.warehouseInstrumentTrayId
+                      ? "is-invalid"
+                      : ""
+                  } `}
+                >
+                  <option value="">----Pilih Tray Tersedia----</option>
+                  {trays.map((item, index) => (
+                    <option key={index} value={item?.objectId}>
+                      {item?.name ? item?.name : ""}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              <span style={{ color: "red" }}>
+                {trayModalErrors?.warehouseInstrumentTrayId}
+              </span>
+            </div>
+          </div>
+        </Modal.Body>
+        {trayModalData?.loading ? (
+          <Modal.Footer>
+            <div className="d-sm-flex align-items-center justify-content-between">
+            <FadeLoader
+              color="#4e73df"
+              loading={trayModalData?.loading}
+              size={12}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+            <span>Mencari lot yang sesuai dengan tray untuk setiap produk...</span>
+            </div>
+          </Modal.Footer>
+        ) : (
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => closeModalTray()}>
+              Tutup
+            </Button>
+            <Button variant="primary" onClick={() => saveModalTray()}>
               Simpan
             </Button>
           </Modal.Footer>

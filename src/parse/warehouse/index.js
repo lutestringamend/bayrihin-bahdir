@@ -125,7 +125,7 @@ export const getWarehouseProductMutationsData = async (
   return result;
 };
 
-export const getWarehouseProductLotsData = async (warehouseProductId) => {
+export const getWarehouseProductLotsData = async (warehouseProductId, warehouseInstrumentTrayId) => {
   let result = [];
   try {
     const query = new Parse.Query("warehouse_product_lots");
@@ -139,6 +139,14 @@ export const getWarehouseProductLotsData = async (warehouseProductId) => {
         objectId: warehouseProductId,
       });
     }
+    if (warehouseInstrumentTrayId) {
+      query.equalTo("warehouseInstrumentTray", {
+        __type: "Pointer",
+        className: "warehouse_instrument_trays",
+        objectId: warehouseInstrumentTrayId,
+      });
+      query.descending("createdAt");
+    } 
     const res = await query.find();
     for (let r of res) {
       result.push(r.toJSON());

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { WarehouseTypeCategories } from "../../constants/warehouse_types";
-import { ORDER_PACKAGE_ALACARTE_ID, ORDER_PACKAGE_ALACARTE_NAME } from "../../constants/order";
+import {
+  ORDER_PACKAGE_ALACARTE_ID,
+  ORDER_PACKAGE_ALACARTE_NAME,
+} from "../../constants/order";
 
 const DeliveryOrderInventoryTable = (props) => {
   const { category, list, disabled } = props;
@@ -86,6 +89,14 @@ const DeliveryOrderInventoryTable = (props) => {
     }
   };
 
+  const openModalTray = (objectId, name) => {
+    if (
+      !(props?.openModalTray === undefined || props?.openModalTray === null)
+    ) {
+      props?.openModalTray(objectId, name);
+    }
+  };
+
   const openModalPackage = () => {
     if (
       !(
@@ -97,20 +108,32 @@ const DeliveryOrderInventoryTable = (props) => {
     }
   };
 
-  const openModalProductStorage = (objectId, name, quantity, packageId, productStorageId) => {
+  const openModalProductStorage = (
+    objectId,
+    name,
+    quantity,
+    packageId,
+    productStorageId,
+  ) => {
     if (
       !(
         props?.openModalProductStorage === undefined ||
         props?.openModalProductStorage === null
       )
     ) {
-      props?.openModalProductStorage(objectId, name, quantity, packageId, productStorageId);
+      props?.openModalProductStorage(
+        objectId,
+        name,
+        quantity,
+        packageId,
+        productStorageId,
+      );
     }
   };
 
   const openModalAlacarte = () => {
     openModalItem(ORDER_PACKAGE_ALACARTE_ID, ORDER_PACKAGE_ALACARTE_NAME);
-   };
+  };
 
   return (
     <div className="card shadow mb-4">
@@ -119,26 +142,22 @@ const DeliveryOrderInventoryTable = (props) => {
           {WarehouseTypeCategories[category]}
         </h6>
         {disabled ? null : (
+          <div>
+            <button
+              onClick={() => openModalPackage()}
+              className="btn btn-info btn-sm mx-3"
+            >
+              Tambah Paket
+            </button>
 
-<div>
-<button
-  onClick={() => openModalPackage()}
-  className="btn btn-info btn-sm mx-3"
->
-  Tambah Paket
-</button>
-
-<button
-  onClick={() =>
-    openModalAlacarte()
-  }
-  className="btn btn-secondary btn-sm"
->
-  Tambah Item A La Carte
-</button>
-</div>
-
-)}
+            <button
+              onClick={() => openModalAlacarte()}
+              className="btn btn-secondary btn-sm"
+            >
+              Tambah Item A La Carte
+            </button>
+          </div>
+        )}
       </div>
       <div className="card-body">
         <div className="table-responsive">
@@ -190,17 +209,29 @@ const DeliveryOrderInventoryTable = (props) => {
                       </td>
 
                       <td>
+                        {category !== 2 || disabled ? null : (
+                          <p>
+                            <button
+                              onClick={() =>
+                                openModalTray(p?.objectId, p?.name)
+                              }
+                              className="btn btn-primary btn-sm mr-1"
+                            >
+                              Pilih Tray
+                            </button>
+                          </p>
+                        )}
                         {disabled ? null : (
                           <p>
-                          <button
-                            onClick={() =>
-                              deletePackage(p?.name, p?.objectId)
-                            }
-                            className="btn btn-danger btn-sm mr-1"
-                          >
-                            Hapus Paket
-                          </button>
-                        </p>
+                            <button
+                              onClick={() =>
+                                deletePackage(p?.name, p?.objectId)
+                              }
+                              className="btn btn-danger btn-sm mr-1"
+                            >
+                              Hapus Paket
+                            </button>
+                          </p>
                         )}
                       </td>
                     </tr>
@@ -303,7 +334,10 @@ const DeliveryOrderInventoryTable = (props) => {
                                               item?.name,
                                               item?.quantity,
                                               p?.objectId,
-                                              item?.warehouseProductStorage ? item?.warehouseProductStorage?.objectId : null,
+                                              item?.warehouseProductStorage
+                                                ? item?.warehouseProductStorage
+                                                    ?.objectId
+                                                : null,
                                             )
                                           }
                                           className="btn btn-primary btn-sm mr-1"
