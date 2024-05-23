@@ -8,7 +8,6 @@ import { FadeLoader } from "react-spinners";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
-import { email_regex, phone_regex, username_regex } from "../../constants";
 import { convertDateISOStringtoDisplayDateTime } from "../../utils";
 import { DocumentsModelData } from "../../models/documents";
 import {
@@ -386,11 +385,13 @@ function Documents(props) {
                     alt="File baru"
                   />
                 ) : modalData?.photo && modalData?.photo?.url ? (
-                  <img
-                    style={{ width: "70%", height: "50%" }}
-                    src={modalData?.photo?.url}
-                    alt={modalData?.name}
-                  />
+                  <a href={modalData?.photo?.url} target="_blank">
+                    <img
+                      style={{ width: "70%", height: "50%" }}
+                      src={modalData?.photo?.url}
+                      alt={modalData?.name}
+                    />
+                  </a>
                 ) : (
                   "Belum ada foto"
                 )}
@@ -430,11 +431,7 @@ function Documents(props) {
             <Button variant="secondary" onClick={() => closeModal()}>
               Tutup
             </Button>
-            <Button
-              disabled={modalData?.price === ""}
-              variant="primary"
-              onClick={() => saveModalData()}
-            >
+            <Button variant="primary" onClick={() => saveModalData()}>
               Simpan
             </Button>
           </Modal.Footer>

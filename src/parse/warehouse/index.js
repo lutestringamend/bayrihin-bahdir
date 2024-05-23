@@ -85,6 +85,7 @@ export const getWarehouseProductMutationsData = async (
     query.descending("createdAt");
     query.include("warehouseStorage");
     query.include("warehouseProductLot");
+    query.include("document");
 
     if (warehouseProductId) {
       query.equalTo("warehouseProduct", {

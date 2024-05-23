@@ -28,15 +28,21 @@ import {
 } from "../../constants/warehouse_product_mutations";
 import { getWarehouseProductById } from "../../parse/warehouse/product";
 import { WarehouseTypeCategories } from "../../constants/warehouse_types";
-/*import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDownload } from "@fortawesome/free-solid-svg-icons";*/
+import { DocumentsModelData } from "../../models/documents";
+import {
+  combineDocumentWithWarehouseProductMutation,
+  createUpdateDocumentEntry,
+  getDocumentById,
+} from "../../parse/documents";
+import { convertBase64 } from "../../utils/file";
+import { createAndSaveParseFile } from "../../parse/file";
 
 const defaultModalData = {
   visible: false,
   loading: false,
   objectId: null,
-  warehouseStorage: null,
-  warehouseProductLot: null,
+  warehouseStorage: "",
+  warehouseProductLot: "",
   newWarehouseProductLotName: "",
   newProductLot: false,
   type: "",
@@ -46,9 +52,9 @@ const defaultTransferModalData = {
   visible: false,
   loading: false,
   objectId: null,
-  warehouseStorage: null,
-  destinationWarehouseStorage: null,
-  warehouseProductLot: null,
+  warehouseStorage: "",
+  destinationWarehouseStorage: "",
+  warehouseProductLot: "",
   value: "",
 };
 const defaultModalErrors = {
@@ -58,10 +64,15 @@ const defaultModalErrors = {
   type: "",
   value: "",
 };
-
 const defaultModalBalances = {
-  balanceStock: null,
-  balanceOnDelivery: null,
+  balanceStock: "",
+  balanceOnDelivery: "",
+};
+const defaultDocumentModalData = {
+  visible: false,
+  loading: false,
+  ...DocumentsModelData,
+  warehouseProductMutationId: "",
 };
 
 function WarehouseProductMutations() {
@@ -86,6 +97,13 @@ function WarehouseProductMutations() {
     defaultTransferModalData,
   );
   const [transferStorageList, setTransferStorageList] = useState([]);
+
+  const [documentModalData, setDocumentModalData] = useState(
+    defaultDocumentModalData,
+  );
+  const [documentModalErrors, setDocumentModalErrors] =
+    useState(DocumentsModelData);
+  const [tempFile, setTempFile] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -196,11 +214,9 @@ function WarehouseProductMutations() {
   let fetchData = async () => {
     setLoading(true);
     const productData = await getWarehouseProductById(params.id);
-    console.log("productData", productData);
     setProductData(productData);
     const storageRes = await getWarehouseStorageData();
     setStorageList(storageRes);
-    ////console.log("getWarehouseProductMutationsData", params.id, params.lotId);
     const result = await getWarehouseProductMutationsData(
       params.id,
       params.lotId,
@@ -415,6 +431,91 @@ function WarehouseProductMutations() {
     }
   };
 
+  const openDocumentModal = async (e, warehouseProductMutationId) => {
+    setDocumentModalErrors(DocumentsModelData);
+    setTempFile(null);
+    if (e === undefined || e === null) {
+      setDocumentModalData({
+        ...defaultDocumentModalData,
+        warehouseProductMutationId,
+        visible: true,
+      });
+    } else {
+      /*let result = await getDocumentById(e?.objectId);
+      if (result) {
+        setDocumentModalData({
+          ...defaultDocumentModalData,
+          ...result,
+          warehouseProductMutationId,
+          visible: true,
+        });
+        return;
+      }*/
+      setDocumentModalData({
+        ...defaultDocumentModalData,
+        ...e,
+        warehouseProductMutationId,
+        visible: true,
+      });
+    }
+  };
+
+  const closeDocumentModal = () => {
+    if (!documentModalData?.loading) {
+      setDocumentModalErrors(DocumentsModelData);
+      setDocumentModalData(defaultDocumentModalData);
+    }
+  };
+
+  const saveDocumentModalData = async () => {
+    let newErrors = DocumentsModelData;
+    let isComplete = true;
+
+    if (documentModalData?.name === "" || documentModalData?.name?.length < 3) {
+      isComplete = false;
+      newErrors = { ...newErrors, name: "Nama Dokumen wajib diisi" };
+    }
+    setDocumentModalErrors(newErrors);
+
+    if (isComplete) {
+      const confirm = window.confirm(
+        "Pastikan semua data dan foto sudah terisi dengan benar. Aksi ini akan mengupdate dokumen.",
+      );
+      if (!confirm) {
+        return;
+      }
+      setDocumentModalData({ ...documentModalData, loading: true });
+      let parseFile = null;
+      if (tempFile) {
+        let base64 = await convertBase64(tempFile);
+        parseFile = await createAndSaveParseFile(tempFile?.name, base64);
+        console.log("parseFile created", parseFile);
+      }
+      let result = await createUpdateDocumentEntry(
+        documentModalData?.objectId,
+        documentModalData?.name,
+        documentModalData?.description,
+        parseFile,
+      );
+      if (result) {
+        let combining = await combineDocumentWithWarehouseProductMutation(
+          documentModalData?.warehouseProductMutationId,
+          documentModalData?.objectId,
+          documentModalData?.name,
+          documentModalData?.description,
+        );
+        if (combining) {
+          fetchData();
+          alert("Berhasil mengedit dokumen untuk mutasi produk");
+          setDocumentModalData(defaultModalData);
+          setDocumentModalErrors(DocumentsModelData);
+          return;
+        }
+      }
+    }
+    setDocumentModalData({ ...modalData, loading: false });
+  };
+
   return (
     <>
       <div className="d-sm-flex align-items-center justify-content-between mb-4">
@@ -539,17 +640,11 @@ function WarehouseProductMutations() {
                     <th>Mutasi</th>
                     <th>Stock</th>
                     <th>On-Delivery</th>
-                    {productData?.category !== 1 ? null : (
-                      <th>Pending</th>
-                    )}
-                    
-                    {productData?.category === 1 ? null : (
-                      <th>Service</th>
-                    )}
-                    {productData?.category !== 1 ? null : (
-                      <th>Marketing</th>
-                    )}
-                    
+                    {productData?.category !== 1 ? null : <th>Pending</th>}
+
+                    {productData?.category === 1 ? null : <th>Service</th>}
+                    {productData?.category !== 1 ? null : <th>Marketing</th>}
+
                     <th>Aksi</th>
                   </tr>
                 </thead>
@@ -562,16 +657,10 @@ function WarehouseProductMutations() {
                     <th>Mutasi</th>
                     <th>Stock</th>
                     <th>On-Delivery</th>
-                    {productData?.category !== 1 ? null : (
-                      <th>Pending</th>
-                    )}
-                    
-                    {productData?.category === 1 ? null : (
-                      <th>Service</th>
-                    )}
-                    {productData?.category !== 1 ? null : (
-                      <th>Marketing</th>
-                    )}
+                    {productData?.category !== 1 ? null : <th>Pending</th>}
+
+                    {productData?.category === 1 ? null : <th>Service</th>}
+                    {productData?.category !== 1 ? null : <th>Marketing</th>}
                     <th>Aksi</th>
                   </tr>
                 </tfoot>
@@ -634,14 +723,15 @@ function WarehouseProductMutations() {
                             {p?.numOutDelivery ? (
                               <p>{p?.numOutDelivery}</p>
                             ) : null}
-                            {productData?.category === 1 ? null : p?.numOutService ? (
+                            {productData?.category ===
+                            1 ? null : p?.numOutService ? (
                               <p>{p?.numOutService}</p>
                             ) : null}
-                          
+
                             {p?.numOutNextOrder ? (
                               <p>{p?.numOutNextOrder}</p>
                             ) : null}
-                            { p?.numOutMarketing ? (
+                            {p?.numOutMarketing ? (
                               <p>{p?.numOutMarketing}</p>
                             ) : null}
                             {p?.numOutBroken ? <p>{p?.numOutBroken}</p> : null}
@@ -655,25 +745,38 @@ function WarehouseProductMutations() {
 
                         {productData?.category === 1 ? null : (
                           <td>{p.balanceService}</td>
-                        )
-                        }
-                        
-                        
-                        {productData?.category !== 1 ? null : (
-                         <td>{p.balanceMarketing}</td>
                         )}
-                        
+
+                        {productData?.category !== 1 ? null : (
+                          <td>{p.balanceMarketing}</td>
+                        )}
+
                         <td>
-                        <p>
-                                <Link
-                                  to={p?.type === "Out Delivery" ? p?.deliveryOrderDelivery ? 
-                                    p?.deliveryOrderDelivery?.objectId ? `/tracking/order-delivery/${p?.deliveryOrderDelivery?.objectId}` : "" : "" : ""}
-                                  className="btn btn-primary btn-sm"
-                                >
-                                  Tinjau Dokumen
-                                </Link>
-                              </p>
-                          
+                          <p>
+                            {p?.type === "Out Delivery" ? (
+                              <Link
+                                to={
+                                  p?.deliveryOrderDelivery
+                                    ? p?.deliveryOrderDelivery?.objectId
+                                      ? `/tracking/order-delivery/${p?.deliveryOrderDelivery?.objectId}`
+                                      : ""
+                                    : ""
+                                }
+                                className="btn btn-primary btn-sm"
+                              >
+                                Tinjau Dokumen
+                              </Link>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  openDocumentModal(p?.document, p?.objectId)
+                                }
+                                className="btn btn-primary btn-sm"
+                              >
+                                Tinjau Dokumen
+                              </button>
+                            )}
+                          </p>
                         </td>
                       </tr>
                     );
@@ -1059,6 +1162,142 @@ function WarehouseProductMutations() {
               variant="primary"
               onClick={() => saveTransferModalData()}
             >
+              Simpan
+            </Button>
+          </Modal.Footer>
+        )}
+      </Modal>
+      <Modal
+        show={documentModalData?.visible}
+        onHide={() => closeDocumentModal()}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {documentModalData?.objectId
+              ? "Edit Data Dokumen"
+              : "Tambah Dokumen Baru"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            {documentModalData?.objectId
+              ? `Isi detil dokumen berikut dengan lengkap`
+              : "Tambahkan dokumen baru dengan data berikut ini"}
+          </p>
+
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Nama Dokumen</b>
+              </label>
+              <input
+                name="name"
+                placeholder="Isi nama dokumen"
+                value={documentModalData?.name}
+                onChange={(e) =>
+                  setDocumentModalData({
+                    ...documentModalData,
+                    name: e.target.value,
+                  })
+                }
+                type={"text"}
+                className={`form-control ${
+                  documentModalErrors?.name ? "is-invalid" : ""
+                } `}
+              />
+              <span style={{ color: "red" }}>{documentModalErrors?.name}</span>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Deskripsi Dokumen</b>
+              </label>
+              <textarea
+                name="description"
+                value={documentModalData?.description}
+                onChange={(e) =>
+                  setDocumentModalData({
+                    ...documentModalData,
+                    description: e.target.value,
+                  })
+                }
+                type={"text"}
+                rows="3"
+                className={`form-control ${
+                  documentModalErrors?.description ? "is-invalid" : ""
+                } `}
+              />
+              <span style={{ color: "red" }}>
+                {documentModalErrors?.description}
+              </span>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-lg-10">
+              <label>
+                <b>Foto Dokumen</b>
+              </label>
+              <p>
+                {tempFile ? (
+                  <img
+                    style={{ width: "70%", height: "50%" }}
+                    src={URL.createObjectURL(tempFile)}
+                    alt="File baru"
+                  />
+                ) : documentModalData?.photo &&
+                  documentModalData?.photo?.url ? (
+                  <a href={documentModalData?.photo?.url} target="_blank">
+                    <img
+                      style={{ width: "70%", height: "50%" }}
+                      src={documentModalData?.photo?.url}
+                      alt={documentModalData?.name}
+                    />
+                  </a>
+                ) : (
+                  "Belum ada foto"
+                )}
+              </p>
+              <p>
+                <input
+                  type="file"
+                  name={
+                    documentModalData?.photo?.url ? "Ganti Foto" : "Unggah Foto"
+                  }
+                  onChange={(e) => setTempFile(e.target.files[0])}
+                />
+              </p>
+              {tempFile ? (
+                <button
+                  onClick={() => setTempFile(null)}
+                  className="btn btn-info btn-sm"
+                >
+                  Reset Foto
+                </button>
+              ) : null}
+
+              <span style={{ color: "red" }}>{documentModalErrors?.photo}</span>
+            </div>
+          </div>
+        </Modal.Body>
+        {documentModalData?.loading ? (
+          <Modal.Footer>
+            <FadeLoader
+              color="#4e73df"
+              loading={documentModalData?.loading}
+              size={12}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+          </Modal.Footer>
+        ) : (
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => closeDocumentModal()}>
+              Tutup
+            </Button>
+            <Button variant="primary" onClick={() => saveDocumentModalData()}>
               Simpan
             </Button>
           </Modal.Footer>
