@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
+import { FadeLoader } from "react-spinners";
 
 import { authLogin } from "../../parse/auth";
 import { overhaulReduxUserCurrent } from "../../utils/user";
@@ -48,6 +49,7 @@ const Login = (props) => {
   const [data, setData] = useState(AuthDataModel);
   const [errors, setErrors] = useState(AuthDataModel);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   /*const [remember, setRemember] = useState(true);
 
   const handleChange = () => {
@@ -84,6 +86,7 @@ const Login = (props) => {
 
     setError(null);
     setErrors(AuthDataModel);
+    setLoading(true);
     try {
       let result = await authLogin(data?.username, data?.password);
       if (result?.result === undefined || result?.result === null) {
@@ -97,6 +100,7 @@ const Login = (props) => {
       console.error(e);
       setError("Akun tidak ada atau password salah");
     }
+    setLoading(false);
   };
 
   return (
@@ -144,7 +148,17 @@ const Login = (props) => {
                     </div>
                     
                   </form>
-                  <button
+                  {loading ? (
+                    <FadeLoader
+                    color="#4e73df"
+                    loading
+                    size={150}
+                    aria-label="Loading Spinner"
+                    data-testid="loader"
+                  />
+                  ) : (
+                    <>
+                    <button
                     className="btn btn-primary btn-user btn-block"
                     onClick={() => attemptLogin()}
                   >
@@ -157,6 +171,9 @@ const Login = (props) => {
                       Lupa Password?
                     </a>
                   </div>
+                    </>
+                  )}
+                  
                 </div>
               </div>
             </div>

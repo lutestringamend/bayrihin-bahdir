@@ -12,9 +12,11 @@ import dayjs from "dayjs";
 import { overhaulReduxUserCurrent } from "../../utils/user";
 import { UserDataModel } from "../../models/user";
 import { BIRTHDATE_PICKER_FORMAT } from "../../constants/strings";
-import { getUserById } from "../../parse/user";
+import { getUserById, updateUserEntry } from "../../parse/user";
 import { USER_GENDERS, USER_ROLES } from "../../constants/user";
-import { faCancel } from "@fortawesome/free-solid-svg-icons";
+import { faCancel, faRefresh } from "@fortawesome/free-solid-svg-icons";
+import { email_regex, phone_regex, username_regex } from "../../constants";
+import { requestPasswordReset } from "../../parse/account";
 
 function AccountDetails(props) {
   const { currentUser } = props;
@@ -44,91 +46,94 @@ function AccountDetails(props) {
     setLoading(false);
   };
 
-  const submit = async () => {
-    /*let newErrors = RequestOrderModel;
-    let isComplete = true;
-    let processedJSON = processRequestOrderInventory(newOrder);
-    //console.log("processedJSON", processedJSON);
-
-    if (processedJSON?.count < 1) {
-      newErrors = { ...newErrors, inventoryJSON: "Inventory masih kosong" };
-      isComplete = false;
+  const resetPassword = async () => {
+    if (!email_regex.test(currentUser?.email)) {
+      window.alert("Isikan alamat email yang valid di akun ini sebelum bisa reset password");
+      return;
     }
-    if (
-      newRequestOrder?.deliveryOrderNumber === "" ||
-      newRequestOrder?.deliveryOrderNumber?.length < 3
-    ) {
+    const confirm = window.confirm(
+      `Yakin ingin mengirim email permintaan reset password ke ${currentUser?.email}?`,
+    );
+    if (confirm) {
+      const result = await requestPasswordReset(currentUser?.email);
+    }
+  }
+
+  const submit = async () => {
+    let newErrors = UserDataModel;
+    let isComplete = true;
+
+    if (data?.username === "") {
+      isComplete = false;
+      newErrors = { ...newErrors, username: "Username wajib diisi" };
+    } else if (!username_regex.test(data?.username)) {
+      isComplete = false;
       newErrors = {
         ...newErrors,
-        deliveryOrderNumber: "Delivery Order No harus diisi",
+        username: "Username tidak boleh mengandung spasi",
       };
-      isComplete = false;
     }
-    if (
-      newRequestOrder?.doctorId === null ||
-      newRequestOrder?.doctorId === ""
-    ) {
-      newErrors = { ...newErrors, doctorId: "Dokter harus diisi" };
+    if (data?.email === "") {
       isComplete = false;
-    }
-    if (
-      newRequestOrder?.warehouseStorageId === null ||
-      newRequestOrder?.warehouseStorageId === ""
-    ) {
-      newErrors = { ...newErrors, warehouseStorageId: "Region harus diisi" };
+      newErrors = { ...newErrors, email: "Email wajib diisi" };
+    } else if (!email_regex.test(data?.email)) {
       isComplete = false;
+      newErrors = { ...newErrors, email: "Isi alamat email yang benar" };
     }
-    if (
-      newRequestOrder?.hospitalId === null ||
-      newRequestOrder?.hospitalId === ""
-    ) {
-      newErrors = { ...newErrors, hospitalId: "Rumah Sakit harus diisi" };
+    if (data?.phoneNumber === "") {
       isComplete = false;
-    }
-    if (
-      newRequestOrder?.procedure === "" ||
-      newRequestOrder?.procedure?.length < 3
-    ) {
-      newErrors = { ...newErrors, procedure: "Prosedur harus diisi" };
+      newErrors = { ...newErrors, phoneNumber: "Nomor Telepon wajib diisi" };
+    } else if (!phone_regex.test(data?.phoneNumber)) {
       isComplete = false;
+      newErrors = { ...newErrors, phoneNumber: "Isi nomor telepon yang benar" };
     }
-    if (
-      newRequestOrder?.surgeryDate === null ||
-      newRequestOrder?.surgeryDate === ""
-    ) {
-      newErrors = { ...newErrors, surgeryDate: "Tanggal Prosedur harus diisi" };
-      isComplete = false;
+    if (data?.birthdate !== "") {
+      try {
+        let birthDate = new Date(data?.birthdate);
+        let time = birthDate.getTime();
+        if (time <= 0) {
+          isComplete = false;
+          newErrors = {
+            ...newErrors,
+            birthdate: "Tanggal lahit tidak valid",
+          };
+        }
+      } catch (e) {
+        console.error(e);
+        isComplete = false;
+        newErrors = {
+          ...newErrors,
+          birthdate: "Tanggal lahit tidak valid",
+        };
+      }
     }
+
     setErrors(newErrors);
 
     if (isComplete) {
       const confirm = window.confirm(
-        "Pastikan semua data sudah terisi dengan benar. Aksi ini akan membuat Request Order baru.",
+        "Pastikan semua data sudah terisi dengan benar sebelum mengupdate profil Anda.",
       );
       if (!confirm) {
         return;
       }
-      setSubmitting(true);
-      const result = await createUpdateRequestOrderEntry(
-        null,
-        newRequestOrder?.deliveryOrderNumber,
-        newRequestOrder?.doctorId,
-        newRequestOrder?.hospitalId,
-        newRequestOrder?.warehouseStorageId,
-        newRequestOrder?.procedure,
-        newRequestOrder?.surgeryDate,
-        processedJSON?.inventoryJSON,
-      );
+      setLoading(true);
+      let result = await updateUserEntry(
+              data?.objectId,
+              data?.username,
+              data?.email,
+              data?.fullName,
+              data?.gender,
+              data?.birthdate,
+              data?.phoneNumber,
+            );
       if (result) {
-        props.updateReduxNewRequestOrder({
-          ...RequestOrderModel,
-          deliveryOrderNumber: formatDeliveryOrderNumber(),
-        });
-        props.overhaulReduxNewOrder(null);
-        navigate("/order/request-orders/pending");
-      }
-      setSubmitting(false);
-    }*/
+        fetchData();
+        setData(UserDataModel);
+        setErrors(UserDataModel);
+      } 
+      setLoading(false);
+    }
   };
 
   return (
@@ -327,6 +332,19 @@ function AccountDetails(props) {
             <span style={{ color: "red" }}>{errors?.birthdate}</span>
             <p />
           </div>
+
+          <div className="d-sm-flex align-items-center">
+              <button
+                className="d-none d-sm-inline-block btn btn-sm btn-danger shadow-sm"
+                onClick={() => resetPassword()}
+              >
+                <FontAwesomeIcon
+                  icon={faRefresh}
+                  style={{ marginRight: "0.25rem", color: "white" }}
+                />
+                Reset Password Akun
+              </button>
+            </div>
         </>
       ) : (
         <FadeLoader

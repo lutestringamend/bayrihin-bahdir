@@ -1,4 +1,4 @@
-import { TEMP_DEV_USER_DATA } from "../../models/user";
+//import { TEMP_DEV_USER_DATA } from "../../models/user";
 import {
     USER_STATE_CHANGE,
     CLEAR_USER_DATA,
@@ -7,7 +7,7 @@ import {
   } from "../constants";
   
   export const initialState = {
-    currentUser: TEMP_DEV_USER_DATA,
+    currentUser: null,
     privileges: null,
     accountRoles: null,
   };

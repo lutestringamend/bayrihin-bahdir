@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { clearReduxUserData } from "../../utils/user";
 import { authLogout } from "../../parse/auth";
+import { clearLocalStorage } from "../../utils/localstorage";
 
 
 /*
@@ -177,11 +178,12 @@ function Topbar(props) {
       if (confirm) {
         let logout = await authLogout();
         if (logout) {
+          clearLocalStorage();
           props.clearReduxUserData();
         }
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

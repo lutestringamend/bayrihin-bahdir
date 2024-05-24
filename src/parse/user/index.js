@@ -1,6 +1,6 @@
 import Parse from "parse/dist/parse.min.js";
 
-const User = Parse.Object.extend(Parse.User);
+//const User = Parse.Object.extend(Parse.User);
 
 export const registerNewUser = async (
   username,

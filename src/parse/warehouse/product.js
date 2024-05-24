@@ -1,6 +1,5 @@
 import Parse from "parse/dist/parse.min.js";
 import { WarehouseMainTabs } from "../../constants/warehouse";
-import { capitalizeFirstLetterOfEachWord } from "../../utils";
 
 export const searchWarehouseMainByName = async (name) => {
   let result = [];

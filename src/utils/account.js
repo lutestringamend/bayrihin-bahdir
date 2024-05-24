@@ -1,4 +1,16 @@
+import { LOCAL_SESSION_DURATION_IN_MILLISECONDS } from "../constants";
 import { DEFAULT_PASSWORD_LENGTH } from "../constants/user";
+
+export const getLocalSessionExpiredAt = () => {
+    try {
+        let date = new Date();
+        date.setTime(date.getTime() + LOCAL_SESSION_DURATION_IN_MILLISECONDS);
+        return date.toISOString();
+    } catch (e) {
+        console.error(e);
+    }
+    return "";
+}
 
 export const hasPrivilege = (privileges, name) => {
     if (privileges === undefined || privileges?.length === undefined || privileges?.length < 1 || name === undefined || name === null) {

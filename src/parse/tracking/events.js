@@ -1,6 +1,6 @@
 import Parse from "parse/dist/parse.min.js";
 
-const TrackingEvents = Parse.Object.extend("tracking_events");
+//const TrackingEvents = Parse.Object.extend("tracking_events");
 
 export const createUpdateTrackingUpdateEntry = async (objectId, name, isActive) => {
     let item = new Parse.Object("tracking_events");

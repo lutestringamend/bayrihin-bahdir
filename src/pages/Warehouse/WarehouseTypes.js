@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FadeLoader } from "react-spinners";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSquarePlus } from "@fortawesome/free-regular-svg-icons";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
 import { getWarehouseTypeData } from "../../parse/warehouse";
 import {
   createWarehouseTypeEntry,
-  deleteWarehouseTypeEntry,
   updateWarehouseTypeEntry,
 } from "../../parse/warehouse/types";
 import { WarehouseTypeCategories } from "../../constants/warehouse_types";
@@ -38,30 +35,14 @@ function WarehouseTypes() {
   const [modalErrors, setModalErrors] = useState(defaultModalErrors);
 
   useEffect(() => {
-    fetchData();
+    fetchData(params?.category);
   }, [params?.category]);
 
-  let fetchData = async () => {
+  let fetchData = async (category) => {
     setLoading(true);
-    const result = await getWarehouseTypeData(params?.category);
+    const result = await getWarehouseTypeData(category);
     setProductList(result);
     setLoading(false);
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      const confirmDelete = window.confirm(
-        "Yakin mau menghapus data? Penghapusan bersifat permanen.",
-      );
-      if (confirmDelete) {
-        let result = await deleteWarehouseTypeEntry(id);
-        if (result) {
-          fetchData();
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const saveModalData = async () => {
@@ -93,7 +74,7 @@ function WarehouseTypes() {
         );
       }
       if (result) {
-        fetchData();
+        fetchData(params?.category);
         setModalData(defaultModalData);
       } else {
         setModalData({ ...modalData, loading: false });

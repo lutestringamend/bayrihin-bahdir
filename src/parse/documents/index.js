@@ -1,6 +1,6 @@
 import Parse from "parse/dist/parse.min.js";
 
-const Documents = Parse.Object.extend("documents");
+//const Documents = Parse.Object.extend("documents");
 
 export const createUpdateDocumentEntry = async (
   objectId,

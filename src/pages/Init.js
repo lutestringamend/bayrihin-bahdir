@@ -67,20 +67,24 @@ import {
   ACCOUNT_PRIVILEGE_VIEW_DELIVERY_ORDER,
   ACCOUNT_PRIVILEGE_INPUT_DELIVERY_TRACKING_STATUS,
 } from "../constants/account";
-import { hasPrivilege } from "../utils/account";
+import { getLocalSessionExpiredAt, hasPrivilege } from "../utils/account";
 import { getAccountRoleEntry } from "../parse/account";
-import { updateReduxUserPrivileges } from "../utils/user";
-import { USER_ROLE_DEVELOPER, USER_ROLE_SUPERADMIN } from "../constants/user";
+import { overhaulReduxUserCurrent, updateReduxUserPrivileges } from "../utils/user";
+//import { USER_ROLE_DEVELOPER, USER_ROLE_SUPERADMIN } from "../constants/user";
+import { decryptData, encryptData, generateAesKey } from "../utils/encryption";
+import { clearLocalStorage } from "../utils/localstorage";
 
 const Init = (props) => {
   const { currentUser, privileges } = props;
 
   useEffect(() => {
     if (currentUser === null) {
+      getUserDatafromLocalStorage();
       return;
     }
+    storeUserDatatoLocalStorage();
     fetchPrivileges();
-    console.log("redux currentUser", currentUser);
+    //console.log("redux currentUser", currentUser);
   }, [currentUser]);
 
   useEffect(() => {
@@ -90,18 +94,58 @@ const Init = (props) => {
     //console.log("redux privileges", privileges);
   }, [privileges]);
 
+  const storeUserDatatoLocalStorage = () => {
+    try {
+      let newKey = generateAesKey();
+      let cipher = encryptData(JSON.stringify(currentUser), newKey);
+      localStorage.setItem("temp", newKey);
+      localStorage.setItem("user", cipher);
+      localStorage.setItem("expiredAt", getLocalSessionExpiredAt());
+    } catch (e) {
+      console.error(e);
+    }
+    
+  }
+
+  const getUserDatafromLocalStorage = () => {
+    try {
+      const currentKey = localStorage.getItem("temp");
+      const localUser = localStorage.getItem("user");
+      const expiredDate = new Date(localStorage.getItem("expiredAt"));
+      let converted = null;
+      if (currentKey && localUser && expiredDate.getTime() > new Date().getTime()) {
+        converted = decryptData(localUser, currentKey);
+      }
+      if (converted) {
+        props.overhaulReduxUserCurrent(JSON.parse(converted));
+      } else {
+        clearLocalStorage();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   const fetchPrivileges = async () => {
+    let currentKey = localStorage.getItem("temp");
+
     try {
       const result = await getAccountRoleEntry(
         currentUser?.accountRole?.objectId,
       );
       if (
-        !(
-          result === undefined ||
+        result === undefined ||
           result?.privileges === undefined ||
           result?.privileges?.length === undefined
-        )
       ) {
+        const localPrivileges = localStorage.getItem("privileges");
+        const expiredDate = new Date(localStorage.getItem("expiredAt"));
+        if (localPrivileges && expiredDate.getTime() > new Date().getTime()) {
+          props.updateReduxUserPrivileges(JSON.parse(decryptData(localPrivileges, currentKey)));
+        }
+      } else {
+        let cipher = encryptData(JSON.stringify(result?.privileges), currentKey);
+        localStorage.setItem("privileges", cipher);
         props.updateReduxUserPrivileges(result?.privileges);
         return;
       }
@@ -116,6 +160,8 @@ const Init = (props) => {
     ) {
       props.updateReduxUserPrivileges([]);
     } else {
+      let cipher = encryptData(JSON.stringify(currentUser?.accountRole?.privileges), currentKey);
+      localStorage.setItem("privileges", cipher);
       props.updateReduxUserPrivileges(currentUser?.accountRole?.privileges);
     }
   };
@@ -359,6 +405,7 @@ const mapStateToProps = (store) => ({
 const mapDispatchProps = (dispatch) =>
   bindActionCreators(
     {
+      overhaulReduxUserCurrent,
       updateReduxUserPrivileges,
     },
     dispatch,

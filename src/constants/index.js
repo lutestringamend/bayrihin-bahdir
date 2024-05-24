@@ -10,3 +10,5 @@ export const email_regex = RegExp(
 	/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
 );
 export const username_regex = RegExp(/^\S+$/);
+
+export const LOCAL_SESSION_DURATION_IN_MILLISECONDS = 3600000

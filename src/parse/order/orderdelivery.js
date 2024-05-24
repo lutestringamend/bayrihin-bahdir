@@ -1,6 +1,6 @@
 import Parse from "parse/dist/parse.min.js";
 
-const DeliveryOrder = Parse.Object.extend("delivery_orders");
+//const DeliveryOrder = Parse.Object.extend("delivery_orders");
 const DeliveryOrderDelivery = Parse.Object.extend("delivery_order_delivery");
 
 export const updateDeliveryOrderDelivery = async (objectId, approverUserId, driverUserId) => {
